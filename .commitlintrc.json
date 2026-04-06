@@ -1,0 +1,6 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "scope-enum": [2, "always", ["cli", "commands", "core", "deps", "ci", "release"]]
+  }
+}

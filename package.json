@@ -1,0 +1,56 @@
+{
+  "name": "@gwenjs/cli",
+  "version": "0.1.0",
+  "description": "GWEN Engine CLI",
+  "bin": {
+    "gwen": "./bin.js"
+  },
+  "files": [
+    "dist",
+    "bin.js"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "pnpm run build && pnpm run test:coverage",
+    "dev": "node bin.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "oxlint src/",
+    "format": "oxfmt src/",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@gwenjs/app": "^0.1.0",
+    "@gwenjs/kit": "^0.1.0",
+    "@gwenjs/schema": "^0.1.0",
+    "c12": "4.0.0-beta.3",
+    "citty": "^0.2.1",
+    "consola": "^3.4.2",
+    "execa": "^9.6.1",
+    "jiti": "^2.4.2",
+    "pathe": "^2.0.3",
+    "pkg-types": "^2.3.0",
+    "ts-morph": "^25.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@types/node": "^22",
+    "@vitest/coverage-v8": "^4.1.2",
+    "husky": "^9.0.0",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
+  }
+}
