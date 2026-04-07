@@ -33,6 +33,7 @@ import { readPackageJSON } from "pkg-types";
 import { consola } from "consola";
 import { defineCommand } from "citty";
 import { logger } from "../../utils/logger.js";
+import { getModules } from "../../utils/module-registry.js";
 import { packageJsonTemplate } from "./templates/package-json.js";
 import { tsconfigTemplate } from "./templates/tsconfig.js";
 import { oxlintTemplate } from "./templates/oxlint.js";
@@ -65,23 +66,6 @@ async function write(filePath: string, content: string): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, content, "utf8");
 }
-
-// ─── Module list ──────────────────────────────────────────────────────────────
-
-/**
- * Built-in starter modules offered during `gwen init`.
- * `@gwenjs/renderer-canvas2d` and `@gwenjs/input` are always included
- * (they power the landing game) and therefore excluded from this list.
- */
-const OPTIONAL_MODULES = [
-  { value: "@gwenjs/physics2d", label: "Physics 2D", hint: "Rapier-based 2D physics" },
-  { value: "@gwenjs/physics3d", label: "Physics 3D", hint: "Rapier-based 3D physics" },
-  { value: "@gwenjs/audio", label: "Audio", hint: "Web Audio API integration" },
-  { value: "@gwenjs/r3f", label: "React Three Fiber", hint: "R3F renderer adapter" },
-  { value: "@gwenjs/debug", label: "Debug overlay", hint: "Performance HUD and inspector" },
-];
-
-const VALID_MODULE_VALUES = new Set(OPTIONAL_MODULES.map((m) => m.value));
 
 // ─── Command ──────────────────────────────────────────────────────────────────
 
@@ -121,6 +105,9 @@ export const initCommand = defineCommand({
     }
 
     // ── Optional module selection ─────────────────────────────────────────────
+    const availableModules = await getModules();
+    const validModuleNames = new Set(availableModules.map((m) => m.npm));
+
     let extraModules: string[];
     const modulesArg = (args.modules as string | undefined)?.trim();
 
@@ -130,7 +117,7 @@ export const initCommand = defineCommand({
             .split(",")
             .map((m) => m.trim())
             .filter((m) => {
-              if (!VALID_MODULE_VALUES.has(m)) {
+              if (!validModuleNames.has(m)) {
                 logger.warn(`[GWEN:init] Unknown module "${m}" ignored.`);
                 return false;
               }
@@ -140,7 +127,11 @@ export const initCommand = defineCommand({
     } else {
       extraModules = (await consola.prompt("Select optional modules:", {
         type: "multiselect",
-        options: OPTIONAL_MODULES,
+        options: availableModules.map((m) => ({
+          value: m.npm,
+          label: m.displayName,
+          hint: m.npm,
+        })),
       })) as unknown as string[];
     }
 
