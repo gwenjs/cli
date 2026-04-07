@@ -10,17 +10,17 @@ gwen lint [options]
 
 ## Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `--fix` | boolean | `false` | Auto-fix lint errors |
-| `--path` | string | `src` | Path to lint |
+| Option   | Type    | Default | Description          |
+| -------- | ------- | ------- | -------------------- |
+| `--fix`  | boolean | `false` | Auto-fix lint errors |
+| `--path` | string  | `src`   | Path to lint         |
 
 ## Global Options
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Show detailed logs |
-| `--debug` | | boolean | Show debug information |
+| Option      | Alias | Type    | Description            |
+| ----------- | ----- | ------- | ---------------------- |
+| `--verbose` | `-v`  | boolean | Show detailed logs     |
+| `--debug`   |       | boolean | Show debug information |
 
 ## Examples
 

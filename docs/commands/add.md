@@ -10,14 +10,14 @@ gwen add <module> [options]
 
 ## Arguments
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `module` | ✅ | Module package name (e.g. `@gwenjs/physics2d`) |
+| Argument | Required | Description                                    |
+| -------- | -------- | ---------------------------------------------- |
+| `module` | ✅       | Module package name (e.g. `@gwenjs/physics2d`) |
 
 ## Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| Option  | Type    | Default | Description                  |
+| ------- | ------- | ------- | ---------------------------- |
 | `--dev` | boolean | `false` | Install as a `devDependency` |
 
 ## Examples

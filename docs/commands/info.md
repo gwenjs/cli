@@ -10,10 +10,10 @@ gwen info [options]
 
 ## Global Options
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Show detailed logs |
-| `--debug` | | boolean | Show debug information |
+| Option      | Alias | Type    | Description            |
+| ----------- | ----- | ------- | ---------------------- |
+| `--verbose` | `-v`  | boolean | Show detailed logs     |
+| `--debug`   |       | boolean | Show debug information |
 
 ## Examples
 

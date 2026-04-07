@@ -10,22 +10,22 @@ gwen init [name] [options]
 
 ## Arguments
 
-| Argument | Description |
-|----------|-------------|
-| `name` | Project directory name (prompted if omitted) |
+| Argument | Description                                  |
+| -------- | -------------------------------------------- |
+| `name`   | Project directory name (prompted if omitted) |
 
 ## Options
 
-| Option | Type | Description |
-|--------|------|-------------|
+| Option      | Type   | Description                                         |
+| ----------- | ------ | --------------------------------------------------- |
 | `--modules` | string | Comma-separated list of optional modules to install |
 
 ## Global Options
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Show detailed logs |
-| `--debug` | | boolean | Show debug information |
+| Option      | Alias | Type    | Description            |
+| ----------- | ----- | ------- | ---------------------- |
+| `--verbose` | `-v`  | boolean | Show detailed logs     |
+| `--debug`   |       | boolean | Show debug information |
 
 ## Generated Files
 
@@ -67,13 +67,13 @@ gwen init my-game --modules @gwenjs/physics2d,@gwenjs/audio
 
 ## Available Optional Modules
 
-| Module | Description |
-|--------|-------------|
-| `@gwenjs/physics2d` | Rapier-based 2D physics |
-| `@gwenjs/physics3d` | Rapier-based 3D physics |
-| `@gwenjs/audio` | Web Audio API integration |
-| `@gwenjs/r3f` | React Three Fiber renderer adapter |
-| `@gwenjs/debug` | Performance HUD and inspector |
+| Module              | Description                        |
+| ------------------- | ---------------------------------- |
+| `@gwenjs/physics2d` | Rapier-based 2D physics            |
+| `@gwenjs/physics3d` | Rapier-based 3D physics            |
+| `@gwenjs/audio`     | Web Audio API integration          |
+| `@gwenjs/r3f`       | React Three Fiber renderer adapter |
+| `@gwenjs/debug`     | Performance HUD and inspector      |
 
 ::: info
 `@gwenjs/renderer-canvas2d` and `@gwenjs/input` are always included in new projects.

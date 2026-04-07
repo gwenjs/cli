@@ -10,12 +10,12 @@ gwen doctor
 
 ## Checks Performed
 
-| Check | What it verifies |
-|-------|-----------------|
-| Node.js version | Node.js ≥ 18 is installed |
-| `gwen.config.ts` exists | Config file is present in the current directory |
-| `gwen.config.ts` parses | Config can be loaded without errors |
-| WASM binary | `@gwenjs/core` WASM binary is present in `node_modules` |
+| Check                   | What it verifies                                        |
+| ----------------------- | ------------------------------------------------------- |
+| Node.js version         | Node.js ≥ 18 is installed                               |
+| `gwen.config.ts` exists | Config file is present in the current directory         |
+| `gwen.config.ts` parses | Config can be loaded without errors                     |
+| WASM binary             | `@gwenjs/core` WASM binary is present in `node_modules` |
 
 ## Example Output
 

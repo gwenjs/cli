@@ -10,16 +10,16 @@ gwen preview [options]
 
 ## Options
 
-| Option | Alias | Type | Default | Description |
-|--------|-------|------|---------|-------------|
-| `--port` | `-p` | string | `4173` | Preview server port (1024–65535) |
+| Option   | Alias | Type   | Default | Description                      |
+| -------- | ----- | ------ | ------- | -------------------------------- |
+| `--port` | `-p`  | string | `4173`  | Preview server port (1024–65535) |
 
 ## Global Options
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Show detailed logs |
-| `--debug` | | boolean | Show debug information |
+| Option      | Alias | Type    | Description            |
+| ----------- | ----- | ------- | ---------------------- |
+| `--verbose` | `-v`  | boolean | Show detailed logs     |
+| `--debug`   |       | boolean | Show debug information |
 
 ## Examples
 

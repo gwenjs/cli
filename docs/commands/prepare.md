@@ -10,16 +10,16 @@ gwen prepare [options]
 
 ## Options
 
-| Option | Type | Description |
-|--------|------|-------------|
+| Option     | Type    | Description                                                    |
+| ---------- | ------- | -------------------------------------------------------------- |
 | `--strict` | boolean | **Deprecated.** Hard-fail on module errors is now the default. |
 
 ## Global Options
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Show detailed logs |
-| `--debug` | | boolean | Show debug information |
+| Option      | Alias | Type    | Description            |
+| ----------- | ----- | ------- | ---------------------- |
+| `--verbose` | `-v`  | boolean | Show detailed logs     |
+| `--debug`   |       | boolean | Show debug information |
 
 ## Generated Files
 

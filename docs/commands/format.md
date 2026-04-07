@@ -10,17 +10,17 @@ gwen format [options]
 
 ## Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| Option    | Type    | Default | Description                            |
+| --------- | ------- | ------- | -------------------------------------- |
 | `--check` | boolean | `false` | Check formatting without writing files |
-| `--path` | string | `src` | Path to format |
+| `--path`  | string  | `src`   | Path to format                         |
 
 ## Global Options
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Show detailed logs |
-| `--debug` | | boolean | Show debug information |
+| Option      | Alias | Type    | Description            |
+| ----------- | ----- | ------- | ---------------------- |
+| `--verbose` | `-v`  | boolean | Show detailed logs     |
+| `--debug`   |       | boolean | Show debug information |
 
 ## Examples
 

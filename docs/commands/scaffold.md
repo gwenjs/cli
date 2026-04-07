@@ -4,10 +4,10 @@ Scaffold artefacts for a GWEN project: runtime plugins, build-time modules, or c
 
 ## Subcommands
 
-| Subcommand | Description |
-|------------|-------------|
-| [`gwen scaffold plugin`](#gwen-scaffold-plugin) | Generate a runtime plugin stub |
-| [`gwen scaffold module`](#gwen-scaffold-module) | Generate a build-time module stub |
+| Subcommand                                        | Description                              |
+| ------------------------------------------------- | ---------------------------------------- |
+| [`gwen scaffold plugin`](#gwen-scaffold-plugin)   | Generate a runtime plugin stub           |
+| [`gwen scaffold module`](#gwen-scaffold-module)   | Generate a build-time module stub        |
 | [`gwen scaffold package`](#gwen-scaffold-package) | Generate a full community plugin package |
 
 ---
@@ -24,9 +24,9 @@ gwen scaffold plugin [name]
 
 ### Arguments
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `name` | No | Plugin name in kebab-case (prompted if omitted) |
+| Argument | Required | Description                                     |
+| -------- | -------- | ----------------------------------------------- |
+| `name`   | No       | Plugin name in kebab-case (prompted if omitted) |
 
 ### Example
 
@@ -49,9 +49,9 @@ gwen scaffold module [name]
 
 ### Arguments
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `name` | No | Module name in kebab-case (prompted if omitted) |
+| Argument | Required | Description                                     |
+| -------- | -------- | ----------------------------------------------- |
+| `name`   | No       | Module name in kebab-case (prompted if omitted) |
 
 ### Example
 
@@ -74,14 +74,14 @@ gwen scaffold package [name] [options]
 
 ### Arguments
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `name` | No | Package name in kebab-case (prompted if omitted) |
+| Argument | Required | Description                                      |
+| -------- | -------- | ------------------------------------------------ |
+| `name`   | No       | Package name in kebab-case (prompted if omitted) |
 
 ### Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| Option           | Type   | Default  | Description                        |
+| ---------------- | ------ | -------- | ---------------------------------- |
 | `--gwen-version` | string | `^0.1.0` | GWEN peer dependency version range |
 
 ### Generated Structure

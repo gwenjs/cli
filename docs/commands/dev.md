@@ -10,17 +10,17 @@ gwen dev [options]
 
 ## Options
 
-| Option | Alias | Type | Default | Description |
-|--------|-------|------|---------|-------------|
-| `--port` | `-p` | string | `3000` | HTTP server port (1024–65535) |
-| `--open` | `-o` | boolean | `false` | Auto-open browser on start |
+| Option   | Alias | Type    | Default | Description                   |
+| -------- | ----- | ------- | ------- | ----------------------------- |
+| `--port` | `-p`  | string  | `3000`  | HTTP server port (1024–65535) |
+| `--open` | `-o`  | boolean | `false` | Auto-open browser on start    |
 
 ## Global Options
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Show detailed logs |
-| `--debug` | | boolean | Show debug information |
+| Option      | Alias | Type    | Description            |
+| ----------- | ----- | ------- | ---------------------- |
+| `--verbose` | `-v`  | boolean | Show detailed logs     |
+| `--debug`   |       | boolean | Show debug information |
 
 ## Examples
 
