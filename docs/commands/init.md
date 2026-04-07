@@ -65,15 +65,15 @@ gwen init my-game
 gwen init my-game --modules @gwenjs/physics2d,@gwenjs/audio
 ```
 
-## Available Optional Modules
+## Optional Modules
 
-| Module              | Description                        |
-| ------------------- | ---------------------------------- |
-| `@gwenjs/physics2d` | Rapier-based 2D physics            |
-| `@gwenjs/physics3d` | Rapier-based 3D physics            |
-| `@gwenjs/audio`     | Web Audio API integration          |
-| `@gwenjs/r3f`       | React Three Fiber renderer adapter |
-| `@gwenjs/debug`     | Performance HUD and inspector      |
+When running `gwen init`, you can select optional modules to include in your project. The list is fetched live from the GWEN module registry and may grow over time as the ecosystem expands.
+
+Use `--modules` to skip the interactive prompt and pass a comma-separated list of package names:
+
+```bash
+gwen init my-game --modules @gwenjs/physics2d,@gwenjs/audio
+```
 
 ::: info
 `@gwenjs/renderer-canvas2d` and `@gwenjs/input` are always included in new projects.
