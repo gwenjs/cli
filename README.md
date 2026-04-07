@@ -47,18 +47,28 @@ gwen [command] [options]
 
 ## Quick start
 
-```bash
-# Create a new project
-gwen init my-game
+Scaffold a project without installing the CLI globally:
 
-# Enter the project
+```bash
+# npm
+npx @gwenjs/cli init my-game
+
+# pnpm
+pnpm dlx @gwenjs/cli init my-game
+
+# yarn
+yarn dlx @gwenjs/cli init my-game
+
+# bun
+bunx @gwenjs/cli init my-game
+```
+
+Then start developing:
+
+```bash
 cd my-game
 pnpm install
-
-# Generate types
 gwen prepare
-
-# Start the dev server
 gwen dev
 ```
 
