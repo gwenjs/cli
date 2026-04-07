@@ -15,7 +15,7 @@
 import { defineCommand } from "citty";
 import { scaffoldPluginCommand } from "./plugin.js";
 import { scaffoldModuleCommand } from "./module.js";
-import { scaffoldPackageCommand } from "./package.js";
+import { scaffoldPackageCommand } from "./package/index.js";
 
 /**
  * The `scaffold` command exposes sub-commands for code generation.
