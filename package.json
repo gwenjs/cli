@@ -27,6 +27,7 @@
     "test:coverage": "vitest run --coverage",
     "lint": "oxlint src/",
     "format": "oxfmt src/",
+    "format:check": "oxfmt --check src/",
     "prepare": "husky",
     "docs:dev": "pnpm --filter @gwenjs/cli-docs dev",
     "docs:build": "pnpm --filter @gwenjs/cli-docs build",

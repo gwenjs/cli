@@ -20,25 +20,26 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: ${{ steps.release.outputs.releases_created }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: ./.github/actions/setup-node-pnpm
         if: ${{ steps.release.outputs.releases_created }}
 
-      - uses: actions/setup-node@v4
+      - name: Configure npm registry auth
         if: ${{ steps.release.outputs.releases_created }}
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
-
-      - name: Install dependencies
-        if: ${{ steps.release.outputs.releases_created }}
-        run: pnpm install --frozen-lockfile
+        shell: bash
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
         if: ${{ steps.release.outputs.releases_created }}
         run: pnpm build
+
+      - name: Typecheck
+        if: ${{ steps.release.outputs.releases_created }}
+        run: pnpm typecheck
 
       - name: Publish to npm
         if: ${{ steps.release.outputs.releases_created }}
