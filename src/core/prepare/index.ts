@@ -15,7 +15,7 @@ import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import { logger, setLogLevel } from "../../utils/logger.js";
 import { GwenApp, resolveGwenConfig } from "@gwenjs/app/resolve";
-import type { GwenModule } from "@gwenjs/kit";
+import type { GwenModule } from "@gwenjs/kit/module";
 import { parseError } from "../types/guards.js";
 
 export interface PrepareOptions {

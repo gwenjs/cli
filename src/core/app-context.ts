@@ -6,7 +6,7 @@
  */
 
 import { GwenApp, resolveGwenConfig, type ResolvedGwenConfig } from "@gwenjs/app/resolve";
-import type { GwenPlugin } from "@gwenjs/kit";
+import type { GwenPlugin } from "@gwenjs/kit/plugin";
 
 /**
  * Resolved module-first framework context.
