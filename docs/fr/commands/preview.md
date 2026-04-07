@@ -10,16 +10,16 @@ gwen preview [options]
 
 ## Options
 
-| Option | Alias | Type | Défaut | Description |
-|--------|-------|------|--------|-------------|
-| `--port` | `-p` | string | `4173` | Port du serveur de prévisualisation (1024–65535) |
+| Option   | Alias | Type   | Défaut | Description                                      |
+| -------- | ----- | ------ | ------ | ------------------------------------------------ |
+| `--port` | `-p`  | string | `4173` | Port du serveur de prévisualisation (1024–65535) |
 
 ## Options globales
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Afficher les logs détaillés |
-| `--debug` | | boolean | Afficher les informations de débogage |
+| Option      | Alias | Type    | Description                           |
+| ----------- | ----- | ------- | ------------------------------------- |
+| `--verbose` | `-v`  | boolean | Afficher les logs détaillés           |
+| `--debug`   |       | boolean | Afficher les informations de débogage |
 
 ## Exemples
 

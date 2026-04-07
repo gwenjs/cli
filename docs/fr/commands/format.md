@@ -10,17 +10,17 @@ gwen format [options]
 
 ## Options
 
-| Option | Type | Défaut | Description |
-|--------|------|--------|-------------|
+| Option    | Type    | Défaut  | Description                                   |
+| --------- | ------- | ------- | --------------------------------------------- |
 | `--check` | boolean | `false` | Vérifier le formatage sans écrire de fichiers |
-| `--path` | string | `src` | Chemin à formater |
+| `--path`  | string  | `src`   | Chemin à formater                             |
 
 ## Options globales
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Afficher les logs détaillés |
-| `--debug` | | boolean | Afficher les informations de débogage |
+| Option      | Alias | Type    | Description                           |
+| ----------- | ----- | ------- | ------------------------------------- |
+| `--verbose` | `-v`  | boolean | Afficher les logs détaillés           |
+| `--debug`   |       | boolean | Afficher les informations de débogage |
 
 ## Exemples
 

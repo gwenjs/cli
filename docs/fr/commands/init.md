@@ -10,22 +10,22 @@ gwen init [nom] [options]
 
 ## Arguments
 
-| Argument | Description |
-|----------|-------------|
-| `nom` | Nom du répertoire du projet (demandé si absent) |
+| Argument | Description                                     |
+| -------- | ----------------------------------------------- |
+| `nom`    | Nom du répertoire du projet (demandé si absent) |
 
 ## Options
 
-| Option | Type | Description |
-|--------|------|-------------|
+| Option      | Type   | Description                                          |
+| ----------- | ------ | ---------------------------------------------------- |
 | `--modules` | string | Liste de modules optionnels séparés par des virgules |
 
 ## Options globales
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Afficher les logs détaillés |
-| `--debug` | | boolean | Afficher les informations de débogage |
+| Option      | Alias | Type    | Description                           |
+| ----------- | ----- | ------- | ------------------------------------- |
+| `--verbose` | `-v`  | boolean | Afficher les logs détaillés           |
+| `--debug`   |       | boolean | Afficher les informations de débogage |
 
 ## Fichiers générés
 
@@ -67,13 +67,13 @@ gwen init my-game --modules @gwenjs/physics2d,@gwenjs/audio
 
 ## Modules optionnels disponibles
 
-| Module | Description |
-|--------|-------------|
-| `@gwenjs/physics2d` | Physique 2D basée sur Rapier |
-| `@gwenjs/physics3d` | Physique 3D basée sur Rapier |
-| `@gwenjs/audio` | Intégration Web Audio API |
-| `@gwenjs/r3f` | Adaptateur de rendu React Three Fiber |
-| `@gwenjs/debug` | HUD de performance et inspecteur |
+| Module              | Description                           |
+| ------------------- | ------------------------------------- |
+| `@gwenjs/physics2d` | Physique 2D basée sur Rapier          |
+| `@gwenjs/physics3d` | Physique 3D basée sur Rapier          |
+| `@gwenjs/audio`     | Intégration Web Audio API             |
+| `@gwenjs/r3f`       | Adaptateur de rendu React Three Fiber |
+| `@gwenjs/debug`     | HUD de performance et inspecteur      |
 
 ::: info
 `@gwenjs/renderer-canvas2d` et `@gwenjs/input` sont toujours inclus dans les nouveaux projets.

@@ -10,12 +10,12 @@ gwen doctor
 
 ## Vérifications effectuées
 
-| Vérification | Ce qui est contrôlé |
-|--------------|---------------------|
-| Version Node.js | Node.js ≥ 18 est installé |
-| `gwen.config.ts` existe | Le fichier de configuration est présent dans le répertoire courant |
-| `gwen.config.ts` se parse | La configuration peut être chargée sans erreur |
-| Binaire WASM | Le binaire WASM `@gwenjs/core` est présent dans `node_modules` |
+| Vérification              | Ce qui est contrôlé                                                |
+| ------------------------- | ------------------------------------------------------------------ |
+| Version Node.js           | Node.js ≥ 18 est installé                                          |
+| `gwen.config.ts` existe   | Le fichier de configuration est présent dans le répertoire courant |
+| `gwen.config.ts` se parse | La configuration peut être chargée sans erreur                     |
+| Binaire WASM              | Le binaire WASM `@gwenjs/core` est présent dans `node_modules`     |
 
 ## Exemple de sortie
 

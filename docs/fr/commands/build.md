@@ -10,18 +10,18 @@ gwen build [options]
 
 ## Options
 
-| Option | Alias | Type | Défaut | Description |
-|--------|-------|------|--------|-------------|
-| `--mode` | | string | `release` | Mode de build : `release` ou `debug` |
-| `--out-dir` | `-o` | string | `dist` | Répertoire de sortie |
-| `--dry-run` | | boolean | `false` | Simuler le build sans écrire de fichiers |
+| Option      | Alias | Type    | Défaut    | Description                              |
+| ----------- | ----- | ------- | --------- | ---------------------------------------- |
+| `--mode`    |       | string  | `release` | Mode de build : `release` ou `debug`     |
+| `--out-dir` | `-o`  | string  | `dist`    | Répertoire de sortie                     |
+| `--dry-run` |       | boolean | `false`   | Simuler le build sans écrire de fichiers |
 
 ## Options globales
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Afficher les logs détaillés |
-| `--debug` | | boolean | Afficher les informations de débogage |
+| Option      | Alias | Type    | Description                           |
+| ----------- | ----- | ------- | ------------------------------------- |
+| `--verbose` | `-v`  | boolean | Afficher les logs détaillés           |
+| `--debug`   |       | boolean | Afficher les informations de débogage |
 
 ## Exemples
 

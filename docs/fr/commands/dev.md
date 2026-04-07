@@ -10,17 +10,17 @@ gwen dev [options]
 
 ## Options
 
-| Option | Alias | Type | Défaut | Description |
-|--------|-------|------|--------|-------------|
-| `--port` | `-p` | string | `3000` | Port HTTP du serveur (1024–65535) |
-| `--open` | `-o` | boolean | `false` | Ouvrir le navigateur automatiquement |
+| Option   | Alias | Type    | Défaut  | Description                          |
+| -------- | ----- | ------- | ------- | ------------------------------------ |
+| `--port` | `-p`  | string  | `3000`  | Port HTTP du serveur (1024–65535)    |
+| `--open` | `-o`  | boolean | `false` | Ouvrir le navigateur automatiquement |
 
 ## Options globales
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Afficher les logs détaillés |
-| `--debug` | | boolean | Afficher les informations de débogage |
+| Option      | Alias | Type    | Description                           |
+| ----------- | ----- | ------- | ------------------------------------- |
+| `--verbose` | `-v`  | boolean | Afficher les logs détaillés           |
+| `--debug`   |       | boolean | Afficher les informations de débogage |
 
 ## Exemples
 

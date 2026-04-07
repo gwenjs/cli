@@ -10,16 +10,16 @@ gwen prepare [options]
 
 ## Options
 
-| Option | Type | Description |
-|--------|------|-------------|
+| Option     | Type    | Description                                                           |
+| ---------- | ------- | --------------------------------------------------------------------- |
 | `--strict` | boolean | **Déprécié.** Le comportement strict est désormais activé par défaut. |
 
 ## Options globales
 
-| Option | Alias | Type | Description |
-|--------|-------|------|-------------|
-| `--verbose` | `-v` | boolean | Afficher les logs détaillés |
-| `--debug` | | boolean | Afficher les informations de débogage |
+| Option      | Alias | Type    | Description                           |
+| ----------- | ----- | ------- | ------------------------------------- |
+| `--verbose` | `-v`  | boolean | Afficher les logs détaillés           |
+| `--debug`   |       | boolean | Afficher les informations de débogage |
 
 ## Fichiers générés
 
