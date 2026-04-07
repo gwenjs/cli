@@ -36,7 +36,7 @@ import { logger } from "../../utils/logger.js";
 import { isValidName, INVALID_NAME_MESSAGE } from "../../utils/validation.js";
 import { getModules } from "../../utils/module-registry.js";
 import { detectPackageManager } from "../../utils/package-manager.js";
-import { DEFAULT_PORT_DEV } from "../../utils/constants.js";
+import { DEFAULT_PORT_DEV, ExitCode } from "../../utils/constants.js";
 import { packageJsonTemplate } from "./templates/package-json.js";
 import { tsconfigTemplate } from "./templates/tsconfig.js";
 import { oxlintTemplate } from "./templates/oxlint.js";
@@ -104,12 +104,12 @@ export const initCommand = defineCommand({
 
     if (!name) {
       logger.error("[GWEN:init] Project name cannot be empty.");
-      process.exit(1);
+      process.exit(ExitCode.ERROR_VALIDATION);
     }
 
     if (!isValidName(name)) {
       logger.error(`[GWEN:init] Invalid project name: ${INVALID_NAME_MESSAGE}`);
-      process.exit(1);
+      process.exit(ExitCode.ERROR_VALIDATION);
     }
 
     // ── Optional module selection ─────────────────────────────────────────────

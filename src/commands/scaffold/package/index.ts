@@ -3,6 +3,7 @@ import path from "node:path";
 import { defineCommand } from "citty";
 import { logger } from "../../../utils/logger.js";
 import { isValidName, INVALID_NAME_MESSAGE } from "../../../utils/validation.js";
+import { ExitCode } from "../../../utils/constants.js";
 import { resolveOptions, type ScaffoldPackageOptions } from "./options.js";
 import {
   packageJsonTemplate,
@@ -150,12 +151,12 @@ export const scaffoldPackageCommand = defineCommand({
 
     if (!opts.name) {
       logger.error("[GWEN:scaffold:package] Package name cannot be empty.");
-      process.exit(1);
+      process.exit(ExitCode.ERROR_VALIDATION);
     }
 
     if (!isValidName(opts.name)) {
       logger.error(`[GWEN:scaffold:package] Invalid package name: ${INVALID_NAME_MESSAGE}`);
-      process.exit(1);
+      process.exit(ExitCode.ERROR_VALIDATION);
     }
 
     await generateFiles(opts);

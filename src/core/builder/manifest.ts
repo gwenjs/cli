@@ -32,6 +32,21 @@ interface Manifest {
 }
 
 /**
+ * Derives a safe filesystem basename from a WASM plugin package ID.
+ *
+ * Handles the two common naming conventions:
+ *   `@gwenjs/gwen-physics2d` → `physics2d`
+ *   `@gwenjs/physics2d`      → `physics2d`
+ *   `physics2d`              → `physics2d`
+ *
+ * @param id - The npm package ID declared in the plugin's `wasm.id` field.
+ * @returns A basename safe to use in a `./wasm/<basename>_bg.wasm` path.
+ */
+function wasmBaseName(id: string): string {
+  return id.replace("@gwenjs/gwen-", "").replace("@gwenjs/", "").split("/").at(-1) ?? id;
+}
+
+/**
  * Generate and write build manifest
  */
 export async function generateManifest(ctx: BuildContext): Promise<void> {
@@ -62,8 +77,8 @@ export async function generateManifest(ctx: BuildContext): Promise<void> {
           type: type as "wasm" | "js",
           ...(type === "wasm" && pkgName
             ? {
-                wasmPath: `./wasm/${pkgName.replace("@gwenjs/gwen-", "")}_bg.wasm`,
-                jsPath: `./wasm/${pkgName.replace("@gwenjs/gwen-", "")}.js`,
+                wasmPath: `./wasm/${wasmBaseName(pkgName)}_bg.wasm`,
+                jsPath: `./wasm/${wasmBaseName(pkgName)}.js`,
               }
             : {}),
         };

@@ -102,7 +102,7 @@ export function resolveWasmPath(variant: CoreVariant): {
 
   let pkgDir: string | null = null;
   for (const candidate of candidates) {
-    if (existsSync(join(candidate, "package.json")) || existsSync(join(candidate, "Cargo.toml"))) {
+    if (existsSync(join(candidate, "package.json"))) {
       pkgDir = candidate;
       break;
     }

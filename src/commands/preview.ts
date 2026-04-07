@@ -44,22 +44,27 @@ export default defineCommand({
 
     logger.info(`Starting preview server on port ${port}...`);
 
-    const { preview } = await import("vite");
-    const server = await preview({
-      root: process.cwd(),
-      configFile: false,
-      preview: { port },
-    });
+    try {
+      const { preview } = await import("vite");
+      const server = await preview({
+        root: process.cwd(),
+        configFile: false,
+        preview: { port },
+      });
 
-    const localUrls = server.resolvedUrls?.local ?? [];
-    if (localUrls.length > 0) {
-      logger.success(`Preview ready at ${localUrls[0]}`);
-    } else {
-      const addr = server.httpServer?.address();
-      if (addr && typeof addr === "object") {
-        const host = addr.address === "::" ? "localhost" : addr.address;
-        logger.success(`Preview ready at http://${host}:${addr.port}`);
+      const localUrls = server.resolvedUrls?.local ?? [];
+      if (localUrls.length > 0) {
+        logger.success(`Preview ready at ${localUrls[0]}`);
+      } else {
+        const addr = server.httpServer?.address();
+        if (addr && typeof addr === "object") {
+          const host = addr.address === "::" ? "localhost" : addr.address;
+          logger.success(`Preview ready at http://${host}:${addr.port}`);
+        }
       }
+    } catch (error: unknown) {
+      logger.error(`Failed to start preview server: ${parseError(error)}`);
+      process.exit(ExitCode.ERROR_UNKNOWN);
     }
   },
 });

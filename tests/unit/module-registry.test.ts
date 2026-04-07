@@ -178,6 +178,49 @@ describe("getModules — fetch failure", () => {
   });
 });
 
+describe("getModules — near-expiry background refresh", () => {
+  it("triggers background refresh when cache age exceeds 90% of TTL", async () => {
+    const ttl = 10_000; // 10 seconds
+    process.env["GWEN_REGISTRY_TTL_MS"] = String(ttl);
+    const payload = makeRegistryPayload();
+    // Cache is 95% of the way through the TTL window (fresh but near expiry)
+    const nearExpiry = { fetchedAt: Date.now() - ttl * 0.95, data: payload };
+    await fs.mkdir(path.dirname(cachePath), { recursive: true });
+    await fs.writeFile(cachePath, JSON.stringify(nearExpiry), "utf8");
+
+    const fetchMock = makeFetchStub(payload);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getModules } = await import("../../src/utils/module-registry.js");
+    await getModules();
+
+    // Background fetch is async fire-and-forget; flush microtasks/promises
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("does not trigger background refresh for a fresh cache well within TTL", async () => {
+    const ttl = 10_000;
+    process.env["GWEN_REGISTRY_TTL_MS"] = String(ttl);
+    const payload = makeRegistryPayload();
+    // Cache is only 10% of the way through — not near expiry
+    const fresh = { fetchedAt: Date.now() - ttl * 0.1, data: payload };
+    await fs.mkdir(path.dirname(cachePath), { recursive: true });
+    await fs.writeFile(cachePath, JSON.stringify(fresh), "utf8");
+
+    const fetchMock = makeFetchStub(payload);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getModules } = await import("../../src/utils/module-registry.js");
+    await getModules();
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
 describe("getModules — deprecated filter", () => {
   it("excludes deprecated modules regardless of source", async () => {
     const payload = makeRegistryPayload();

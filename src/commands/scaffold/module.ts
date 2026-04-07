@@ -12,29 +12,11 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import readline from "node:readline";
 import { defineCommand } from "citty";
 import { logger } from "../../utils/logger.js";
 import { isValidName, INVALID_NAME_MESSAGE } from "../../utils/validation.js";
-
-/**
- * Prompts the user for a module name via stdin.
- *
- * @returns The trimmed name entered by the user.
- */
-async function promptModuleName(): Promise<string> {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    process.stdout.write("Module name: ");
-    rl.once("line", (answer) => {
-      rl.close();
-      resolve(answer.trim());
-    });
-  });
-}
+import { ExitCode } from "../../utils/constants.js";
+import { promptString } from "../../utils/prompt.js";
 
 /**
  * Generates the module stub source code.
@@ -77,17 +59,17 @@ export const scaffoldModuleCommand = defineCommand({
     let name = (args.name as string | undefined)?.trim() ?? "";
 
     if (!name) {
-      name = await promptModuleName();
+      name = await promptString("Module name");
     }
 
     if (!name) {
       logger.error("[GWEN:scaffold:module] Module name cannot be empty.");
-      process.exit(1);
+      process.exit(ExitCode.ERROR_VALIDATION);
     }
 
     if (!isValidName(name)) {
       logger.error(`[GWEN:scaffold:module] Invalid module name: ${INVALID_NAME_MESSAGE}`);
-      process.exit(1);
+      process.exit(ExitCode.ERROR_VALIDATION);
     }
 
     const outputDir = path.join(process.cwd(), "src", "modules", name);

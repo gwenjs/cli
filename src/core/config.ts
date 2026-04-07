@@ -23,8 +23,6 @@ export interface LoadConfigResult {
 export interface LoadConfigOptions {
   /** Current working directory */
   cwd: string;
-  /** Whether to search in parent directories. Defaults to true. */
-  upward?: boolean;
 }
 
 /**

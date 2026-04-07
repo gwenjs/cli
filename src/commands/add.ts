@@ -16,6 +16,7 @@ import { logger } from "../utils/logger.js";
 import { runInstall } from "../utils/package-manager.js";
 import { appendModuleToConfig } from "../utils/config-writer.js";
 import { getModules } from "../utils/module-registry.js";
+import { ExitCode } from "../utils/constants.js";
 
 /** Named export consumed by bin.ts and tests. */
 export const addCommand = defineCommand({
@@ -55,7 +56,7 @@ export const addCommand = defineCommand({
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`[GWEN:add] Failed to install ${moduleName}: ${message}`);
-      process.exit(1);
+      process.exit(ExitCode.ERROR_UNKNOWN);
     }
 
     logger.info(`Registering ${moduleName} in gwen.config.ts …`);
@@ -65,7 +66,7 @@ export const addCommand = defineCommand({
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`[GWEN:add] Failed to register ${moduleName} in config: ${message}`);
-      process.exit(1);
+      process.exit(ExitCode.ERROR_UNKNOWN);
     }
 
     logger.success(`✓ ${moduleName} installed and registered.`);

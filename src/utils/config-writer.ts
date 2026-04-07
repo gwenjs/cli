@@ -49,7 +49,9 @@ export async function appendModuleToConfig(
   }
 
   // Idempotency check — bail out early if the module is already listed.
-  if (content.includes(moduleName)) {
+  // Use exact quoted match to avoid substring false-positives
+  // (e.g. '@gwenjs/physics' must not match '@gwenjs/physics2d').
+  if (content.includes(`'${moduleName}'`) || content.includes(`"${moduleName}"`)) {
     return;
   }
 
