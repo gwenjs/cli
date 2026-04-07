@@ -26,7 +26,10 @@
     "test:coverage": "vitest run --coverage",
     "lint": "oxlint src/",
     "format": "oxfmt src/",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs:dev": "pnpm --filter @gwenjs/cli-docs dev",
+    "docs:build": "pnpm --filter @gwenjs/cli-docs build",
+    "docs:preview": "pnpm --filter @gwenjs/cli-docs preview"
   },
   "dependencies": {
     "@gwenjs/app": "^0.1.0",
