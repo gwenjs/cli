@@ -15,6 +15,7 @@ import { defineCommand } from "citty";
 import { logger } from "../utils/logger.js";
 import { runInstall } from "../utils/package-manager.js";
 import { appendModuleToConfig } from "../utils/config-writer.js";
+import { getModules } from "../utils/module-registry.js";
 
 /** Named export consumed by bin.ts and tests. */
 export const addCommand = defineCommand({
@@ -37,6 +38,15 @@ export const addCommand = defineCommand({
   async run({ args }) {
     const moduleName = args.module as string;
     const isDev = args.dev as boolean;
+
+    // Validate against the module registry (non-fatal — unofficial packages are allowed).
+    const registryModules = await getModules();
+    const isKnown = registryModules.some((m) => m.npm === moduleName);
+    if (!isKnown) {
+      logger.warn(
+        `[GWEN:add] "${moduleName}" is not in the GWEN module registry. Proceeding anyway.`,
+      );
+    }
 
     logger.info(`Installing ${moduleName} …`);
 
