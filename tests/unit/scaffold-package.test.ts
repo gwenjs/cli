@@ -20,6 +20,7 @@ import {
   moduleTemplate,
   indexTemplate,
 } from "../../src/commands/scaffold/package.js";
+import { resolveOptions } from "../../src/commands/scaffold/package/options.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -272,5 +273,31 @@ describe("scaffoldPackageCommand integration", () => {
       .filter((line) => !line.trimStart().startsWith("*") && !line.trimStart().startsWith("//"))
       .join("\n");
     expect(importLines).not.toMatch(/from ['"]\.\/index/);
+  });
+});
+
+describe("resolveOptions", () => {
+  it("uses flag values when all flags provided", async () => {
+    const opts = await resolveOptions({
+      name: "my-plugin",
+      "gwen-version": "^0.2.0",
+      "with-ci": true,
+      "with-docs": true,
+    });
+    expect(opts.name).toBe("my-plugin");
+    expect(opts.gwenVersion).toBe("^0.2.0");
+    expect(opts.withCi).toBe(true);
+    expect(opts.withDocs).toBe(true);
+  });
+
+  it("defaults gwenVersion to ^0.1.0 when not provided", async () => {
+    const opts = await resolveOptions({ name: "audio", "with-ci": false, "with-docs": false });
+    expect(opts.gwenVersion).toBe("^0.1.0");
+  });
+
+  it("defaults withCi and withDocs to false when flags are false", async () => {
+    const opts = await resolveOptions({ name: "audio", "with-ci": false, "with-docs": false });
+    expect(opts.withCi).toBe(false);
+    expect(opts.withDocs).toBe(false);
   });
 });
