@@ -38,7 +38,6 @@ export function packageJsonTemplate(
     dependencies: {
       "@gwenjs/core": `^${gwenVersion}`,
       "@gwenjs/app": `^${gwenVersion}`,
-      "@gwenjs/renderer-canvas2d": `^${gwenVersion}`,
       "@gwenjs/input": `^${gwenVersion}`,
       ...moduleDeps,
     },

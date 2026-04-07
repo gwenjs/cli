@@ -142,10 +142,10 @@ describe("packageJsonTemplate", () => {
     expect(pkg.scripts?.["format:check"]).toBeDefined();
   });
 
-  it("includes renderer-canvas2d and input as default dependencies", () => {
+  it("includes input as default dependency", () => {
     const content = packageJsonTemplate("my-game", "1.2.3");
     const pkg = JSON.parse(content) as Record<string, Record<string, string>>;
-    expect(pkg.dependencies?.["@gwenjs/renderer-canvas2d"]).toBeDefined();
+    expect(pkg.dependencies?.["@gwenjs/renderer-canvas2d"]).toBeUndefined();
     expect(pkg.dependencies?.["@gwenjs/input"]).toBeDefined();
   });
 
@@ -210,9 +210,9 @@ describe("oxfmtTemplate", () => {
 });
 
 describe("gwenConfigTemplate", () => {
-  it("imports Canvas2DRenderer and InputPlugin", () => {
+  it("imports InputPlugin but not Canvas2DRenderer", () => {
     const src = gwenConfigTemplate();
-    expect(src).toContain("Canvas2DRenderer");
+    expect(src).not.toContain("Canvas2DRenderer");
     expect(src).toContain("InputPlugin");
   });
 
@@ -290,10 +290,11 @@ describe("systemsTemplate", () => {
     expect(src).toContain("Keys.Space");
   });
 
-  it("render system uses useCanvas2D", () => {
+  it("render system uses DOM-based rendering", () => {
     const { "render.ts": src } = systemsTemplate();
-    expect(src).toContain("useCanvas2D");
+    expect(src).not.toContain("useCanvas2D");
     expect(src).toContain("onRender");
+    expect(src).toContain("getElementById");
   });
 });
 
@@ -394,10 +395,10 @@ describe("initCommand scaffold (integration)", () => {
     expect(config.indentWidth).toBe(2);
   });
 
-  it("creates gwen.config.ts with Canvas2DRenderer and InputPlugin", async () => {
+  it("creates gwen.config.ts with InputPlugin but not Canvas2DRenderer", async () => {
     await scaffold();
     const src = await fs.readFile(path.join(projectDir, "gwen.config.ts"), "utf8");
-    expect(src).toContain("Canvas2DRenderer");
+    expect(src).not.toContain("Canvas2DRenderer");
     expect(src).toContain("InputPlugin");
   });
 

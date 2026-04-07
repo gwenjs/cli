@@ -346,180 +346,152 @@ export const SpawnSystem = defineSystem(function SpawnSystem() {
 
 function renderSystem(): string {
   return `/**
- * Render system — draws the entire game scene each frame using Canvas2D.
+ * Render system — updates the DOM each frame to reflect entity positions.
+ *
+ * Uses a simple HTML/CSS approach: a fixed-size container div with absolutely
+ * positioned child elements for each entity type.
  *
  * Render order (back to front):
- *   1. Star field (scrolling parallax)
- *   2. Bullets
- *   3. Asteroids
- *   4. Player ship
- *   5. HUD (score, lives)
+ *   1. Bullets
+ *   2. Asteroids
+ *   3. Player ship
+ *   4. HUD (score, lives)
  */
 import { defineSystem, onRender, useQuery } from '@gwenjs/core'
-import { useCanvas2D } from '@gwenjs/renderer-canvas2d'
-import { Position, Velocity, Size, BulletTag, AsteroidTag, PlayerTag, Score } from '../components/game'
+import { Position, Velocity, BulletTag, AsteroidTag, PlayerTag, Score } from '../components/game'
 
-const CANVAS_W = 800
-const CANVAS_H = 600
+const GAME_W = 800
+const GAME_H = 600
 
-// ─── Drawing helpers ──────────────────────────────────────────────────────────
+// ─── DOM root ─────────────────────────────────────────────────────────────────
 
-function drawStars(ctx: CanvasRenderingContext2D): void {
-  ctx.save()
-  const t = Date.now() / 1000
-
-  ctx.fillStyle = 'rgba(255,255,255,0.25)'
-  for (let i = 0; i < 50; i++) {
-    const sx = (Math.sin(i * 7.3 + 1) * 0.5 + 0.5) * CANVAS_W
-    const sy = ((Math.sin(i * 3.7) * 0.5 + 0.5) * CANVAS_H + t * (10 + (i % 18))) % CANVAS_H
-    ctx.fillRect(sx, sy, 1.2, 1.2)
+function getRoot(): HTMLElement {
+  let root = document.getElementById('gwen-game-root')
+  if (!root) {
+    root = document.createElement('div')
+    root.id = 'gwen-game-root'
+    Object.assign(root.style, {
+      position: 'relative',
+      width: \`\${GAME_W}px\`,
+      height: \`\${GAME_H}px\`,
+      overflow: 'hidden',
+      background: '#0a0a1a',
+      margin: '0 auto',
+      fontFamily: 'monospace',
+    })
+    document.body.appendChild(root)
   }
-
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'
-  for (let i = 0; i < 25; i++) {
-    const sx = (Math.sin(i * 13.1 + 5) * 0.5 + 0.5) * CANVAS_W
-    const sy = ((Math.cos(i * 4.9) * 0.5 + 0.5) * CANVAS_H + t * (25 + (i % 15))) % CANVAS_H
-    ctx.fillRect(sx, sy, 1.8, 1.8)
-  }
-  ctx.restore()
-}
-
-function drawPlayer(
-  ctx: CanvasRenderingContext2D,
-  x: number, y: number,
-  vx: number, vy: number,
-  invincible: boolean,
-): void {
-  ctx.save()
-  if (invincible && Math.floor(Date.now() / 100) % 2 === 0) ctx.globalAlpha = 0.35
-  ctx.translate(x, y)
-
-  const t = Date.now() / 1000
-  const flameH = 8 + Math.sin(t * 18) * 4 + (Math.abs(vy) + Math.abs(vx)) * 0.02
-  const flameW = 5 + Math.sin(t * 22 + 1) * 1.5
-
-  // Thruster flame
-  ctx.fillStyle = 'rgba(255,160,40,0.85)'
-  ctx.shadowColor = '#ff8800'
-  ctx.shadowBlur = 8
-  ctx.beginPath()
-  ctx.moveTo(-flameW, 12)
-  ctx.lineTo(0, 12 + flameH)
-  ctx.lineTo(flameW, 12)
-  ctx.closePath()
-  ctx.fill()
-  ctx.shadowBlur = 0
-
-  // Hull
-  ctx.fillStyle = '#4fffb0'
-  ctx.shadowColor = '#4fffb0'
-  ctx.shadowBlur = 16
-  ctx.beginPath()
-  ctx.moveTo(0, -18)
-  ctx.lineTo(-13, 14)
-  ctx.lineTo(0, 8)
-  ctx.lineTo(13, 14)
-  ctx.closePath()
-  ctx.fill()
-  ctx.restore()
-}
-
-function drawBullet(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-  ctx.save()
-  ctx.translate(x, y)
-  ctx.fillStyle = '#ffe600'
-  ctx.shadowColor = '#ffe600'
-  ctx.shadowBlur = 10
-  ctx.fillRect(-2, -9, 4, 18)
-  ctx.shadowBlur = 4
-  ctx.fillStyle = '#fff'
-  ctx.fillRect(-1, -4, 2, 8)
-  ctx.restore()
-}
-
-function drawAsteroid(
-  ctx: CanvasRenderingContext2D,
-  x: number, y: number,
-  radius: number, rotation: number,
-): void {
-  ctx.save()
-  ctx.translate(x, y)
-  ctx.rotate(rotation)
-  ctx.fillStyle = '#8888aa'
-  ctx.shadowColor = '#aaaacc'
-  ctx.shadowBlur = 6
-  ctx.beginPath()
-  const sides = 7
-  for (let i = 0; i < sides; i++) {
-    const angle = (i / sides) * Math.PI * 2
-    const wobble = radius * (0.8 + 0.2 * Math.sin(i * 2.3))
-    const px = Math.cos(angle) * wobble
-    const py = Math.sin(angle) * wobble
-    if (i === 0) ctx.moveTo(px, py)
-    else ctx.lineTo(px, py)
-  }
-  ctx.closePath()
-  ctx.fill()
-  ctx.restore()
-}
-
-function drawHUD(ctx: CanvasRenderingContext2D, score: number, lives: number): void {
-  ctx.save()
-  ctx.font = 'bold 18px monospace'
-  ctx.fillStyle = '#e0e0ff'
-  ctx.textAlign = 'left'
-  ctx.fillText(\`SCORE  \${score}\`, 12, 28)
-  ctx.textAlign = 'right'
-  ctx.fillStyle = '#ff6688'
-  ctx.fillText('♥ '.repeat(Math.max(0, lives)).trim(), CANVAS_W - 12, 28)
-  if (lives <= 0) {
-    ctx.fillStyle = 'rgba(0,0,0,0.6)'
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
-    ctx.textAlign = 'center'
-    ctx.font = 'bold 48px monospace'
-    ctx.fillStyle = '#ff4444'
-    ctx.fillText('GAME OVER', CANVAS_W / 2, CANVAS_H / 2 - 28)
-    ctx.font = '22px monospace'
-    ctx.fillStyle = '#e0e0ff'
-    ctx.fillText(\`Final Score: \${score}\`, CANVAS_W / 2, CANVAS_H / 2 + 20)
-    ctx.font = '15px monospace'
-    ctx.fillStyle = '#aaaacc'
-    ctx.fillText('Reload to play again', CANVAS_W / 2, CANVAS_H / 2 + 56)
-  }
-  ctx.restore()
+  return root
 }
 
 // ─── System ───────────────────────────────────────────────────────────────────
 
 export const RenderSystem = defineSystem(function RenderSystem() {
-  const renderer = useCanvas2D()
   const playerEntities = useQuery([Position, Velocity, PlayerTag, Score])
   const bulletEntities = useQuery([Position, BulletTag])
   const asteroidEntities = useQuery([Position, AsteroidTag])
 
   onRender(() => {
-    const ctx = renderer.ctx
+    const root = getRoot()
+    root.innerHTML = ''
 
-    drawStars(ctx)
-
+    // Bullets
     for (const e of bulletEntities) {
       const pos = e.get(Position)
-      if (pos) drawBullet(ctx, pos.x, pos.y)
+      if (!pos) continue
+      const el = document.createElement('div')
+      Object.assign(el.style, {
+        position: 'absolute',
+        left: \`\${pos.x - 2}px\`,
+        top: \`\${pos.y - 9}px\`,
+        width: '4px',
+        height: '18px',
+        background: '#ffe600',
+        borderRadius: '2px',
+        boxShadow: '0 0 6px #ffe600',
+      })
+      root.appendChild(el)
     }
 
+    // Asteroids
     for (const e of asteroidEntities) {
       const pos = e.get(Position)
       const tag = e.get(AsteroidTag)
-      if (pos && tag) drawAsteroid(ctx, pos.x, pos.y, tag.radius, tag.rotation)
+      if (!pos || !tag) continue
+      const r = tag.radius
+      const el = document.createElement('div')
+      Object.assign(el.style, {
+        position: 'absolute',
+        left: \`\${pos.x - r}px\`,
+        top: \`\${pos.y - r}px\`,
+        width: \`\${r * 2}px\`,
+        height: \`\${r * 2}px\`,
+        background: '#8888aa',
+        borderRadius: '40% 60% 55% 45%',
+        boxShadow: '0 0 6px #aaaacc',
+        transform: \`rotate(\${tag.rotation}rad)\`,
+      })
+      root.appendChild(el)
     }
 
+    // Player + HUD
     for (const e of playerEntities) {
       const pos = e.get(Position)
-      const vel = e.get(Velocity)
       const score = e.get(Score)
       if (!pos || !score) continue
-      drawPlayer(ctx, pos.x, pos.y, vel?.x ?? 0, vel?.y ?? 0, score.invincible > 0)
-      drawHUD(ctx, score.value, score.lives)
+
+      const alpha = score.invincible > 0 && Math.floor(Date.now() / 100) % 2 === 0 ? 0.35 : 1
+      const ship = document.createElement('div')
+      Object.assign(ship.style, {
+        position: 'absolute',
+        left: \`\${pos.x - 13}px\`,
+        top: \`\${pos.y - 18}px\`,
+        width: '26px',
+        height: '32px',
+        background: '#4fffb0',
+        clipPath: 'polygon(50% 0%, 0% 100%, 50% 75%, 100% 100%)',
+        boxShadow: '0 0 16px #4fffb0',
+        opacity: String(alpha),
+      })
+      root.appendChild(ship)
+
+      const hud = document.createElement('div')
+      Object.assign(hud.style, {
+        position: 'absolute',
+        top: '8px',
+        left: '0',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '0 12px',
+        boxSizing: 'border-box',
+        color: '#e0e0ff',
+        fontSize: '18px',
+        fontWeight: 'bold',
+        pointerEvents: 'none',
+      })
+      hud.innerHTML = \`<span>SCORE  \${score.value}</span><span style="color:#ff6688">\${'♥ '.repeat(Math.max(0, score.lives)).trim()}</span>\`
+      root.appendChild(hud)
+
+      if (score.lives <= 0) {
+        const overlay = document.createElement('div')
+        Object.assign(overlay.style, {
+          position: 'absolute',
+          inset: '0',
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+        })
+        overlay.innerHTML = \`
+          <div style="font-size:48px;font-weight:bold;color:#ff4444">GAME OVER</div>
+          <div style="font-size:22px;color:#e0e0ff">Final Score: \${score.value}</div>
+          <div style="font-size:15px;color:#aaaacc">Reload to play again</div>
+        \`
+        root.appendChild(overlay)
+      }
     }
   })
 })
