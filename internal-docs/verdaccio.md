@@ -44,6 +44,7 @@ Verdaccio tourne alors sur `http://localhost:4873`.
 L'interface web est accessible à la même URL.
 
 > Laisser le terminal ouvert ou lancer en arrière-plan :
+>
 > ```bash
 > pnpm verdaccio:start &
 > ```
@@ -59,6 +60,7 @@ pnpm verdaccio:publish
 ```
 
 Ce script (`scripts/verdaccio-publish.sh`) :
+
 1. Vérifie que Verdaccio tourne (sinon, exit avec message d'erreur)
 2. **Vide** le storage `~/.local/share/verdaccio/storage/@gwenjs` (évite les conflits de version)
 3. Build tous les packages `@gwenjs/*` via `pnpm --filter '@gwenjs/*' build`
@@ -81,6 +83,7 @@ Cela redirige uniquement les packages `@gwenjs/*` vers Verdaccio.
 Tous les autres packages continuent de passer par `registry.npmjs.org`.
 
 > **Recréer le `.npmrc` si absent :**
+>
 > ```bash
 > echo "@gwenjs:registry=http://localhost:4873" >> .npmrc
 > echo "//localhost:4873/:_authToken=local-dev" >> .npmrc

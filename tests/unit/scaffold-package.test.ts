@@ -228,7 +228,10 @@ describe("generateFiles integration", () => {
   });
 
   it("generates base files only when withCi=false and withDocs=false", async () => {
-    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: false }, tmpDir);
+    await generateFiles(
+      { name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: false },
+      tmpDir,
+    );
 
     const outputDir = path.join(tmpDir, "test-plugin");
     expect(await fileExists(path.join(outputDir, "package.json"))).toBe(true);
@@ -240,7 +243,10 @@ describe("generateFiles integration", () => {
   });
 
   it("generates CI files when withCi=true", async () => {
-    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: true, withDocs: false }, tmpDir);
+    await generateFiles(
+      { name: "test-plugin", gwenVersion: "^0.1.0", withCi: true, withDocs: false },
+      tmpDir,
+    );
 
     const outputDir = path.join(tmpDir, "test-plugin");
     expect(await fileExists(path.join(outputDir, ".github/workflows/ci.yml"))).toBe(true);
@@ -250,7 +256,10 @@ describe("generateFiles integration", () => {
   });
 
   it("generates docs files when withDocs=true", async () => {
-    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: true }, tmpDir);
+    await generateFiles(
+      { name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: true },
+      tmpDir,
+    );
 
     const outputDir = path.join(tmpDir, "test-plugin");
     expect(await fileExists(path.join(outputDir, "docs/index.md"))).toBe(true);
@@ -262,7 +271,10 @@ describe("generateFiles integration", () => {
   });
 
   it("package.json includes docs scripts when withDocs=true", async () => {
-    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: true }, tmpDir);
+    await generateFiles(
+      { name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: true },
+      tmpDir,
+    );
     const outputDir = path.join(tmpDir, "test-plugin");
     const pkg = JSON.parse(await fs.readFile(path.join(outputDir, "package.json"), "utf8"));
     expect(pkg.scripts["docs:dev"]).toBe("vitepress dev docs");
