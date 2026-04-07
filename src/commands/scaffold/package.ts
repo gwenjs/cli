@@ -71,6 +71,8 @@ export function packageJsonTemplate(name: string, gwenVersion: string): string {
         vite: "^8.0.0",
         "vite-plugin-dts": "^4.0.0",
         vitest: "^4.0.0",
+        oxlint: "latest",
+        oxfmt: "latest",
       },
     },
     null,
