@@ -75,7 +75,7 @@ export async function generateFiles(
     [path.join(outputDir, ".gitignore"), gitignoreTemplate()],
     [path.join(outputDir, "package.json"), buildPackageJson(name, gwenVersion, withDocs)],
     [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
-    [path.join(outputDir, "vite.config.ts"), viteConfigTemplate(name)],
+    [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
     [path.join(srcDir, "types.ts"), typesTemplate(name)],
     [path.join(srcDir, "augment.ts"), augmentTemplate(name)],
     [path.join(srcDir, "plugin.ts"), pluginTemplate(name)],

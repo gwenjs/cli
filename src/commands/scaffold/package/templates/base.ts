@@ -84,7 +84,7 @@ export function tsconfigTemplate(): string {
   );
 }
 
-export function viteConfigTemplate(name: string): string {
+export function viteConfigTemplate(): string {
   return `import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import dts from 'vite-plugin-dts'
