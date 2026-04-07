@@ -1,5 +1,5 @@
 /**
- * @gwenjs/cli — Builder (v0.2.0)
+ * @gwenjs/cli — Builder
  *
  * Build orchestration for GWEN projects.
  * Pipeline:
@@ -29,13 +29,7 @@ import { generateManifest } from "./manifest.js";
 import { runViteBuild } from "./vite.js";
 import { detectCoreVariant, detectSharedMemoryPlugins } from "./variant-detector.js";
 import { loadFrameworkContext } from "../app-context.js";
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return String(error);
-}
+import { parseError } from "../types/guards.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -92,7 +86,7 @@ export async function build(options: BuildOptions = {}): Promise<BuildResult> {
     await generateManifest(ctx);
     await runViteBuild(ctx);
   } catch (error: unknown) {
-    ctx.errors.push(getErrorMessage(error));
+    ctx.errors.push(parseError(error));
   }
 
   const result: BuildResult = {
@@ -148,7 +142,7 @@ async function loadConfig(ctx: BuildContext): Promise<void> {
 
     logger.debug("Config loaded and validated");
   } catch (error: unknown) {
-    throw new Error(`Config loading failed: ${getErrorMessage(error)}`);
+    throw new Error(`Config loading failed: ${parseError(error)}`);
   }
 }
 

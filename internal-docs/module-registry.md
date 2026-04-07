@@ -31,9 +31,9 @@ Quand `gwen init` ou `gwen add` appelle `getModules()` :
 
 ## Fichiers clés
 
-| Fichier | Responsabilité |
-|---|---|
-| `src/utils/module-registry.ts` | `getModules()`, fetch, cache, logique de fallback |
+| Fichier                        | Responsabilité                                      |
+| ------------------------------ | --------------------------------------------------- |
+| `src/utils/module-registry.ts` | `getModules()`, fetch, cache, logique de fallback   |
 | `src/data/modules-registry.ts` | Fallback embarqué — mis à jour à chaque release CLI |
 
 ---
@@ -53,6 +53,7 @@ Le fallback embarqué (`src/data/modules-registry.ts`) est utilisé quand le CLI
 Les nouveaux modules sont ajoutés via le système d'issues de `gwenjs/modules`, pas via PR directe. L'équipe core GWEN examine les soumissions avant de les fusionner.
 
 Pour soumettre un module :
+
 1. Ouvrir une issue sur `github.com/gwenjs/modules` en utilisant le template **Module Submission**
 2. Remplir : nom du package, lien npm, description, catégorie, dépôt GitHub
 3. Attendre la validation — l'équipe créera l'entrée dans le registre après examen
@@ -65,16 +66,16 @@ Chaque entrée dans `registry.json` suit cette structure :
 
 ```typescript
 interface GwenModule {
-  name: string                       // identifiant kebab-case
-  displayName: string                // affiché dans les prompts CLI
-  description: string
-  npm: string                        // nom du package npm
-  repo: string                       // org/repo sur GitHub
-  website?: string                   // URL de documentation (optionnel)
-  category: string                   // ex : "Physics", "Audio"
-  type: "official" | "community"
-  deprecated: boolean                // masque le module des prompts
-  compatibility: { gwen: string }    // plage semver
+  name: string; // identifiant kebab-case
+  displayName: string; // affiché dans les prompts CLI
+  description: string;
+  npm: string; // nom du package npm
+  repo: string; // org/repo sur GitHub
+  website?: string; // URL de documentation (optionnel)
+  category: string; // ex : "Physics", "Audio"
+  type: "official" | "community";
+  deprecated: boolean; // masque le module des prompts
+  compatibility: { gwen: string }; // plage semver
 }
 ```
 
@@ -84,7 +85,7 @@ Les modules dépréciés (`deprecated: true`) sont silencieusement exclus de tou
 
 ## Variables d'environnement (tests / CI)
 
-| Variable | Défaut | Utilité |
-|---|---|---|
-| `GWEN_REGISTRY_CACHE_PATH` | `~/.cache/gwen/modules.json` | Surcharger l'emplacement du cache (utile dans les tests) |
-| `GWEN_REGISTRY_TTL_MS` | `3600000` (1 h) | Surcharger le TTL du cache (mettre à `0` pour forcer un re-fetch dans les tests) |
+| Variable                   | Défaut                       | Utilité                                                                          |
+| -------------------------- | ---------------------------- | -------------------------------------------------------------------------------- |
+| `GWEN_REGISTRY_CACHE_PATH` | `~/.cache/gwen/modules.json` | Surcharger l'emplacement du cache (utile dans les tests)                         |
+| `GWEN_REGISTRY_TTL_MS`     | `3600000` (1 h)              | Surcharger le TTL du cache (mettre à `0` pour forcer un re-fetch dans les tests) |

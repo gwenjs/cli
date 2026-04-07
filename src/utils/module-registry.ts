@@ -11,8 +11,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { consola } from "consola";
 import { fallbackRegistry } from "../data/modules-registry.js";
+import { logger } from "./logger.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -187,7 +187,7 @@ export async function getModules(): Promise<GwenModule[]> {
       registry = await fetchRegistry();
       await writeCache(registry);
     } catch {
-      consola.warn("Could not reach the GWEN module registry. Using bundled offline list.");
+      logger.warn("Could not reach the GWEN module registry. Using bundled offline list.");
       registry = fallbackRegistry as unknown as RegistryFile;
     }
   }

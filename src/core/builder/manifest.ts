@@ -5,6 +5,7 @@
 import fs from "node:fs/promises";
 import { join } from "pathe";
 import { logger } from "../../utils/logger.js";
+import { VERSION } from "../../utils/constants.js";
 import type { GwenOptions } from "@gwenjs/schema";
 import type { BuildContext } from "./context.js";
 
@@ -39,7 +40,7 @@ export async function generateManifest(ctx: BuildContext): Promise<void> {
   await fs.mkdir(ctx.outDir, { recursive: true });
 
   const manifest: Manifest = {
-    version: "0.2.0",
+    version: VERSION,
     builtAt: new Date().toISOString(),
     engine: ctx.config.engine,
     plugins: [

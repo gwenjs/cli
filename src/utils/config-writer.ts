@@ -70,7 +70,7 @@ export async function appendModuleToConfig(
 
   // If the array already has entries separate with a comma, otherwise just add the entry.
   const trimmedAfter = after.trimStart();
-  const separator = trimmedAfter.startsWith("]") ? `\n${indent}` : `\n${indent}`;
+  const separator = trimmedAfter.startsWith("]") ? `\n${indent}` : `,\n${indent}`;
   const entry = `${separator}'${moduleName}',`;
 
   const newContent = before + entry + after;

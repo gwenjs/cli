@@ -13,13 +13,7 @@ import { loadRawGwenConfig, GwenConfigLoadError } from "@gwenjs/app/resolve";
 import { loadConfig } from "c12";
 import { logger } from "../utils/logger.js";
 import { CONFIG_FILE_NAMES } from "../utils/constants.js";
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return String(error);
-}
+import { parseError } from "./types/guards.js";
 
 export interface LoadConfigResult {
   config: GwenOptions;
@@ -87,7 +81,7 @@ export async function findConfigFile(cwd: string): Promise<string | null> {
     });
     return configFile ?? null;
   } catch (error: unknown) {
-    logger.debug(`findConfigFile failed: ${getErrorMessage(error)}`);
+    logger.debug(`findConfigFile failed: ${parseError(error)}`);
     return null;
   }
 }

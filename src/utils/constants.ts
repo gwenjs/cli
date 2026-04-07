@@ -2,7 +2,7 @@
  * Global constants for CLI
  */
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.1.0";
 export const PACKAGE_NAME = "@gwenjs/cli";
 
 export const DEFAULT_PORT_DEV = 3000;

@@ -16,10 +16,7 @@ import { pathToFileURL } from "node:url";
 import { logger, setLogLevel } from "../../utils/logger.js";
 import { GwenApp, resolveGwenConfig } from "@gwenjs/app/resolve";
 import type { GwenModule } from "@gwenjs/kit";
-
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
+import { parseError } from "../types/guards.js";
 
 export interface PrepareOptions {
   /** Project root directory. Defaults to current working directory. */
@@ -56,7 +53,7 @@ export async function prepare(options: PrepareOptions = {}): Promise<PrepareResu
   try {
     config = await resolveGwenConfig(projectDir);
   } catch (error) {
-    result.errors.push(`Config error: ${getErrorMessage(error)}`);
+    result.errors.push(`Config error: ${parseError(error)}`);
     return result;
   }
 
@@ -83,7 +80,7 @@ export async function prepare(options: PrepareOptions = {}): Promise<PrepareResu
     await app.setupModules(config, moduleLoader);
     await app.prepare(projectDir);
   } catch (error) {
-    result.errors.push(`Module setup error: ${getErrorMessage(error)}`);
+    result.errors.push(`Module setup error: ${parseError(error)}`);
     return result;
   }
 
@@ -101,14 +98,14 @@ export async function prepare(options: PrepareOptions = {}): Promise<PrepareResu
   try {
     await ensureProjectTsconfig(projectDir);
   } catch (error) {
-    logger.warn(`Failed to update tsconfig: ${getErrorMessage(error)}`);
+    logger.warn(`Failed to update tsconfig: ${parseError(error)}`);
   }
 
   // 5. Patch .gitignore
   try {
     await ensureGitignore(projectDir);
   } catch (error) {
-    logger.warn(`Failed to update .gitignore: ${getErrorMessage(error)}`);
+    logger.warn(`Failed to update .gitignore: ${parseError(error)}`);
   }
 
   result.success = true;

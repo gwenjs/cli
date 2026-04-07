@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import { detectPackageManager } from "../../dist/packages/cli/src/utils/package-manager.js";
+import { detectPackageManager } from "../../src/utils/package-manager.js";
 
 /** Creates an isolated temp directory for each test. */
 async function makeTempDir(): Promise<string> {
@@ -38,6 +38,11 @@ describe("detectPackageManager", () => {
 
   it("detects bun when bun.lockb is present", async () => {
     await fs.writeFile(path.join(tmpDir, "bun.lockb"), "", "utf8");
+    expect(detectPackageManager(tmpDir)).toBe("bun");
+  });
+
+  it("detects bun when bun.lock (Bun 1.1+ text format) is present", async () => {
+    await fs.writeFile(path.join(tmpDir, "bun.lock"), "", "utf8");
     expect(detectPackageManager(tmpDir)).toBe("bun");
   });
 

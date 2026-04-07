@@ -14,13 +14,7 @@ import { loadGwenConfig } from "./config.js";
 import type { GwenOptions } from "@gwenjs/schema";
 import { DEFAULT_PORT_DEV } from "../utils/constants.js";
 import { loadFrameworkContext } from "./app-context.js";
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return String(error);
-}
+import { parseError } from "./types/guards.js";
 
 /**
  * Options for dev server
@@ -67,7 +61,7 @@ export async function dev(opts: DevOptions = {}): Promise<void> {
     config = loaded.config;
     logger.debug("Config loaded successfully for dev server");
   } catch (error: unknown) {
-    logger.error(`Failed to load config: ${getErrorMessage(error)}`);
+    logger.error(`Failed to load config: ${parseError(error)}`);
     throw error;
   }
 
@@ -76,7 +70,7 @@ export async function dev(opts: DevOptions = {}): Promise<void> {
     const framework = await loadFrameworkContext(projectDir);
     config.plugins = framework.plugins;
   } catch (error: unknown) {
-    logger.error(`Module setup failed: ${getErrorMessage(error)}`);
+    logger.error(`Module setup failed: ${parseError(error)}`);
     throw error;
   }
 
@@ -115,7 +109,7 @@ export async function dev(opts: DevOptions = {}): Promise<void> {
 
     server.printUrls();
   } catch (error: unknown) {
-    logger.error(`Failed to start dev server: ${getErrorMessage(error)}`);
+    logger.error(`Failed to start dev server: ${parseError(error)}`);
     throw error;
   }
 }

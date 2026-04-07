@@ -15,6 +15,7 @@ import path from "node:path";
 import readline from "node:readline";
 import { defineCommand } from "citty";
 import { logger } from "../../utils/logger.js";
+import { isValidName, INVALID_NAME_MESSAGE } from "../../utils/validation.js";
 
 /**
  * Prompts the user for a plugin name via stdin.
@@ -108,6 +109,11 @@ export const scaffoldPluginCommand = defineCommand({
 
     if (!name) {
       logger.error("[GWEN:scaffold:plugin] Plugin name cannot be empty.");
+      process.exit(1);
+    }
+
+    if (!isValidName(name)) {
+      logger.error(`[GWEN:scaffold:plugin] Invalid plugin name: ${INVALID_NAME_MESSAGE}`);
       process.exit(1);
     }
 

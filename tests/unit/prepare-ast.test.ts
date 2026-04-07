@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { extractProjectMetadata } from "../../src/core/prepare/ast-extractor.js";
 import * as path from "node:path";
+import * as os from "node:os";
 import fs from "node:fs";
 
 describe("AST Extractor & Validator", () => {
   it("extracts components from defineComponent calls", () => {
     // We need to create a real directory for ts-morph to work correctly with tsconfig
-    const tempDir = path.join(process.cwd(), "temp-test-project");
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "gwen-ast-test-components-"));
 
     fs.writeFileSync(
       path.join(tempDir, "tsconfig.json"),
@@ -18,7 +18,7 @@ describe("AST Extractor & Validator", () => {
     );
 
     const srcDir = path.join(tempDir, "src");
-    if (!fs.existsSync(srcDir)) fs.mkdirSync(srcDir);
+    fs.mkdirSync(srcDir, { recursive: true });
 
     fs.writeFileSync(
       path.join(srcDir, "Component.ts"),
@@ -55,8 +55,7 @@ describe("AST Extractor & Validator", () => {
   });
 
   it("extracts systems and required components", () => {
-    const tempDir = path.join(process.cwd(), "temp-test-project-sys");
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "gwen-ast-test-sys-"));
 
     fs.writeFileSync(
       path.join(tempDir, "tsconfig.json"),
@@ -67,7 +66,7 @@ describe("AST Extractor & Validator", () => {
     );
 
     const srcDir = path.join(tempDir, "src");
-    if (!fs.existsSync(srcDir)) fs.mkdirSync(srcDir);
+    fs.mkdirSync(srcDir, { recursive: true });
 
     fs.writeFileSync(
       path.join(srcDir, "System.ts"),
@@ -98,8 +97,7 @@ describe("AST Extractor & Validator", () => {
   });
 
   it("extracts systems from object definition", () => {
-    const tempDir = path.join(process.cwd(), "temp-test-project-sys-obj");
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "gwen-ast-test-sysobj-"));
 
     fs.writeFileSync(
       path.join(tempDir, "tsconfig.json"),
@@ -110,7 +108,7 @@ describe("AST Extractor & Validator", () => {
     );
 
     const srcDir = path.join(tempDir, "src");
-    if (!fs.existsSync(srcDir)) fs.mkdirSync(srcDir);
+    fs.mkdirSync(srcDir, { recursive: true });
 
     fs.writeFileSync(
       path.join(srcDir, "System.ts"),
@@ -135,8 +133,7 @@ describe("AST Extractor & Validator", () => {
   });
 
   it("extracts scenes", () => {
-    const tempDir = path.join(process.cwd(), "temp-test-project-scene");
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "gwen-ast-test-scene-"));
 
     fs.writeFileSync(
       path.join(tempDir, "tsconfig.json"),
@@ -147,7 +144,7 @@ describe("AST Extractor & Validator", () => {
     );
 
     const srcDir = path.join(tempDir, "src");
-    if (!fs.existsSync(srcDir)) fs.mkdirSync(srcDir);
+    fs.mkdirSync(srcDir, { recursive: true });
 
     fs.writeFileSync(
       path.join(srcDir, "Scene.ts"),

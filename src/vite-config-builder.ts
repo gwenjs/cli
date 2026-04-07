@@ -10,6 +10,7 @@
 import * as path from "node:path";
 import type { InlineConfig, PluginOption } from "vite";
 import { VERSION } from "./utils/constants.js";
+import { logger } from "./utils/logger.js";
 
 export interface ViteConfigOptions {
   mode: "development" | "production";
@@ -28,8 +29,8 @@ export async function buildViteConfig(
   const gwenPlugin = await loadGwenVitePlugin(projectDir);
 
   if (!gwenPlugin) {
-    console.warn(
-      "[gwen-cli] WARNING: Could not find @gwenjs/vite. Virtual modules and WASM serving may not work.",
+    logger.warn(
+      "[gwen-cli] Could not find @gwenjs/vite. Virtual modules and WASM serving may not work.",
     );
   }
 

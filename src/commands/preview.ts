@@ -12,17 +12,9 @@
 
 import { defineCommand } from "citty";
 import { setLogLevel, logger } from "../utils/logger.js";
-import { GLOBAL_ARGS } from "../utils/args.js";
+import { GLOBAL_ARGS, parsePort } from "../utils/args.js";
 import { DEFAULT_PORT_PREVIEW, ExitCode } from "../utils/constants.js";
 import { parseError } from "../core/types/guards.js";
-
-function parsePort(input: unknown): number {
-  const port = Number(input);
-  if (!Number.isInteger(port) || port < 1024 || port > 65535) {
-    throw new Error("Port must be between 1024 and 65535");
-  }
-  return port;
-}
 
 export default defineCommand({
   meta: {

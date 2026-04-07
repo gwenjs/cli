@@ -33,7 +33,10 @@ import { readPackageJSON } from "pkg-types";
 import { consola } from "consola";
 import { defineCommand } from "citty";
 import { logger } from "../../utils/logger.js";
+import { isValidName, INVALID_NAME_MESSAGE } from "../../utils/validation.js";
 import { getModules } from "../../utils/module-registry.js";
+import { detectPackageManager } from "../../utils/package-manager.js";
+import { DEFAULT_PORT_DEV } from "../../utils/constants.js";
 import { packageJsonTemplate } from "./templates/package-json.js";
 import { tsconfigTemplate } from "./templates/tsconfig.js";
 import { oxlintTemplate } from "./templates/oxlint.js";
@@ -104,6 +107,11 @@ export const initCommand = defineCommand({
       process.exit(1);
     }
 
+    if (!isValidName(name)) {
+      logger.error(`[GWEN:init] Invalid project name: ${INVALID_NAME_MESSAGE}`);
+      process.exit(1);
+    }
+
     // ── Optional module selection ─────────────────────────────────────────────
     const availableModules = await getModules();
     const validModuleNames = new Set(availableModules.map((m) => m.npm));
@@ -166,13 +174,16 @@ export const initCommand = defineCommand({
     await write(path.join(projectDir, "src", "scenes", "game.ts"), sceneTemplate());
 
     // ── Done ──────────────────────────────────────────────────────────────────
+    const pm = detectPackageManager(process.cwd());
     logger.success(`✓ Project "${name}" created successfully.`);
     logger.info("");
     logger.info("  Next steps:");
     logger.info(`    cd ${name}`);
-    logger.info("    pnpm install");
-    logger.info("    pnpm dev");
+    logger.info(`    ${pm} install`);
+    logger.info(`    ${pm} ${pm === "npm" ? "run " : ""}dev`);
     logger.info("");
-    logger.info("  Open http://localhost:5173 to play the Starfield Shooter landing game.");
+    logger.info(
+      `  Open http://localhost:${DEFAULT_PORT_DEV} to play the Starfield Shooter landing game.`,
+    );
   },
 });

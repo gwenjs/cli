@@ -26,8 +26,9 @@ export type PackageManager = "pnpm" | "npm" | "yarn" | "bun";
  * Detection order (first match wins):
  * 1. `pnpm-lock.yaml` → pnpm
  * 2. `yarn.lock`      → yarn
- * 3. `bun.lockb`      → bun
- * 4. fallback         → npm
+ * 3. `bun.lockb`      → bun  (Bun < 1.1, binary format)
+ * 4. `bun.lock`       → bun  (Bun ≥ 1.1, text format)
+ * 5. fallback         → npm
  *
  * @param cwd - Directory to inspect. Defaults to `process.cwd()`.
  * @returns The detected {@link PackageManager} identifier.
@@ -38,6 +39,7 @@ export function detectPackageManager(cwd?: string): PackageManager {
   if (fs.existsSync(path.join(dir, "pnpm-lock.yaml"))) return "pnpm";
   if (fs.existsSync(path.join(dir, "yarn.lock"))) return "yarn";
   if (fs.existsSync(path.join(dir, "bun.lockb"))) return "bun";
+  if (fs.existsSync(path.join(dir, "bun.lock"))) return "bun";
   return "npm";
 }
 
