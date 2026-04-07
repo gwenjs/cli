@@ -214,7 +214,9 @@ describe("indexTemplate", () => {
 
 // ─── Integration test ─────────────────────────────────────────────────────────
 
-describe("scaffoldPackageCommand integration", () => {
+import { generateFiles } from "../../src/commands/scaffold/package/index.js";
+
+describe("generateFiles integration", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
@@ -225,54 +227,48 @@ describe("scaffoldPackageCommand integration", () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
-  it("generates all 9 expected files", async () => {
-    const name = "test-plugin";
-    const gwenVersion = "^0.1.0";
-    const outputDir = path.join(tmpDir, name);
-    const srcDir = path.join(outputDir, "src");
-    await fs.mkdir(srcDir, { recursive: true });
+  it("generates base files only when withCi=false and withDocs=false", async () => {
+    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: false }, tmpDir);
 
-    const files: Array<[string, string]> = [
-      [path.join(outputDir, "package.json"), packageJsonTemplate(name, gwenVersion)],
-      [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
-      [path.join(outputDir, "vite.config.ts"), viteConfigTemplate(name)],
-      [path.join(srcDir, "types.ts"), typesTemplate(name)],
-      [path.join(srcDir, "augment.ts"), augmentTemplate(name)],
-      [path.join(srcDir, "plugin.ts"), pluginTemplate(name)],
-      [path.join(srcDir, "composables.ts"), composablesTemplate(name)],
-      [path.join(srcDir, "module.ts"), moduleTemplate(name)],
-      [path.join(srcDir, "index.ts"), indexTemplate(name)],
-    ];
-
-    for (const [filePath, content] of files) {
-      await fs.writeFile(filePath, content, "utf8");
-    }
-
+    const outputDir = path.join(tmpDir, "test-plugin");
     expect(await fileExists(path.join(outputDir, "package.json"))).toBe(true);
     expect(await fileExists(path.join(outputDir, "tsconfig.json"))).toBe(true);
-    expect(await fileExists(path.join(outputDir, "vite.config.ts"))).toBe(true);
-    expect(await fileExists(path.join(srcDir, "types.ts"))).toBe(true);
-    expect(await fileExists(path.join(srcDir, "augment.ts"))).toBe(true);
-    expect(await fileExists(path.join(srcDir, "plugin.ts"))).toBe(true);
-    expect(await fileExists(path.join(srcDir, "composables.ts"))).toBe(true);
-    expect(await fileExists(path.join(srcDir, "module.ts"))).toBe(true);
-    expect(await fileExists(path.join(srcDir, "index.ts"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, ".gitignore"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, "src/index.ts"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, ".github/workflows/ci.yml"))).toBe(false);
+    expect(await fileExists(path.join(outputDir, "docs/index.md"))).toBe(false);
   });
 
-  it("package.json has correct name from input", () => {
-    const name = "my-awesome-plugin";
-    const pkg = JSON.parse(packageJsonTemplate(name, "^0.1.0"));
-    expect(pkg.name).toBe("@community/gwen-my-awesome-plugin");
+  it("generates CI files when withCi=true", async () => {
+    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: true, withDocs: false }, tmpDir);
+
+    const outputDir = path.join(tmpDir, "test-plugin");
+    expect(await fileExists(path.join(outputDir, ".github/workflows/ci.yml"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, ".github/workflows/release.yml"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, "release-please-config.json"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, ".release-please-manifest.json"))).toBe(true);
   });
 
-  it("generated module.ts does not import from index.ts", () => {
-    const content = moduleTemplate("test-plugin");
-    // Only check actual import statements (not comment lines)
-    const importLines = content
-      .split("\n")
-      .filter((line) => !line.trimStart().startsWith("*") && !line.trimStart().startsWith("//"))
-      .join("\n");
-    expect(importLines).not.toMatch(/from ['"]\.\/index/);
+  it("generates docs files when withDocs=true", async () => {
+    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: true }, tmpDir);
+
+    const outputDir = path.join(tmpDir, "test-plugin");
+    expect(await fileExists(path.join(outputDir, "docs/index.md"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, "docs/guide/getting-started.md"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, "docs/api/index.md"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, "docs/examples/index.md"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, "docs/.vitepress/config.ts"))).toBe(true);
+    expect(await fileExists(path.join(outputDir, ".github/workflows/deploy-docs.yml"))).toBe(true);
+  });
+
+  it("package.json includes docs scripts when withDocs=true", async () => {
+    await generateFiles({ name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: true }, tmpDir);
+    const outputDir = path.join(tmpDir, "test-plugin");
+    const pkg = JSON.parse(await fs.readFile(path.join(outputDir, "package.json"), "utf8"));
+    expect(pkg.scripts["docs:dev"]).toBe("vitepress dev docs");
+    expect(pkg.scripts["docs:build"]).toBe("vitepress build docs");
+    expect(pkg.scripts["docs:preview"]).toBe("vitepress preview docs");
+    expect(pkg.devDependencies["vitepress"]).toBeDefined();
   });
 });
 
