@@ -19,7 +19,7 @@ import {
   composablesTemplate,
   moduleTemplate,
   indexTemplate,
-} from "../../src/commands/scaffold/package.js";
+} from "../../src/commands/scaffold/package/templates/base.js";
 import { resolveOptions } from "../../src/commands/scaffold/package/options.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
