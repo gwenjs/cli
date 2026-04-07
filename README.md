@@ -22,26 +22,26 @@ gwen [command] [options]
 
 ### Global options
 
-| Option | Alias | Description |
-|--------|-------|-------------|
-| `--verbose` | `-v` | Show detailed logs |
-| `--debug` | | Show debug information (very verbose) |
+| Option      | Alias | Description                           |
+| ----------- | ----- | ------------------------------------- |
+| `--verbose` | `-v`  | Show detailed logs                    |
+| `--debug`   |       | Show debug information (very verbose) |
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `gwen init [name]` | Scaffold a new GWEN game project |
-| `gwen dev` | Start development server with hot reload |
-| `gwen build` | Build project for production |
-| `gwen prepare` | Generate `.gwen/` (tsconfig + types) |
-| `gwen preview` | Preview the production build locally |
-| `gwen add <module>` | Install and register a GWEN module |
-| `gwen scaffold` | Scaffold artefacts (plugin, module, package) |
-| `gwen lint` | Lint source code with oxlint |
-| `gwen format` | Format source code with oxfmt |
-| `gwen info` | Show parsed `gwen.config.ts` as JSON |
-| `gwen doctor` | Run project health checks |
+| Command             | Description                                  |
+| ------------------- | -------------------------------------------- |
+| `gwen init [name]`  | Scaffold a new GWEN game project             |
+| `gwen dev`          | Start development server with hot reload     |
+| `gwen build`        | Build project for production                 |
+| `gwen prepare`      | Generate `.gwen/` (tsconfig + types)         |
+| `gwen preview`      | Preview the production build locally         |
+| `gwen add <module>` | Install and register a GWEN module           |
+| `gwen scaffold`     | Scaffold artefacts (plugin, module, package) |
+| `gwen lint`         | Lint source code with oxlint                 |
+| `gwen format`       | Format source code with oxfmt                |
+| `gwen info`         | Show parsed `gwen.config.ts` as JSON         |
+| `gwen doctor`       | Run project health checks                    |
 
 📖 **Full reference:** [gwenjs.github.io/cli](https://gwenjs.github.io/cli)
 
