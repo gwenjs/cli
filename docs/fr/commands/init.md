@@ -76,5 +76,5 @@ gwen init my-game --modules @gwenjs/physics2d,@gwenjs/audio
 ```
 
 ::: info
-`@gwenjs/renderer-canvas2d` et `@gwenjs/input` sont toujours inclus dans les nouveaux projets.
+`@gwenjs/input` est toujours inclus dans les nouveaux projets.
 :::
