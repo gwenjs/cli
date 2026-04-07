@@ -280,7 +280,15 @@ export type { ${Pascal}Config, ${Pascal}Service } from './types.js'
 `;
 }
 
-// ─── Prompt ───────────────────────────────────────────────────────────────────
+export function gitignoreTemplate(): string {
+  return `node_modules/
+dist/
+*.local
+.DS_Store
+`;
+}
+
+
 
 async function promptPackageName(): Promise<string> {
   return new Promise((resolve) => {
@@ -334,6 +342,7 @@ export const scaffoldPackageCommand = defineCommand({
     await fs.mkdir(srcDir, { recursive: true });
 
     const files: Array<[string, string]> = [
+      [path.join(outputDir, ".gitignore"), gitignoreTemplate()],
       [path.join(outputDir, "package.json"), packageJsonTemplate(name, gwenVersion)],
       [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
       [path.join(outputDir, "vite.config.ts"), viteConfigTemplate(name)],
