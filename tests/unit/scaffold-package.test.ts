@@ -301,3 +301,107 @@ describe("resolveOptions", () => {
     expect(opts.withDocs).toBe(false);
   });
 });
+
+// ─── CI Workflow templates ────────────────────────────────────────────────────
+
+import {
+  ciWorkflowTemplate,
+  releaseWorkflowTemplate,
+  releasePleaseConfigTemplate,
+  releasePleaseManifestTemplate,
+} from "../../src/commands/scaffold/package/templates/ci.js";
+
+describe("ciWorkflowTemplate", () => {
+  it("triggers on push and pull_request to main", () => {
+    const content = ciWorkflowTemplate();
+    expect(content).toContain("branches: [main]");
+    expect(content).toContain("push:");
+    expect(content).toContain("pull_request:");
+  });
+
+  it("runs lint, typecheck, test, build steps", () => {
+    const content = ciWorkflowTemplate();
+    expect(content).toContain("pnpm lint");
+    expect(content).toContain("pnpm typecheck");
+    expect(content).toContain("pnpm test");
+    expect(content).toContain("pnpm build");
+  });
+});
+
+describe("releaseWorkflowTemplate", () => {
+  it("uses release-please-action", () => {
+    const content = releaseWorkflowTemplate();
+    expect(content).toContain("googleapis/release-please-action");
+  });
+
+  it("publishes to npm on release", () => {
+    const content = releaseWorkflowTemplate();
+    expect(content).toContain("pnpm publish");
+    expect(content).toContain("NPM_TOKEN");
+  });
+});
+
+describe("releasePleaseConfigTemplate", () => {
+  it("is valid JSON with release-type node", () => {
+    const parsed = JSON.parse(releasePleaseConfigTemplate());
+    expect(parsed["release-type"]).toBe("node");
+  });
+});
+
+describe("releasePleaseManifestTemplate", () => {
+  it("is valid JSON with version 0.1.0", () => {
+    const parsed = JSON.parse(releasePleaseManifestTemplate());
+    expect(parsed["."]).toBe("0.1.0");
+  });
+});
+
+import {
+  vitepressConfigTemplate,
+  docsIndexTemplate,
+  docsGettingStartedTemplate,
+  docsApiTemplate,
+  docsExamplesTemplate,
+  deployDocsWorkflowTemplate,
+} from "../../src/commands/scaffold/package/templates/docs.js";
+
+describe("vitepressConfigTemplate", () => {
+  it("sets title to the package name", () => {
+    const content = vitepressConfigTemplate("my-plugin");
+    expect(content).toContain("my-plugin");
+  });
+
+  it("contains a guide and api section in sidebar", () => {
+    const content = vitepressConfigTemplate("my-plugin");
+    expect(content).toContain("/guide/");
+    expect(content).toContain("/api/");
+  });
+});
+
+describe("docsIndexTemplate", () => {
+  it("references the package name in hero text", () => {
+    const content = docsIndexTemplate("my-plugin");
+    expect(content).toContain("my-plugin");
+  });
+});
+
+describe("docsGettingStartedTemplate", () => {
+  it("includes install command with package name", () => {
+    const content = docsGettingStartedTemplate("my-plugin");
+    expect(content).toContain("@community/gwen-my-plugin");
+  });
+});
+
+describe("docsApiTemplate", () => {
+  it("uses PascalCase for service name", () => {
+    const content = docsApiTemplate("my-plugin");
+    expect(content).toContain("MyPluginService");
+  });
+});
+
+describe("deployDocsWorkflowTemplate", () => {
+  it("deploys to GitHub Pages", () => {
+    const content = deployDocsWorkflowTemplate();
+    expect(content).toContain("actions/deploy-pages");
+    expect(content).toContain("pnpm docs:build");
+  });
+});
