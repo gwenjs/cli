@@ -697,3 +697,65 @@ describe("conformanceTestTemplate", () => {
     expect(src).toContain("main: { order: 0 }");
   });
 });
+
+describe("generateFiles integration — renderer mode", () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await makeTempDir();
+  });
+
+  afterEach(async () => {
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("generates renderer-specific files when type is renderer", async () => {
+    const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
+    await generateFiles(
+      { name: "my-renderer", gwenVersion: "^0.1.0", type: "renderer", withCi: false, withDocs: false },
+      tmpDir,
+    );
+    const out = path.join(tmpDir, "my-renderer");
+    expect(await fileExists(path.join(out, "src/renderer-service.ts"))).toBe(true);
+    expect(await fileExists(path.join(out, "tests/conformance.test.ts"))).toBe(true);
+    expect(await fileExists(path.join(out, "src/plugin.ts"))).toBe(true);
+    expect(await fileExists(path.join(out, "src/composables.ts"))).toBe(true);
+    expect(await fileExists(path.join(out, "src/module.ts"))).toBe(true);
+    expect(await fileExists(path.join(out, "src/augment.ts"))).toBe(true);
+    expect(await fileExists(path.join(out, "src/index.ts"))).toBe(true);
+    expect(await fileExists(path.join(out, "src/types.ts"))).toBe(true);
+  });
+
+  it("package.json includes @gwenjs/renderer-core in renderer mode", async () => {
+    const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
+    await generateFiles(
+      { name: "my-renderer", gwenVersion: "^0.2.0", type: "renderer", withCi: false, withDocs: false },
+      tmpDir,
+    );
+    const out = path.join(tmpDir, "my-renderer");
+    const pkg = JSON.parse(await fs.readFile(path.join(out, "package.json"), "utf8"));
+    expect(pkg.dependencies["@gwenjs/renderer-core"]).toBe("^0.2.0");
+  });
+
+  it("standard mode does not generate renderer-service.ts or conformance test", async () => {
+    const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
+    await generateFiles(
+      { name: "my-plugin", gwenVersion: "^0.1.0", type: "standard", withCi: false, withDocs: false },
+      tmpDir,
+    );
+    const out = path.join(tmpDir, "my-plugin");
+    expect(await fileExists(path.join(out, "src/renderer-service.ts"))).toBe(false);
+    expect(await fileExists(path.join(out, "tests/conformance.test.ts"))).toBe(false);
+  });
+
+  it("standard mode package.json does not include @gwenjs/renderer-core", async () => {
+    const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
+    await generateFiles(
+      { name: "my-plugin", gwenVersion: "^0.1.0", type: "standard", withCi: false, withDocs: false },
+      tmpDir,
+    );
+    const out = path.join(tmpDir, "my-plugin");
+    const pkg = JSON.parse(await fs.readFile(path.join(out, "package.json"), "utf8"));
+    expect(pkg.dependencies["@gwenjs/renderer-core"]).toBeUndefined();
+  });
+});

@@ -5,6 +5,7 @@ import { logger } from "../../../utils/logger.js";
 import { isValidName, INVALID_NAME_MESSAGE } from "../../../utils/validation.js";
 import { ExitCode } from "../../../utils/constants.js";
 import { resolveOptions, type ScaffoldPackageOptions } from "./options.js";
+import type { PackageType } from "./options.js";
 import {
   packageJsonTemplate,
   tsconfigTemplate,
@@ -31,6 +32,16 @@ import {
   docsExamplesTemplate,
   deployDocsWorkflowTemplate,
 } from "./templates/docs.js";
+import {
+  rendererTypesTemplate,
+  rendererServiceTemplate,
+  rendererPluginTemplate,
+  rendererComposablesTemplate,
+  rendererModuleTemplate,
+  rendererAugmentTemplate,
+  rendererIndexTemplate,
+  conformanceTestTemplate,
+} from "./templates/renderer.js";
 
 // Re-export all template functions for backward compatibility with tests
 export {
@@ -48,8 +59,17 @@ export {
   indexTemplate,
 } from "./templates/base.js";
 
-function buildPackageJson(name: string, gwenVersion: string, withDocs: boolean): string {
+function buildPackageJson(
+  name: string,
+  gwenVersion: string,
+  withDocs: boolean,
+  type: PackageType = "standard",
+): string {
   const base = JSON.parse(packageJsonTemplate(name, gwenVersion));
+
+  if (type === "renderer") {
+    base.dependencies["@gwenjs/renderer-core"] = gwenVersion;
+  }
 
   if (withDocs) {
     base.scripts["docs:dev"] = "vitepress dev docs";
@@ -66,23 +86,46 @@ export async function generateFiles(
   cwd: string = process.cwd(),
 ): Promise<void> {
   const { name, gwenVersion, withCi, withDocs } = opts;
+  const type: PackageType = opts.type ?? "standard";
   const outputDir = path.join(cwd, name);
   const srcDir = path.join(outputDir, "src");
 
   await fs.mkdir(srcDir, { recursive: true });
 
-  const files: Array<[string, string]> = [
+  const sharedFiles: Array<[string, string]> = [
     [path.join(outputDir, ".gitignore"), gitignoreTemplate()],
-    [path.join(outputDir, "package.json"), buildPackageJson(name, gwenVersion, withDocs)],
+    [path.join(outputDir, "package.json"), buildPackageJson(name, gwenVersion, withDocs, type)],
     [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
     [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
-    [path.join(srcDir, "types.ts"), typesTemplate(name)],
-    [path.join(srcDir, "augment.ts"), augmentTemplate(name)],
-    [path.join(srcDir, "plugin.ts"), pluginTemplate(name)],
-    [path.join(srcDir, "composables.ts"), composablesTemplate(name)],
-    [path.join(srcDir, "module.ts"), moduleTemplate(name)],
-    [path.join(srcDir, "index.ts"), indexTemplate(name)],
   ];
+
+  const sourceFiles: Array<[string, string]> =
+    type === "renderer"
+      ? [
+          [path.join(srcDir, "types.ts"), rendererTypesTemplate(name)],
+          [path.join(srcDir, "renderer-service.ts"), rendererServiceTemplate(name)],
+          [path.join(srcDir, "plugin.ts"), rendererPluginTemplate(name)],
+          [path.join(srcDir, "composables.ts"), rendererComposablesTemplate(name)],
+          [path.join(srcDir, "module.ts"), rendererModuleTemplate(name)],
+          [path.join(srcDir, "augment.ts"), rendererAugmentTemplate(name)],
+          [path.join(srcDir, "index.ts"), rendererIndexTemplate(name)],
+        ]
+      : [
+          [path.join(srcDir, "types.ts"), typesTemplate(name)],
+          [path.join(srcDir, "augment.ts"), augmentTemplate(name)],
+          [path.join(srcDir, "plugin.ts"), pluginTemplate(name)],
+          [path.join(srcDir, "composables.ts"), composablesTemplate(name)],
+          [path.join(srcDir, "module.ts"), moduleTemplate(name)],
+          [path.join(srcDir, "index.ts"), indexTemplate(name)],
+        ];
+
+  const files: Array<[string, string]> = [...sharedFiles, ...sourceFiles];
+
+  if (type === "renderer") {
+    const testsDir = path.join(outputDir, "tests");
+    await fs.mkdir(testsDir, { recursive: true });
+    files.push([path.join(testsDir, "conformance.test.ts"), conformanceTestTemplate(name)]);
+  }
 
   if (withCi) {
     const workflowsDir = path.join(outputDir, ".github", "workflows");
@@ -165,12 +208,17 @@ export const scaffoldPackageCommand = defineCommand({
 
     await generateFiles(opts);
 
-    logger.success(`✓ Package scaffolded at ${opts.name}/`);
+    const label = opts.type === "renderer" ? "Renderer package" : "Package";
+    logger.success(`✓ ${label} scaffolded at ${opts.name}/`);
     logger.info("");
     logger.info("Next steps:");
     logger.info(`  cd ${opts.name}`);
     logger.info("  pnpm install");
-    logger.info("  pnpm dev");
+    if (opts.type === "renderer") {
+      logger.info("  pnpm test         — run the conformance suite");
+    } else {
+      logger.info("  pnpm dev");
+    }
     logger.info("");
     if (opts.withCi) {
       logger.info("CI/CD:");
@@ -184,7 +232,12 @@ export const scaffoldPackageCommand = defineCommand({
       logger.info("");
     }
     logger.info("Implement your logic in:");
-    logger.info("  src/types.ts   — config & service interface");
-    logger.info("  src/plugin.ts  — runtime plugin logic");
+    if (opts.type === "renderer") {
+      logger.info("  src/renderer-service.ts   — mount, unmount, resize, flush");
+      logger.info("  src/composables.ts        — useMyRenderer() composable");
+    } else {
+      logger.info("  src/types.ts   — config & service interface");
+      logger.info("  src/plugin.ts  — runtime plugin logic");
+    }
   },
 });
