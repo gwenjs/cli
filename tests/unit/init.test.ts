@@ -390,6 +390,20 @@ describe("systemsTemplate", () => {
     expect(src).toContain("vel.vy * dt");
   });
 
+  it("movement system tracks bullet lifetime with remaining variable", () => {
+    const { "Movement.ts": src } = systemsTemplate();
+    expect(src).toContain("const remaining = tag.lifetime - dt");
+    expect(src).toContain("remaining <= 0");
+  });
+
+  it("spawn system uses useActor(AsteroidActor) instead of raw entity creation", () => {
+    const { "Spawn.ts": src } = systemsTemplate();
+    expect(src).toContain("useActor");
+    expect(src).toContain("AsteroidActor");
+    expect(src).toContain("@gwenjs/core/actor");
+    expect(src).not.toContain("engine.createEntity()");
+  });
+
   it("input system reads keyboard state", () => {
     const { "Input.ts": src } = systemsTemplate();
     expect(src).toContain("useKeyboard");
@@ -425,9 +439,16 @@ describe("sceneTemplate", () => {
 
   it("spawns the player entity with required components", () => {
     const src = sceneTemplate();
-    expect(src).toContain("Position");
-    expect(src).toContain("Score");
-    expect(src).toContain("PlayerTag");
+    expect(src).toContain("PlayerActor");
+    expect(src).toContain("spawnOnce");
+  });
+
+  it("scene spawns player via useActor(PlayerActor).spawnOnce()", () => {
+    const src = sceneTemplate();
+    expect(src).toContain("useActor");
+    expect(src).toContain("PlayerActor");
+    expect(src).toContain("spawnOnce");
+    expect(src).not.toContain("engine.createEntity()");
   });
 });
 

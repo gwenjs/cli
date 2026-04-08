@@ -61,6 +61,7 @@ export const MovementSystem = defineSystem(function MovementSystem() {
       if (!pos || !vel || !tag) continue
 
       const ny = pos.y + vel.vy * dt
+      const remaining = tag.lifetime - dt
 
       if (ny < -20 || remaining <= 0) {
         toDestroy.push(e.id)
@@ -297,15 +298,16 @@ function spawnSystem(): string {
  * as the game progresses.
  */
 import { defineSystem, onUpdate, useQuery } from '@gwenjs/core/system'
-import { useEngine } from '@gwenjs/core'
-import { Position, Velocity, AsteroidTag, PlayerTag, Score } from '../components/Game'
+import { useActor } from '@gwenjs/core/actor'
+import { AsteroidActor } from '../actors/Asteroid'
+import { PlayerTag, Score } from '../components/Game'
 
 const CANVAS_W = 800
 const BASE_INTERVAL = 1.2   // seconds between spawns at score 0
 const MIN_INTERVAL = 0.35   // hard floor regardless of score
 
 export const SpawnSystem = defineSystem(function SpawnSystem() {
-  const engine = useEngine()
+  const asteroid = useActor(AsteroidActor)
   const players = useQuery([PlayerTag, Score])
 
   let timer = BASE_INTERVAL
@@ -330,10 +332,7 @@ export const SpawnSystem = defineSystem(function SpawnSystem() {
     const speedX = (Math.random() - 0.5) * 60
     const rotSpeed = (Math.random() - 0.5) * 3
 
-    const id = engine.createEntity()
-    engine.addComponent(id, Position, { x, y: -radius })
-    engine.addComponent(id, Velocity, { vx: speedX, vy: speedY })
-    engine.addComponent(id, AsteroidTag, { radius, rotation: 0, rotSpeed })
+    asteroid.spawn({ x, y: -radius, radius, speedX, speedY, rotSpeed })
   })
 })
 `;
