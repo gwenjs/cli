@@ -210,10 +210,11 @@ describe("oxfmtTemplate", () => {
 });
 
 describe("gwenConfigTemplate", () => {
-  it("imports InputPlugin but not Canvas2DRenderer", () => {
+  it("registers @gwenjs/input as a module but not Canvas2DRenderer", () => {
     const src = gwenConfigTemplate();
     expect(src).not.toContain("Canvas2DRenderer");
-    expect(src).toContain("InputPlugin");
+    expect(src).toContain("@gwenjs/input");
+    expect(src).not.toContain("InputPlugin");
   });
 
   it("includes extra modules in the output", () => {
@@ -395,11 +396,12 @@ describe("initCommand scaffold (integration)", () => {
     expect(config.indentWidth).toBe(2);
   });
 
-  it("creates gwen.config.ts with InputPlugin but not Canvas2DRenderer", async () => {
+  it("creates gwen.config.ts with @gwenjs/input as a module but not Canvas2DRenderer", async () => {
     await scaffold();
     const src = await fs.readFile(path.join(projectDir, "gwen.config.ts"), "utf8");
     expect(src).not.toContain("Canvas2DRenderer");
-    expect(src).toContain("InputPlugin");
+    expect(src).toContain("@gwenjs/input");
+    expect(src).not.toContain("InputPlugin");
   });
 
   it("creates README.md with project name and controls", async () => {
