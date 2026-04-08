@@ -7,6 +7,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
+import readline from "node:readline";
 import {
   toPascalCase,
   toCamelCase,
@@ -31,7 +32,9 @@ import {
   conformanceTestTemplate,
 } from "../../src/commands/scaffold/package/templates/renderer.js";
 import { resolveOptions } from "../../src/commands/scaffold/package/options.js";
-import { promptSelect } from "../../src/utils/prompt.js";
+import { promptSelect, promptString } from "../../src/utils/prompt.js";
+import { scaffoldPackageCommand } from "../../src/commands/scaffold/package/index.js";
+import { logger } from "../../src/utils/logger.js";
 import scaffoldCommand from "../../src/commands/scaffold/index.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -712,7 +715,13 @@ describe("generateFiles integration — renderer mode", () => {
   it("generates renderer-specific files when type is renderer", async () => {
     const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
     await generateFiles(
-      { name: "my-renderer", gwenVersion: "^0.1.0", type: "renderer", withCi: false, withDocs: false },
+      {
+        name: "my-renderer",
+        gwenVersion: "^0.1.0",
+        type: "renderer",
+        withCi: false,
+        withDocs: false,
+      },
       tmpDir,
     );
     const out = path.join(tmpDir, "my-renderer");
@@ -729,7 +738,13 @@ describe("generateFiles integration — renderer mode", () => {
   it("package.json includes @gwenjs/renderer-core in renderer mode", async () => {
     const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
     await generateFiles(
-      { name: "my-renderer", gwenVersion: "^0.2.0", type: "renderer", withCi: false, withDocs: false },
+      {
+        name: "my-renderer",
+        gwenVersion: "^0.2.0",
+        type: "renderer",
+        withCi: false,
+        withDocs: false,
+      },
       tmpDir,
     );
     const out = path.join(tmpDir, "my-renderer");
@@ -740,7 +755,13 @@ describe("generateFiles integration — renderer mode", () => {
   it("standard mode does not generate renderer-service.ts or conformance test", async () => {
     const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
     await generateFiles(
-      { name: "my-plugin", gwenVersion: "^0.1.0", type: "standard", withCi: false, withDocs: false },
+      {
+        name: "my-plugin",
+        gwenVersion: "^0.1.0",
+        type: "standard",
+        withCi: false,
+        withDocs: false,
+      },
       tmpDir,
     );
     const out = path.join(tmpDir, "my-plugin");
@@ -751,11 +772,203 @@ describe("generateFiles integration — renderer mode", () => {
   it("standard mode package.json does not include @gwenjs/renderer-core", async () => {
     const { generateFiles } = await import("../../src/commands/scaffold/package/index.js");
     await generateFiles(
-      { name: "my-plugin", gwenVersion: "^0.1.0", type: "standard", withCi: false, withDocs: false },
+      {
+        name: "my-plugin",
+        gwenVersion: "^0.1.0",
+        type: "standard",
+        withCi: false,
+        withDocs: false,
+      },
       tmpDir,
     );
     const out = path.join(tmpDir, "my-plugin");
     const pkg = JSON.parse(await fs.readFile(path.join(out, "package.json"), "utf8"));
     expect(pkg.dependencies["@gwenjs/renderer-core"]).toBeUndefined();
+  });
+});
+
+// ─── scaffoldPackageCommand run() handler ─────────────────────────────────────
+
+describe("scaffoldPackageCommand run() handler", () => {
+  let tmpDir: string;
+  let cwdSpy: ReturnType<typeof vi.spyOn>;
+  let successSpy: ReturnType<typeof vi.spyOn>;
+  let infoSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "gwen-run-"));
+    cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(tmpDir);
+    successSpy = vi.spyOn(logger, "success").mockImplementation(() => {});
+    infoSpy = vi.spyOn(logger, "info").mockImplementation(() => {});
+    errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+    exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {
+      throw new Error("process.exit");
+    }) as never);
+  });
+
+  afterEach(async () => {
+    vi.restoreAllMocks();
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("logs success message for a standard package", async () => {
+    await (scaffoldPackageCommand as any).run({
+      args: { name: "my-pkg", renderer: false, "with-ci": false, "with-docs": false },
+    });
+    expect(successSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Package scaffolded at my-pkg/"),
+    );
+    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining("pnpm dev"));
+  });
+
+  it("logs success message for a renderer package", async () => {
+    await (scaffoldPackageCommand as any).run({
+      args: { name: "my-renderer", renderer: true, "with-ci": false, "with-docs": false },
+    });
+    expect(successSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Renderer package scaffolded at my-renderer/"),
+    );
+    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining("conformance suite"));
+  });
+
+  it("exits with validation error when name is invalid", async () => {
+    await expect(
+      (scaffoldPackageCommand as any).run({
+        args: { name: "INVALID NAME", renderer: false, "with-ci": false, "with-docs": false },
+      }),
+    ).rejects.toThrow("process.exit");
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Invalid package name"));
+  });
+
+  it("shows CI instructions when --with-ci is true", async () => {
+    await (scaffoldPackageCommand as any).run({
+      args: { name: "my-pkg", renderer: false, "with-ci": true, "with-docs": false },
+    });
+    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining("NPM_TOKEN"));
+  });
+
+  it("shows docs instructions when --with-docs is true", async () => {
+    await (scaffoldPackageCommand as any).run({
+      args: { name: "my-pkg", renderer: false, "with-ci": false, "with-docs": true },
+    });
+    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining("docs:dev"));
+  });
+
+  it("exits with error when name is empty after interactive prompt", async () => {
+    // Make readline return empty string so resolveOptions ends up with name=""
+    vi.mocked(readline.createInterface).mockImplementationOnce(
+      () =>
+        ({
+          once: vi.fn((event: string, cb: (line: string) => void) => {
+            if (event === "line") cb("");
+          }),
+          close: vi.fn(),
+        }) as any,
+    );
+    await expect((scaffoldPackageCommand as any).run({ args: {} })).rejects.toThrow("process.exit");
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Package name cannot be empty"));
+  });
+});
+
+// ─── promptString readline path ───────────────────────────────────────────────
+
+describe("promptString — readline path", () => {
+  it("resolves with trimmed input from readline", async () => {
+    let lineCallback: ((line: string) => void) | undefined;
+    const mockRl = {
+      once: vi.fn((event: string, cb: (line: string) => void) => {
+        if (event === "line") lineCallback = cb;
+      }),
+      close: vi.fn(),
+    };
+    const createInterfaceSpy = vi.spyOn(readline, "createInterface").mockReturnValue(mockRl as any);
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    const promise = promptString("Enter name");
+    lineCallback!("  test value  ");
+    const result = await promise;
+
+    expect(result).toBe("test value");
+    expect(writeSpy).toHaveBeenCalledWith("Enter name: ");
+
+    createInterfaceSpy.mockRestore();
+    writeSpy.mockRestore();
+  });
+});
+
+// ─── promptSelect TTY keyboard navigation ────────────────────────────────────
+
+describe("promptSelect — TTY keyboard navigation", () => {
+  const originalIsTTY = process.stdin.isTTY;
+
+  beforeEach(() => {
+    (process.stdin as any).isTTY = true;
+    (process.stdin as any).setRawMode = vi.fn();
+    vi.spyOn(process.stdin, "resume").mockImplementation(() => process.stdin);
+    vi.spyOn(process.stdin, "pause").mockImplementation(() => process.stdin);
+    vi.spyOn(process.stdin, "setEncoding").mockImplementation(() => process.stdin);
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+  });
+
+  afterEach(() => {
+    (process.stdin as any).isTTY = originalIsTTY;
+    vi.restoreAllMocks();
+  });
+
+  it("selects the first choice when Enter is pressed immediately", async () => {
+    const choices = [
+      { label: "Option A", value: "a" as const },
+      { label: "Option B", value: "b" as const },
+    ];
+    const resultPromise = promptSelect("Pick", choices);
+    process.stdin.emit("data", "\r");
+    const result = await resultPromise;
+    expect(result).toBe("a");
+  });
+
+  it("moves selection down with arrow-down then selects with Enter", async () => {
+    const choices = [
+      { label: "Option A", value: "a" as const },
+      { label: "Option B", value: "b" as const },
+    ];
+    const resultPromise = promptSelect("Pick", choices);
+    process.stdin.emit("data", "\u001b[B"); // arrow down
+    process.stdin.emit("data", "\r");
+    const result = await resultPromise;
+    expect(result).toBe("b");
+  });
+
+  it("wraps around to last item when arrow-up is pressed at first item", async () => {
+    const choices = [
+      { label: "Option A", value: "a" as const },
+      { label: "Option B", value: "b" as const },
+    ];
+    const resultPromise = promptSelect("Pick", choices);
+    process.stdin.emit("data", "\u001b[A"); // arrow up (wraps to last)
+    process.stdin.emit("data", "\r");
+    const result = await resultPromise;
+    expect(result).toBe("b");
+  });
+
+  it("selects with \\n as well as \\r", async () => {
+    const choices = [{ label: "Only", value: "only" as const }];
+    const resultPromise = promptSelect("Pick", choices);
+    process.stdin.emit("data", "\n");
+    const result = await resultPromise;
+    expect(result).toBe("only");
+  });
+
+  it("calls process.exit(1) when Ctrl+C is pressed", async () => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {}) as never);
+    const choices = [
+      { label: "Option A", value: "a" as const },
+      { label: "Option B", value: "b" as const },
+    ];
+    promptSelect("Pick", choices);
+    process.stdin.emit("data", "\u0003"); // Ctrl+C
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    exitSpy.mockRestore();
   });
 });

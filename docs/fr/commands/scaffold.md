@@ -30,12 +30,12 @@ gwen scaffold package [nom] [options]
 
 ### Options
 
-| Option           | Type    | Défaut   | Description                                                          |
-| ---------------- | ------- | -------- | -------------------------------------------------------------------- |
-| `--renderer`     | boolean | demandé  | Générer un package renderer (Canvas, WebGL, Three.js, etc.)          |
-| `--gwen-version` | string  | `^0.1.0` | Plage de version peer dependency GWEN                                |
-| `--with-ci`      | boolean | demandé  | Inclure les workflows GitHub Actions CI + publish                    |
-| `--with-docs`    | boolean | demandé  | Inclure la documentation VitePress                                   |
+| Option           | Type    | Défaut   | Description                                                 |
+| ---------------- | ------- | -------- | ----------------------------------------------------------- |
+| `--renderer`     | boolean | demandé  | Générer un package renderer (Canvas, WebGL, Three.js, etc.) |
+| `--gwen-version` | string  | `^0.1.0` | Plage de version peer dependency GWEN                       |
+| `--with-ci`      | boolean | demandé  | Inclure les workflows GitHub Actions CI + publish           |
+| `--with-docs`    | boolean | demandé  | Inclure la documentation VitePress                          |
 
 ### Structure — package standard
 
@@ -98,16 +98,19 @@ gwen scaffold package my-plugin --gwen-version "^0.2.0"
 4. Enregistrer dans `gwen.config.ts` :
 
 ```ts
-import { defineConfig } from '@gwenjs/app'
+import { defineConfig } from "@gwenjs/app";
 
 export default defineConfig({
   modules: [
-    ['@community/gwen-<nom>', {
-      layers: {
-        background: { order: 0 },
-        game:       { order: 10 },
-      }
-    }],
-  ]
-})
+    [
+      "@community/gwen-<nom>",
+      {
+        layers: {
+          background: { order: 0 },
+          game: { order: 10 },
+        },
+      },
+    ],
+  ],
+});
 ```
