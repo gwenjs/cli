@@ -36,6 +36,7 @@ import { promptSelect, promptString } from "../../src/utils/prompt.js";
 import { scaffoldPackageCommand } from "../../src/commands/scaffold/package/index.js";
 import { logger } from "../../src/utils/logger.js";
 import scaffoldCommand from "../../src/commands/scaffold/index.js";
+import { isValidName, normalizeScope, isValidScope } from "../../src/utils/validation.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,56 @@ describe("toCamelCase", () => {
   });
 });
 
-// ─── Template unit tests ──────────────────────────────────────────────────────
+describe("normalizeScope", () => {
+  it("returns undefined for empty string", () => {
+    expect(normalizeScope("")).toBeUndefined();
+  });
+  it("returns undefined for whitespace-only string", () => {
+    expect(normalizeScope("   ")).toBeUndefined();
+  });
+  it("strips leading @ and trims", () => {
+    expect(normalizeScope("@monorg")).toBe("monorg");
+  });
+  it("lowercases the scope", () => {
+    expect(normalizeScope("MonOrg")).toBe("monorg");
+  });
+  it("strips @ and lowercases together", () => {
+    expect(normalizeScope("  @MonOrg  ")).toBe("monorg");
+  });
+  it("returns the scope as-is when no @ prefix", () => {
+    expect(normalizeScope("monorg")).toBe("monorg");
+  });
+});
+
+describe("isValidScope", () => {
+  it("accepts lowercase letters", () => {
+    expect(isValidScope("monorg")).toBe(true);
+  });
+  it("accepts digits", () => {
+    expect(isValidScope("org42")).toBe(true);
+  });
+  it("accepts hyphens and underscores", () => {
+    expect(isValidScope("my-org_1")).toBe(true);
+  });
+  it("rejects uppercase letters", () => {
+    expect(isValidScope("MonOrg")).toBe(false);
+  });
+  it("rejects spaces", () => {
+    expect(isValidScope("my org")).toBe(false);
+  });
+  it("rejects special characters", () => {
+    expect(isValidScope("my@org")).toBe(false);
+  });
+  it("rejects empty string", () => {
+    expect(isValidScope("")).toBe(false);
+  });
+  it("rejects scopes longer than 214 chars", () => {
+    expect(isValidScope("a".repeat(215))).toBe(false);
+  });
+  it("accepts exactly 214 chars", () => {
+    expect(isValidScope("a".repeat(214))).toBe(true);
+  });
+});
 
 describe("packageJsonTemplate", () => {
   it("sets the correct package name", () => {
