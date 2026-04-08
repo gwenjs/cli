@@ -19,8 +19,10 @@
  *  - src/systems/Render.ts
  *  - src/scenes/GameScene.ts    (scene wiring all systems together)
  *  - src/actors/Player.ts       (player actor — defineActor)
+ *  - src/actors/Asteroid.ts     (asteroid actor — defineActor)
  *  - src/prefabs/Bullet.ts      (bullet prefab — definePrefab)
  *  - src/prefabs/Player.ts      (player prefab — definePrefab)
+ *  - src/prefabs/Asteroid.ts    (asteroid prefab — definePrefab)
  *  - src/router.ts              (scene FSM — defineSceneRouter)
  *  - src/plugins/.gitkeep       (placeholder for custom plugins)
  *  - src/assets/.gitkeep        (placeholder for game assets)
@@ -53,8 +55,12 @@ import { readmeTemplate } from "./templates/readme.js";
 import { componentsTemplate } from "./templates/game/components.js";
 import { systemsTemplate } from "./templates/game/systems.js";
 import { sceneTemplate } from "./templates/game/scene.js";
-import { playerActorTemplate } from "./templates/game/actor.js";
-import { bulletPrefabTemplate, playerPrefabTemplate } from "./templates/game/prefabs.js";
+import { asteroidActorTemplate, playerActorTemplate } from "./templates/game/actor.js";
+import {
+  asteroidPrefabTemplate,
+  bulletPrefabTemplate,
+  playerPrefabTemplate,
+} from "./templates/game/prefabs.js";
 import { routerTemplate } from "./templates/router.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -185,10 +191,12 @@ export const initCommand = defineCommand({
 
     // Game source — actors
     await write(path.join(projectDir, "src", "actors", "Player.ts"), playerActorTemplate());
+    await write(path.join(projectDir, "src", "actors", "Asteroid.ts"), asteroidActorTemplate());
 
     // Game source — prefabs
     await write(path.join(projectDir, "src", "prefabs", "Bullet.ts"), bulletPrefabTemplate());
     await write(path.join(projectDir, "src", "prefabs", "Player.ts"), playerPrefabTemplate());
+    await write(path.join(projectDir, "src", "prefabs", "Asteroid.ts"), asteroidPrefabTemplate());
 
     // Scene router
     await write(path.join(projectDir, "src", "router.ts"), routerTemplate());

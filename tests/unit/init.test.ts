@@ -577,10 +577,22 @@ describe("initCommand scaffold (integration)", () => {
     expect(src).toContain("defineActor");
   });
 
+  it("writes src/actors/Asteroid.ts", async () => {
+    await scaffold();
+    const src = await fs.readFile(path.join(projectDir, "src", "actors", "Asteroid.ts"), "utf8");
+    expect(src).toContain("AsteroidActor");
+    expect(src).toContain("defineActor");
+  });
+
   it("creates src/prefabs/Bullet.ts and src/prefabs/Player.ts", async () => {
     await scaffold();
     expect(await fileExists(path.join(projectDir, "src", "prefabs", "Bullet.ts"))).toBe(true);
     expect(await fileExists(path.join(projectDir, "src", "prefabs", "Player.ts"))).toBe(true);
+  });
+
+  it("writes src/prefabs/Asteroid.ts", async () => {
+    await scaffold();
+    expect(await fileExists(path.join(projectDir, "src", "prefabs", "Asteroid.ts"))).toBe(true);
   });
 
   it("creates placeholder directories (plugins, assets, utils)", async () => {
