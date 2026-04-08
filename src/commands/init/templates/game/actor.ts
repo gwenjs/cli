@@ -28,3 +28,34 @@ export const PlayerActor = defineActor(PlayerPrefab, (props: { x: number; y: num
 })
 `;
 }
+
+/**
+ * Returns the `src/actors/Asteroid.ts` source.
+ *
+ * @returns The TypeScript source string (with trailing newline).
+ */
+export function asteroidActorTemplate(): string {
+  return `import { defineActor, onStart, useTransform } from '@gwenjs/core/actor'
+import { AsteroidPrefab } from '../prefabs/Asteroid'
+
+/**
+ * Asteroid actor — spawned repeatedly by SpawnSystem.
+ *
+ * Spawn with \`useActor(AsteroidActor).spawn({ x, y, radius, speedX, speedY, rotSpeed })\`.
+ * Each call creates an independent entity that falls down the screen.
+ */
+export const AsteroidActor = defineActor(
+  AsteroidPrefab,
+  (props: { x: number; y: number; radius: number; speedX: number; speedY: number; rotSpeed: number }) => {
+    const transform = useTransform()
+
+    onStart(() => {
+      transform.setPosition(props.x, props.y, 0)
+    })
+
+    return {}
+  }
+)
+`;
+}
+

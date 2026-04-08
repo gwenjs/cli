@@ -28,7 +28,7 @@ import {
   playerPrefabTemplate,
   asteroidPrefabTemplate,
 } from "../../src/commands/init/templates/game/prefabs.js";
-import { playerActorTemplate } from "../../src/commands/init/templates/game/actor.js";
+import { playerActorTemplate, asteroidActorTemplate } from "../../src/commands/init/templates/game/actor.js";
 import { routerTemplate } from "../../src/commands/init/templates/router.js";
 import { initCommand } from "../../src/commands/init/index.js";
 
@@ -283,6 +283,29 @@ describe("playerActorTemplate", () => {
     expect(src).toContain("defineActor");
     expect(src).toContain("@gwenjs/core/actor");
     expect(src).toContain("PlayerActor");
+  });
+});
+
+describe("asteroidActorTemplate", () => {
+  it("uses defineActor from @gwenjs/core/actor", () => {
+    const src = asteroidActorTemplate();
+    expect(src).toContain("defineActor");
+    expect(src).toContain("@gwenjs/core/actor");
+    expect(src).toContain("AsteroidActor");
+  });
+
+  it("wraps AsteroidPrefab", () => {
+    const src = asteroidActorTemplate();
+    expect(src).toContain("AsteroidPrefab");
+    expect(src).toContain("../prefabs/Asteroid");
+  });
+
+  it("accepts spawn props for position and velocity", () => {
+    const src = asteroidActorTemplate();
+    expect(src).toContain("radius");
+    expect(src).toContain("speedX");
+    expect(src).toContain("speedY");
+    expect(src).toContain("rotSpeed");
   });
 });
 
