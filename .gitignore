@@ -23,6 +23,9 @@ npm-debug.log*
 # GWEN generated
 .gwen/
 
+# Local test scaffolds
+fake/
+
 # Coverage
 coverage/
 
