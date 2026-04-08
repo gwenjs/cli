@@ -137,6 +137,10 @@ export const scaffoldPackageCommand = defineCommand({
       description: "GWEN peer dependency version range",
       default: "^0.1.0",
     },
+    renderer: {
+      type: "boolean",
+      description: "Generate a renderer package instead of a standard plugin package",
+    },
     "with-ci": {
       type: "boolean",
       description: "Include GitHub Actions CI + publish workflows",

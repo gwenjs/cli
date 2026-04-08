@@ -298,6 +298,7 @@ describe("resolveOptions", () => {
     expect(opts.gwenVersion).toBe("^0.2.0");
     expect(opts.withCi).toBe(true);
     expect(opts.withDocs).toBe(true);
+    expect(opts.type).toBe("standard");
   });
 
   it("defaults gwenVersion to ^0.1.0 when not provided", async () => {
@@ -309,6 +310,35 @@ describe("resolveOptions", () => {
     const opts = await resolveOptions({ name: "audio", "with-ci": false, "with-docs": false });
     expect(opts.withCi).toBe(false);
     expect(opts.withDocs).toBe(false);
+  });
+
+  it("sets type to 'renderer' when renderer flag is true", async () => {
+    const opts = await resolveOptions({
+      name: "my-renderer",
+      renderer: true,
+      "with-ci": false,
+      "with-docs": false,
+    });
+    expect(opts.type).toBe("renderer");
+  });
+
+  it("sets type to 'standard' when renderer flag is false", async () => {
+    const opts = await resolveOptions({
+      name: "my-plugin",
+      renderer: false,
+      "with-ci": false,
+      "with-docs": false,
+    });
+    expect(opts.type).toBe("standard");
+  });
+
+  it("sets type to 'standard' when renderer flag is absent (non-TTY defaults to first choice)", async () => {
+    const opts = await resolveOptions({
+      name: "my-plugin",
+      "with-ci": false,
+      "with-docs": false,
+    });
+    expect(opts.type).toBe("standard");
   });
 });
 
