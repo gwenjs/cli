@@ -17,13 +17,14 @@ export function sceneTemplate(): string {
  * Wires all systems together and spawns the player ship during setup.
  * This file is the composition root for the landing game.
  */
-import { defineScene, useEngine } from '@gwenjs/core'
-import { MovementSystem } from '../systems/movement'
-import { InputSystem } from '../systems/input'
-import { CollisionSystem } from '../systems/collision'
-import { SpawnSystem } from '../systems/spawn'
-import { RenderSystem } from '../systems/render'
-import { Position, Velocity, Size, Shooter, PlayerTag, Score } from '../components/game'
+import { defineScene } from '@gwenjs/core/scene'
+import { useEngine } from '@gwenjs/core'
+import { MovementSystem } from '../systems/Movement'
+import { InputSystem } from '../systems/Input'
+import { CollisionSystem } from '../systems/Collision'
+import { SpawnSystem } from '../systems/Spawn'
+import { RenderSystem } from '../systems/Render'
+import { Position, Velocity, Size, Shooter, PlayerTag, Score } from '../components/Game'
 
 const CANVAS_W = 800
 const CANVAS_H = 600

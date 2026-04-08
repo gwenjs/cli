@@ -23,6 +23,12 @@ import { readmeTemplate } from "../../src/commands/init/templates/readme.js";
 import { componentsTemplate } from "../../src/commands/init/templates/game/components.js";
 import { systemsTemplate } from "../../src/commands/init/templates/game/systems.js";
 import { sceneTemplate } from "../../src/commands/init/templates/game/scene.js";
+import {
+  bulletPrefabTemplate,
+  playerPrefabTemplate,
+} from "../../src/commands/init/templates/game/prefabs.js";
+import { playerActorTemplate } from "../../src/commands/init/templates/game/actor.js";
+import { routerTemplate } from "../../src/commands/init/templates/router.js";
 import { initCommand } from "../../src/commands/init/index.js";
 
 // ─── Module registry mock ─────────────────────────────────────────────────────
@@ -217,6 +223,13 @@ describe("gwenConfigTemplate", () => {
     expect(src).not.toContain("InputPlugin");
   });
 
+  it("registers @gwenjs/core with the router option", () => {
+    const src = gwenConfigTemplate();
+    expect(src).toContain("@gwenjs/core");
+    expect(src).toContain("router: AppRouter");
+    expect(src).toContain("AppRouter");
+  });
+
   it("includes extra modules in the output", () => {
     const src = gwenConfigTemplate(["@gwenjs/physics2d"]);
     expect(src).toContain("@gwenjs/physics2d");
@@ -227,6 +240,47 @@ describe("gwenConfigTemplate", () => {
     const opens = (src.match(/\{/g) ?? []).length;
     const closes = (src.match(/\}/g) ?? []).length;
     expect(opens).toBe(closes);
+  });
+});
+
+describe("bulletPrefabTemplate", () => {
+  it("uses definePrefab from @gwenjs/core/actor", () => {
+    const src = bulletPrefabTemplate();
+    expect(src).toContain("definePrefab");
+    expect(src).toContain("@gwenjs/core/actor");
+    expect(src).toContain("BulletPrefab");
+  });
+});
+
+describe("playerPrefabTemplate", () => {
+  it("uses definePrefab from @gwenjs/core/actor", () => {
+    const src = playerPrefabTemplate();
+    expect(src).toContain("definePrefab");
+    expect(src).toContain("PlayerPrefab");
+  });
+});
+
+describe("playerActorTemplate", () => {
+  it("uses defineActor from @gwenjs/core/actor", () => {
+    const src = playerActorTemplate();
+    expect(src).toContain("defineActor");
+    expect(src).toContain("@gwenjs/core/actor");
+    expect(src).toContain("PlayerActor");
+  });
+});
+
+describe("routerTemplate", () => {
+  it("uses defineSceneRouter from @gwenjs/core/scene", () => {
+    const src = routerTemplate();
+    expect(src).toContain("defineSceneRouter");
+    expect(src).toContain("@gwenjs/core/scene");
+    expect(src).toContain("AppRouter");
+  });
+
+  it("sets game as initial route", () => {
+    const src = routerTemplate();
+    expect(src).toContain("initial: 'game'");
+    expect(src).toContain("GameScene");
   });
 });
 
@@ -274,25 +328,25 @@ describe("systemsTemplate", () => {
   it("returns all 5 system files", () => {
     const systems = systemsTemplate();
     expect(Object.keys(systems)).toEqual(
-      expect.arrayContaining(["movement.ts", "input.ts", "collision.ts", "spawn.ts", "render.ts"]),
+      expect.arrayContaining(["Movement.ts", "Input.ts", "Collision.ts", "Spawn.ts", "Render.ts"]),
     );
   });
 
   it("movement system moves entities by velocity", () => {
-    const { "movement.ts": src } = systemsTemplate();
+    const { "Movement.ts": src } = systemsTemplate();
     expect(src).toContain("MovementSystem");
     expect(src).toContain("vel.y * dt");
   });
 
   it("input system reads keyboard state", () => {
-    const { "input.ts": src } = systemsTemplate();
+    const { "Input.ts": src } = systemsTemplate();
     expect(src).toContain("useKeyboard");
     expect(src).toContain("Keys.ArrowLeft");
     expect(src).toContain("Keys.Space");
   });
 
   it("render system uses DOM-based rendering", () => {
-    const { "render.ts": src } = systemsTemplate();
+    const { "Render.ts": src } = systemsTemplate();
     expect(src).not.toContain("useCanvas2D");
     expect(src).toContain("onRender");
     expect(src).toContain("getElementById");
@@ -402,6 +456,8 @@ describe("initCommand scaffold (integration)", () => {
     expect(src).not.toContain("Canvas2DRenderer");
     expect(src).toContain("@gwenjs/input");
     expect(src).not.toContain("InputPlugin");
+    expect(src).toContain("AppRouter");
+    expect(src).toContain("router: AppRouter");
   });
 
   it("creates README.md with project name and controls", async () => {
@@ -412,17 +468,17 @@ describe("initCommand scaffold (integration)", () => {
     expect(md.toLowerCase()).toContain("space");
   });
 
-  it("creates src/components/game.ts with all required components", async () => {
+  it("creates src/components/Game.ts with all required components", async () => {
     await scaffold();
-    const src = await fs.readFile(path.join(projectDir, "src", "components", "game.ts"), "utf8");
+    const src = await fs.readFile(path.join(projectDir, "src", "components", "Game.ts"), "utf8");
     for (const name of ["Position", "Velocity", "PlayerTag", "AsteroidTag", "BulletTag", "Score"]) {
       expect(src, `missing: ${name}`).toContain(name);
     }
   });
 
-  it("creates all 5 system files", async () => {
+  it("creates all 5 system files (PascalCase)", async () => {
     await scaffold();
-    for (const f of ["movement.ts", "input.ts", "collision.ts", "spawn.ts", "render.ts"]) {
+    for (const f of ["Movement.ts", "Input.ts", "Collision.ts", "Spawn.ts", "Render.ts"]) {
       expect(
         await fileExists(path.join(projectDir, "src", "systems", f)),
         `missing: src/systems/${f}`,
@@ -430,11 +486,41 @@ describe("initCommand scaffold (integration)", () => {
     }
   });
 
-  it("creates src/scenes/game.ts with non-empty landing game", async () => {
+  it("creates src/scenes/GameScene.ts with non-empty landing game", async () => {
     await scaffold();
-    const src = await fs.readFile(path.join(projectDir, "src", "scenes", "game.ts"), "utf8");
+    const src = await fs.readFile(path.join(projectDir, "src", "scenes", "GameScene.ts"), "utf8");
     expect(src).toContain("GameScene");
     expect(src.length).toBeGreaterThan(100);
+  });
+
+  it("creates src/router.ts with AppRouter", async () => {
+    await scaffold();
+    const src = await fs.readFile(path.join(projectDir, "src", "router.ts"), "utf8");
+    expect(src).toContain("AppRouter");
+    expect(src).toContain("defineSceneRouter");
+  });
+
+  it("creates src/actors/Player.ts with PlayerActor", async () => {
+    await scaffold();
+    const src = await fs.readFile(path.join(projectDir, "src", "actors", "Player.ts"), "utf8");
+    expect(src).toContain("PlayerActor");
+    expect(src).toContain("defineActor");
+  });
+
+  it("creates src/prefabs/Bullet.ts and src/prefabs/Player.ts", async () => {
+    await scaffold();
+    expect(await fileExists(path.join(projectDir, "src", "prefabs", "Bullet.ts"))).toBe(true);
+    expect(await fileExists(path.join(projectDir, "src", "prefabs", "Player.ts"))).toBe(true);
+  });
+
+  it("creates placeholder directories (plugins, assets, utils)", async () => {
+    await scaffold();
+    for (const dir of ["plugins", "assets", "utils"]) {
+      expect(
+        await fileExists(path.join(projectDir, "src", dir, ".gitkeep")),
+        `missing: src/${dir}/.gitkeep`,
+      ).toBe(true);
+    }
   });
 
   it("injects extra modules into gwen.config.ts", async () => {

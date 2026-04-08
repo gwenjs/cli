@@ -7,11 +7,11 @@
 
 /** All system file contents indexed by their relative path under `src/systems/`. */
 export interface SystemTemplates {
-  "movement.ts": string;
-  "input.ts": string;
-  "collision.ts": string;
-  "spawn.ts": string;
-  "render.ts": string;
+  "Movement.ts": string;
+  "Input.ts": string;
+  "Collision.ts": string;
+  "Spawn.ts": string;
+  "Render.ts": string;
 }
 
 /**
@@ -21,11 +21,11 @@ export interface SystemTemplates {
  */
 export function systemsTemplate(): SystemTemplates {
   return {
-    "movement.ts": movementSystem(),
-    "input.ts": inputSystem(),
-    "collision.ts": collisionSystem(),
-    "spawn.ts": spawnSystem(),
-    "render.ts": renderSystem(),
+    "Movement.ts": movementSystem(),
+    "Input.ts": inputSystem(),
+    "Collision.ts": collisionSystem(),
+    "Spawn.ts": spawnSystem(),
+    "Render.ts": renderSystem(),
   };
 }
 
@@ -38,9 +38,10 @@ function movementSystem(): string {
  * Bullets are destroyed when they leave the canvas.
  * Asteroids wrap around the left/right edges and are removed at the bottom.
  */
-import { defineSystem, onUpdate, useQuery, useEngine } from '@gwenjs/core'
+import { defineSystem, onUpdate, useQuery } from '@gwenjs/core/system'
+import { useEngine } from '@gwenjs/core'
 import type { EntityId } from '@gwenjs/core'
-import { Position, Velocity, BulletTag, AsteroidTag } from '../components/game'
+import { Position, Velocity, BulletTag, AsteroidTag } from '../components/Game'
 
 const CANVAS_W = 800
 const CANVAS_H = 600
@@ -117,25 +118,20 @@ function inputSystem(): string {
  *   Arrow keys / WASD — move
  *   Space             — fire
  */
-import { defineSystem, onUpdate, useQuery, useEngine } from '@gwenjs/core'
-import type { GwenEngine } from '@gwenjs/core'
+import { defineSystem, onUpdate, useQuery } from '@gwenjs/core/system'
+import { useEngine } from '@gwenjs/core'
 import { useKeyboard, Keys } from '@gwenjs/input'
-import { Position, Velocity, Shooter, PlayerTag, BulletTag, Score, Size } from '../components/game'
+import { usePrefab } from '@gwenjs/core/actor'
+import { BulletPrefab } from '../prefabs/Bullet'
+import { Position, Velocity, Shooter, PlayerTag, Score, Size } from '../components/Game'
 
 const PLAYER_SPEED = 280
 const CANVAS_W = 800
 const CANVAS_H = 600
 
-function spawnBullet(engine: GwenEngine, x: number, y: number): void {
-  const id = engine.createEntity()
-  engine.addComponent(id, Position, { x, y })
-  engine.addComponent(id, Velocity, { x: 0, y: -500 })
-  engine.addComponent(id, BulletTag, { lifetime: 2.5 })
-  engine.addComponent(id, Size, { w: 4, h: 14 })
-}
-
 export const InputSystem = defineSystem(function InputSystem() {
   const engine = useEngine()
+  const bullet = usePrefab(BulletPrefab)
   const kb = useKeyboard()
   const players = useQuery([Position, Velocity, Shooter, PlayerTag, Score, Size])
 
@@ -183,7 +179,7 @@ export const InputSystem = defineSystem(function InputSystem() {
       }
 
       if (canFire) {
-        spawnBullet(engine, nx, ny - hh - 6)
+        bullet.spawn({ x: nx, y: ny - hh - 6 })
       }
     }
   })
@@ -201,9 +197,10 @@ function collisionSystem(): string {
  * When an asteroid reaches the player ship (and the player is not invincible)
  * a life is lost.
  */
-import { defineSystem, onUpdate, useQuery, useEngine } from '@gwenjs/core'
+import { defineSystem, onUpdate, useQuery } from '@gwenjs/core/system'
+import { useEngine } from '@gwenjs/core'
 import type { EntityId } from '@gwenjs/core'
-import { Position, Size, BulletTag, AsteroidTag, PlayerTag, Score } from '../components/game'
+import { Position, Size, BulletTag, AsteroidTag, PlayerTag, Score } from '../components/Game'
 
 function overlaps(
   ax: number, ay: number, aw: number, ah: number,
@@ -300,8 +297,9 @@ function spawnSystem(): string {
  * Spawn rate scales gently with the player's score to increase difficulty
  * as the game progresses.
  */
-import { defineSystem, onUpdate, useQuery, useEngine } from '@gwenjs/core'
-import { Position, Velocity, AsteroidTag, PlayerTag, Score } from '../components/game'
+import { defineSystem, onUpdate, useQuery } from '@gwenjs/core/system'
+import { useEngine } from '@gwenjs/core'
+import { Position, Velocity, AsteroidTag, PlayerTag, Score } from '../components/Game'
 
 const CANVAS_W = 800
 const BASE_INTERVAL = 1.2   // seconds between spawns at score 0
@@ -357,8 +355,8 @@ function renderSystem(): string {
  *   3. Player ship
  *   4. HUD (score, lives)
  */
-import { defineSystem, onRender, useQuery } from '@gwenjs/core'
-import { Position, Velocity, BulletTag, AsteroidTag, PlayerTag, Score } from '../components/game'
+import { defineSystem, onRender, useQuery } from '@gwenjs/core/system'
+import { Position, Velocity, BulletTag, AsteroidTag, PlayerTag, Score } from '../components/Game'
 
 const GAME_W = 800
 const GAME_H = 600

@@ -5,19 +5,26 @@
  * Prompts the user for a project name and optional starter modules.
  *
  * Generated files:
- *  - package.json           (Vite 8, TypeScript 6, oxlint, oxfmt, all scripts)
- *  - tsconfig.json          (strict, bundler moduleResolution)
- *  - oxlint.json            (no-explicit-any: error)
- *  - .oxfmtrc.json          (indent 2, lineWidth 100, singleQuote)
- *  - gwen.config.ts         (Canvas2DRenderer + InputPlugin enabled)
- *  - README.md              (quick-start guide with controls and commands)
- *  - src/components/game.ts (ECS component definitions)
- *  - src/systems/movement.ts
- *  - src/systems/input.ts
- *  - src/systems/collision.ts
- *  - src/systems/spawn.ts
- *  - src/systems/render.ts
- *  - src/scenes/game.ts     (scene wiring all systems together)
+ *  - gwen.config.ts             (engine + router configuration)
+ *  - package.json               (Vite 8, TypeScript 6, oxlint, oxfmt, all scripts)
+ *  - tsconfig.json              (strict, bundler moduleResolution)
+ *  - oxlint.json                (no-explicit-any: error)
+ *  - .oxfmtrc.json              (indent 2, lineWidth 100, singleQuote)
+ *  - README.md                  (quick-start guide with controls and commands)
+ *  - src/components/Game.ts     (ECS component definitions)
+ *  - src/systems/Movement.ts
+ *  - src/systems/Input.ts
+ *  - src/systems/Collision.ts
+ *  - src/systems/Spawn.ts
+ *  - src/systems/Render.ts
+ *  - src/scenes/GameScene.ts    (scene wiring all systems together)
+ *  - src/actors/Player.ts       (player actor — defineActor)
+ *  - src/prefabs/Bullet.ts      (bullet prefab — definePrefab)
+ *  - src/prefabs/Player.ts      (player prefab — definePrefab)
+ *  - src/router.ts              (scene FSM — defineSceneRouter)
+ *  - src/plugins/.gitkeep       (placeholder for custom plugins)
+ *  - src/assets/.gitkeep        (placeholder for game assets)
+ *  - src/utils/.gitkeep         (placeholder for shared helpers)
  *
  * @example
  * ```bash
@@ -46,6 +53,9 @@ import { readmeTemplate } from "./templates/readme.js";
 import { componentsTemplate } from "./templates/game/components.js";
 import { systemsTemplate } from "./templates/game/systems.js";
 import { sceneTemplate } from "./templates/game/scene.js";
+import { playerActorTemplate } from "./templates/game/actor.js";
+import { bulletPrefabTemplate, playerPrefabTemplate } from "./templates/game/prefabs.js";
+import { routerTemplate } from "./templates/router.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -162,7 +172,7 @@ export const initCommand = defineCommand({
     await write(path.join(projectDir, "README.md"), readmeTemplate(name));
 
     // Game source — components
-    await write(path.join(projectDir, "src", "components", "game.ts"), componentsTemplate());
+    await write(path.join(projectDir, "src", "components", "Game.ts"), componentsTemplate());
 
     // Game source — systems
     const systems = systemsTemplate();
@@ -171,7 +181,22 @@ export const initCommand = defineCommand({
     }
 
     // Game source — scene
-    await write(path.join(projectDir, "src", "scenes", "game.ts"), sceneTemplate());
+    await write(path.join(projectDir, "src", "scenes", "GameScene.ts"), sceneTemplate());
+
+    // Game source — actors
+    await write(path.join(projectDir, "src", "actors", "Player.ts"), playerActorTemplate());
+
+    // Game source — prefabs
+    await write(path.join(projectDir, "src", "prefabs", "Bullet.ts"), bulletPrefabTemplate());
+    await write(path.join(projectDir, "src", "prefabs", "Player.ts"), playerPrefabTemplate());
+
+    // Scene router
+    await write(path.join(projectDir, "src", "router.ts"), routerTemplate());
+
+    // Empty placeholder directories
+    for (const dir of ["plugins", "assets", "utils"]) {
+      await write(path.join(projectDir, "src", dir, ".gitkeep"), "");
+    }
 
     // ── Done ──────────────────────────────────────────────────────────────────
     const pm = detectPackageManager(process.cwd());
