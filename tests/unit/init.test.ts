@@ -28,7 +28,10 @@ import {
   playerPrefabTemplate,
   asteroidPrefabTemplate,
 } from "../../src/commands/init/templates/game/prefabs.js";
-import { playerActorTemplate, asteroidActorTemplate } from "../../src/commands/init/templates/game/actor.js";
+import {
+  playerActorTemplate,
+  asteroidActorTemplate,
+} from "../../src/commands/init/templates/game/actor.js";
 import { routerTemplate } from "../../src/commands/init/templates/router.js";
 import { initCommand } from "../../src/commands/init/index.js";
 
@@ -306,6 +309,15 @@ describe("asteroidActorTemplate", () => {
     expect(src).toContain("speedX");
     expect(src).toContain("speedY");
     expect(src).toContain("rotSpeed");
+  });
+
+  it("uses useTransform and onStart to set initial position from props", () => {
+    const src = asteroidActorTemplate();
+    expect(src).toContain("useTransform");
+    expect(src).toContain("onStart");
+    expect(src).toContain("setPosition");
+    expect(src).toContain("props.x");
+    expect(src).toContain("props.y");
   });
 });
 

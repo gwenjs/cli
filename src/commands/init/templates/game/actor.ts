@@ -1,5 +1,5 @@
 /**
- * Template factory for `src/actors/Player.ts` in the scaffolded project.
+ * Template factories for actor source files in the scaffolded game project.
  */
 
 /**
@@ -58,4 +58,3 @@ export const AsteroidActor = defineActor(
 )
 `;
 }
-
