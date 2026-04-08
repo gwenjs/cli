@@ -10,9 +10,27 @@
 ## Installation
 
 ```bash
+# npm
 npm install -g @gwenjs/cli
-# or
+
+# pnpm
 pnpm add -g @gwenjs/cli
+
+# yarn
+yarn global add @gwenjs/cli
+```
+
+Or run directly without installing:
+
+```bash
+# npx
+npx @gwenjs/cli <command>
+
+# pnpm dlx
+pnpm dlx @gwenjs/cli <command>
+
+# yarn dlx
+yarn dlx @gwenjs/cli <command>
 ```
 
 ## Usage
