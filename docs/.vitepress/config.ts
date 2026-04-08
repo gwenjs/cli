@@ -25,6 +25,7 @@ function commandsSidebar(base: string, labels: { section: string; overview: stri
 export default defineConfig({
   title: "GWEN CLI",
   description: "GWEN Game Engine — Command Line Interface Reference",
+  base: "/cli/",
 
   locales: {
     root: {
