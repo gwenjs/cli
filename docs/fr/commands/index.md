@@ -2,6 +2,44 @@
 
 Référence complète de toutes les commandes du CLI `gwen`.
 
+## Installation
+
+Installez le CLI globalement pour utiliser la commande `gwen` partout :
+
+::: code-group
+
+```bash [npm]
+npm install -g @gwenjs/cli
+```
+
+```bash [pnpm]
+pnpm add -g @gwenjs/cli
+```
+
+```bash [yarn]
+yarn global add @gwenjs/cli
+```
+
+:::
+
+Ou utilisez-le directement sans installation :
+
+::: code-group
+
+```bash [npx]
+npx @gwenjs/cli <commande>
+```
+
+```bash [pnpm dlx]
+pnpm dlx @gwenjs/cli <commande>
+```
+
+```bash [yarn dlx]
+yarn dlx @gwenjs/cli <commande>
+```
+
+:::
+
 ## Options globales
 
 Disponibles sur chaque commande :
