@@ -335,7 +335,7 @@ describe("systemsTemplate", () => {
   it("movement system moves entities by velocity", () => {
     const { "Movement.ts": src } = systemsTemplate();
     expect(src).toContain("MovementSystem");
-    expect(src).toContain("vel.y * dt");
+    expect(src).toContain("vel.vy * dt");
   });
 
   it("input system reads keyboard state", () => {

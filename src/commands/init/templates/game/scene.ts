@@ -35,7 +35,7 @@ export const GameScene = defineScene('Game', () => {
   // Spawn the player ship at the bottom-centre of the canvas.
   const playerId = engine.createEntity()
   engine.addComponent(playerId, Position, { x: CANVAS_W / 2, y: CANVAS_H - 70 })
-  engine.addComponent(playerId, Velocity, { x: 0, y: 0 })
+  engine.addComponent(playerId, Velocity, { vx: 0, vy: 0 })
   engine.addComponent(playerId, Size, { w: 28, h: 28 })
   engine.addComponent(playerId, Shooter, { cooldown: 0.22, timer: 0 })
   engine.addComponent(playerId, PlayerTag, { active: true })

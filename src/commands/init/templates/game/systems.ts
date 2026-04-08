@@ -60,8 +60,7 @@ export const MovementSystem = defineSystem(function MovementSystem() {
       const tag = e.get(BulletTag)
       if (!pos || !vel || !tag) continue
 
-      const ny = pos.y + vel.y * dt
-      const remaining = tag.lifetime - dt
+      const ny = pos.y + vel.vy * dt
 
       if (ny < -20 || remaining <= 0) {
         toDestroy.push(e.id)
@@ -78,8 +77,8 @@ export const MovementSystem = defineSystem(function MovementSystem() {
       const tag = e.get(AsteroidTag)
       if (!pos || !vel || !tag) continue
 
-      let nx = pos.x + vel.x * dt
-      const ny = pos.y + vel.y * dt
+      let nx = pos.x + vel.vx * dt
+      const ny = pos.y + vel.vy * dt
 
       // Wrap horizontally
       if (nx < -tag.radius) nx = CANVAS_W + tag.radius
@@ -158,7 +157,7 @@ export const InputSystem = defineSystem(function InputSystem() {
       const ny = Math.max(hh, Math.min(CANVAS_H - hh, pos.y + vy * dt))
 
       engine.addComponent(e.id, Position, { x: nx, y: ny })
-      engine.addComponent(e.id, Velocity, { x: vx, y: vy })
+      engine.addComponent(e.id, Velocity, { vx, vy })
 
       // Weapon cooldown
       const newTimer = shooter.timer - dt
@@ -333,7 +332,7 @@ export const SpawnSystem = defineSystem(function SpawnSystem() {
 
     const id = engine.createEntity()
     engine.addComponent(id, Position, { x, y: -radius })
-    engine.addComponent(id, Velocity, { x: speedX, y: speedY })
+    engine.addComponent(id, Velocity, { vx: speedX, vy: speedY })
     engine.addComponent(id, AsteroidTag, { radius, rotation: 0, rotSpeed })
   })
 })

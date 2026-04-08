@@ -24,7 +24,7 @@ export const Position = defineComponent({
 /** Linear velocity in pixels per second. */
 export const Velocity = defineComponent({
   name: 'velocity',
-  schema: { x: Types.f32, y: Types.f32 },
+  schema: { vx: Types.f32, vy: Types.f32 },
 })
 
 /** Axis-aligned bounding box half-extents used for collision detection. */

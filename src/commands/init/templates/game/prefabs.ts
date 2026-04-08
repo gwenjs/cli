@@ -19,7 +19,7 @@ import { Position, Velocity, BulletTag, Size } from '../components/Game'
  */
 export const BulletPrefab = definePrefab([
   { def: Position, defaults: { x: 0, y: 0 } },
-  { def: Velocity, defaults: { x: 0, y: -500 } },
+  { def: Velocity, defaults: { vx: 0, vy: -500 } },
   { def: BulletTag, defaults: { lifetime: 2.5 } },
   { def: Size, defaults: { w: 4, h: 14 } },
 ])
@@ -42,7 +42,7 @@ import { Position, Velocity, Size, Shooter, PlayerTag, Score } from '../componen
  */
 export const PlayerPrefab = definePrefab([
   { def: Position, defaults: { x: 0, y: 0 } },
-  { def: Velocity, defaults: { x: 0, y: 0 } },
+  { def: Velocity, defaults: { vx: 0, vy: 0 } },
   { def: Size, defaults: { w: 28, h: 28 } },
   { def: Shooter, defaults: { cooldown: 0.22, timer: 0 } },
   { def: PlayerTag, defaults: { active: true } },
