@@ -21,7 +21,6 @@ export function tsconfigTemplate(): string {
       allowImportingTsExtensions: true,
       noEmit: true,
       types: ["vite/client"],
-      ignoreDeprecations: "6.0",
     },
     include: ["src/**/*", "gwen.config.ts"],
     exclude: ["node_modules", "dist"],
