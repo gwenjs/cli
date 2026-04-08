@@ -1,70 +1,20 @@
 # gwen scaffold
 
-Générer des artefacts pour un projet GWEN : plugins de runtime, modules de build, ou packages de plugin communautaires complets.
+Génère un package de plugin communautaire pour l'écosystème GWEN.
 
 ## Sous-commandes
 
 | Sous-commande                                     | Description                                        |
 | ------------------------------------------------- | -------------------------------------------------- |
-| [`gwen scaffold plugin`](#gwen-scaffold-plugin)   | Générer un stub de plugin de runtime               |
-| [`gwen scaffold module`](#gwen-scaffold-module)   | Générer un stub de module de build                 |
 | [`gwen scaffold package`](#gwen-scaffold-package) | Générer un package de plugin communautaire complet |
-
----
-
-## gwen scaffold plugin
-
-Génère un stub de plugin de runtime dans `src/plugins/<nom>/index.ts`.
-
-### Utilisation
-
-```bash
-gwen scaffold plugin [nom]
-```
-
-### Arguments
-
-| Argument | Requis | Description                                     |
-| -------- | ------ | ----------------------------------------------- |
-| `nom`    | Non    | Nom du plugin en kebab-case (demandé si absent) |
-
-### Exemple
-
-```bash
-gwen scaffold plugin my-renderer
-# → src/plugins/my-renderer/index.ts
-```
-
----
-
-## gwen scaffold module
-
-Génère un stub de module de build dans `src/modules/<nom>/index.ts`.
-
-### Utilisation
-
-```bash
-gwen scaffold module [nom]
-```
-
-### Arguments
-
-| Argument | Requis | Description                                     |
-| -------- | ------ | ----------------------------------------------- |
-| `nom`    | Non    | Nom du module en kebab-case (demandé si absent) |
-
-### Exemple
-
-```bash
-gwen scaffold module my-module
-# → src/modules/my-module/index.ts
-```
 
 ---
 
 ## gwen scaffold package
 
-Génère un package de plugin communautaire complet dans un nouveau répertoire `<nom>/`. Inclut la config TypeScript, la config Vite, le plugin, le composable, l'augmentation de types et le module de build.
+Génère un package de plugin communautaire complet dans un nouveau répertoire `<nom>/`. Inclut la config TypeScript, le build Vite, le plugin, le composable, l'augmentation de types et le module de build.
+
+Utilisez `--renderer` (ou sélectionnez **Renderer package** interactivement) pour générer des templates spécifiques aux renderers qui implémentent le contrat `RendererService` de `@gwenjs/renderer-core`.
 
 ### Utilisation
 
@@ -80,11 +30,14 @@ gwen scaffold package [nom] [options]
 
 ### Options
 
-| Option           | Type   | Défaut   | Description                           |
-| ---------------- | ------ | -------- | ------------------------------------- |
-| `--gwen-version` | string | `^0.1.0` | Plage de version peer dependency GWEN |
+| Option           | Type    | Défaut   | Description                                                          |
+| ---------------- | ------- | -------- | -------------------------------------------------------------------- |
+| `--renderer`     | boolean | demandé  | Générer un package renderer (Canvas, WebGL, Three.js, etc.)          |
+| `--gwen-version` | string  | `^0.1.0` | Plage de version peer dependency GWEN                                |
+| `--with-ci`      | boolean | demandé  | Inclure les workflows GitHub Actions CI + publish                    |
+| `--with-docs`    | boolean | demandé  | Inclure la documentation VitePress                                   |
 
-### Structure générée
+### Structure — package standard
 
 ```
 <nom>/
@@ -100,11 +53,61 @@ gwen scaffold package [nom] [options]
     └── module.ts
 ```
 
+### Structure — package renderer
+
+Généré avec `--renderer` ou en sélectionnant **Renderer package** interactivement.
+
+```
+<nom>/
+├── package.json              ← inclut @gwenjs/renderer-core
+├── tsconfig.json
+├── vite.config.ts
+├── tests/
+│   └── conformance.test.ts   ← valide le contrat RendererService
+└── src/
+    ├── index.ts
+    ├── types.ts              ← RendererOptions avec layers
+    ├── renderer-service.ts   ← stub defineRendererService
+    ├── plugin.ts             ← câblage getOrCreateLayerManager
+    ├── composables.ts        ← composable useMyRenderer()
+    ├── augment.ts            ← augmentation GwenProvides
+    └── module.ts             ← entrée defineGwenModule
+```
+
 ### Exemples
 
 ```bash
+# Package standard (sélection de type interactive)
 gwen scaffold package my-plugin
-# → my-plugin/
 
+# Package renderer via flag (sans prompt)
+gwen scaffold package my-renderer --renderer
+
+# Avec CI et docs
+gwen scaffold package my-plugin --with-ci --with-docs
+
+# Fixer la version GWEN
 gwen scaffold package my-plugin --gwen-version "^0.2.0"
+```
+
+### Étapes après le scaffold d'un renderer
+
+1. `cd <nom> && pnpm install`
+2. Implémenter `mount`, `unmount`, `resize`, `flush` dans `src/renderer-service.ts`
+3. Exécuter `pnpm test` — la suite de conformance doit passer avant la publication
+4. Enregistrer dans `gwen.config.ts` :
+
+```ts
+import { defineConfig } from '@gwenjs/app'
+
+export default defineConfig({
+  modules: [
+    ['@community/gwen-<nom>', {
+      layers: {
+        background: { order: 0 },
+        game:       { order: 10 },
+      }
+    }],
+  ]
+})
 ```
