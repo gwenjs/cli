@@ -20,6 +20,16 @@ import {
   moduleTemplate,
   indexTemplate,
 } from "../../src/commands/scaffold/package/templates/base.js";
+import {
+  rendererTypesTemplate,
+  rendererServiceTemplate,
+  rendererPluginTemplate,
+  rendererComposablesTemplate,
+  rendererModuleTemplate,
+  rendererAugmentTemplate,
+  rendererIndexTemplate,
+  conformanceTestTemplate,
+} from "../../src/commands/scaffold/package/templates/renderer.js";
 import { resolveOptions } from "../../src/commands/scaffold/package/options.js";
 import { promptSelect } from "../../src/utils/prompt.js";
 import scaffoldCommand from "../../src/commands/scaffold/index.js";
@@ -514,5 +524,176 @@ describe("scaffold command surface", () => {
   it("exposes only the package subcommand", () => {
     const subs = (scaffoldCommand as any).subCommands ?? {};
     expect(subs.package).toBeDefined();
+  });
+});
+
+// ─── Renderer templates ───────────────────────────────────────────────────────
+
+describe("rendererTypesTemplate", () => {
+  it("exports <Name>Options with layers field", () => {
+    const src = rendererTypesTemplate("my-renderer");
+    expect(src).toContain("export interface MyRendererOptions");
+    expect(src).toContain("layers: Record<string, LayerDef>");
+  });
+
+  it("imports LayerDef from @gwenjs/renderer-core", () => {
+    const src = rendererTypesTemplate("my-renderer");
+    expect(src).toContain("from '@gwenjs/renderer-core'");
+    expect(src).toContain("LayerDef");
+  });
+
+  it("exports <Name>Service interface", () => {
+    const src = rendererTypesTemplate("my-renderer");
+    expect(src).toContain("export interface MyRendererService");
+  });
+});
+
+describe("rendererServiceTemplate", () => {
+  it("imports defineRendererService from @gwenjs/renderer-core", () => {
+    const src = rendererServiceTemplate("my-renderer");
+    expect(src).toContain("defineRendererService");
+    expect(src).toContain("from '@gwenjs/renderer-core'");
+  });
+
+  it("exports the service as <Name>RendererService", () => {
+    const src = rendererServiceTemplate("my-renderer");
+    expect(src).toContain("export const MyRendererRendererService");
+  });
+
+  it("includes all required RendererService members", () => {
+    const src = rendererServiceTemplate("my-renderer");
+    expect(src).toContain("createElement");
+    expect(src).toContain("mount");
+    expect(src).toContain("unmount");
+    expect(src).toContain("resize");
+    expect(src).toContain("flush");
+  });
+
+  it("uses renderer:<name> as the service key", () => {
+    const src = rendererServiceTemplate("my-renderer");
+    expect(src).toContain("renderer:my-renderer");
+  });
+});
+
+describe("rendererPluginTemplate", () => {
+  it("imports getOrCreateLayerManager from @gwenjs/renderer-core", () => {
+    const src = rendererPluginTemplate("my-renderer");
+    expect(src).toContain("getOrCreateLayerManager");
+    expect(src).toContain("from '@gwenjs/renderer-core'");
+  });
+
+  it("registers the service with engine.provide", () => {
+    const src = rendererPluginTemplate("my-renderer");
+    expect(src).toContain("engine.provide('renderer:my-renderer'");
+  });
+
+  it("calls manager.register and manager.mount", () => {
+    const src = rendererPluginTemplate("my-renderer");
+    expect(src).toContain("manager.register");
+    expect(src).toContain("manager.mount");
+  });
+
+  it("exports the plugin as <Name>Plugin", () => {
+    const src = rendererPluginTemplate("my-renderer");
+    expect(src).toContain("export const MyRendererPlugin");
+  });
+});
+
+describe("rendererComposablesTemplate", () => {
+  it("imports useService from @gwenjs/core/system", () => {
+    const src = rendererComposablesTemplate("my-renderer");
+    expect(src).toContain("useService");
+    expect(src).toContain("from '@gwenjs/core/system'");
+  });
+
+  it("imports onDestroy from @gwenjs/core/actor", () => {
+    const src = rendererComposablesTemplate("my-renderer");
+    expect(src).toContain("onDestroy");
+    expect(src).toContain("from '@gwenjs/core/actor'");
+  });
+
+  it("exports useMyRenderer composable", () => {
+    const src = rendererComposablesTemplate("my-renderer");
+    expect(src).toContain("export function useMyRenderer");
+  });
+
+  it("calls useService with renderer:<name> key", () => {
+    const src = rendererComposablesTemplate("my-renderer");
+    expect(src).toContain("useService('renderer:my-renderer')");
+  });
+
+  it("imports augment.ts as side-effect", () => {
+    const src = rendererComposablesTemplate("my-renderer");
+    expect(src).toContain("import './augment.js'");
+  });
+});
+
+describe("rendererModuleTemplate", () => {
+  it("uses configKey derived from package name", () => {
+    const src = rendererModuleTemplate("my-renderer");
+    expect(src).toContain("configKey");
+    expect(src).toContain("myRenderer");
+  });
+
+  it("sets default layers to { main: { order: 0 } }", () => {
+    const src = rendererModuleTemplate("my-renderer");
+    expect(src).toContain("layers");
+    expect(src).toContain("order: 0");
+  });
+
+  it("imports plugin lazily from ./plugin.js", () => {
+    const src = rendererModuleTemplate("my-renderer");
+    expect(src).toContain("import('./plugin.js')");
+  });
+
+  it("registers composable for auto-import", () => {
+    const src = rendererModuleTemplate("my-renderer");
+    expect(src).toContain("useMyRenderer");
+    expect(src).toContain("@community/gwen-my-renderer");
+  });
+});
+
+describe("rendererAugmentTemplate", () => {
+  it("augments GwenProvides with renderer:<name> key", () => {
+    const src = rendererAugmentTemplate("my-renderer");
+    expect(src).toContain("interface GwenProvides");
+    expect(src).toContain("'renderer:my-renderer'");
+  });
+});
+
+describe("rendererIndexTemplate", () => {
+  it("re-exports plugin, composables, types", () => {
+    const src = rendererIndexTemplate("my-renderer");
+    expect(src).toContain("from './plugin.js'");
+    expect(src).toContain("from './composables.js'");
+    expect(src).toContain("from './types.js'");
+  });
+
+  it("imports augment.ts as side-effect", () => {
+    const src = rendererIndexTemplate("my-renderer");
+    expect(src).toContain("import './augment.js'");
+  });
+
+  it("does not re-export module.ts", () => {
+    const src = rendererIndexTemplate("my-renderer");
+    expect(src).not.toContain("from './module");
+  });
+});
+
+describe("conformanceTestTemplate", () => {
+  it("imports runConformanceTests from @gwenjs/renderer-core/testing", () => {
+    const src = conformanceTestTemplate("my-renderer");
+    expect(src).toContain("runConformanceTests");
+    expect(src).toContain("from '@gwenjs/renderer-core/testing'");
+  });
+
+  it("imports the renderer service from ../src/renderer-service.js", () => {
+    const src = conformanceTestTemplate("my-renderer");
+    expect(src).toContain("from '../src/renderer-service.js'");
+  });
+
+  it("creates service with layers: { main: { order: 0 } }", () => {
+    const src = conformanceTestTemplate("my-renderer");
+    expect(src).toContain("main: { order: 0 }");
   });
 });
