@@ -1,20 +1,16 @@
 /**
  * `gwen scaffold` command group
  *
- * Sub-commands for scaffolding artefacts:
- *  - `gwen scaffold plugin [name]` — creates a runtime plugin stub
- *  - `gwen scaffold module [name]` — creates a build-time module stub
+ * Scaffolds community plugin packages for the GWEN ecosystem.
  *
  * @example
  * ```bash
- * gwen scaffold plugin my-renderer
- * gwen scaffold module my-module
+ * gwen scaffold package my-plugin
+ * gwen scaffold package my-renderer --renderer
  * ```
  */
 
 import { defineCommand } from "citty";
-import { scaffoldPluginCommand } from "./plugin.js";
-import { scaffoldModuleCommand } from "./module.js";
 import { scaffoldPackageCommand } from "./package/index.js";
 
 /**
@@ -24,11 +20,9 @@ import { scaffoldPackageCommand } from "./package/index.js";
 export default defineCommand({
   meta: {
     name: "scaffold",
-    description: "Scaffold artefacts (plugin, module, package)",
+    description: "Scaffold a community plugin package",
   },
   subCommands: {
-    plugin: scaffoldPluginCommand,
-    module: scaffoldModuleCommand,
     package: scaffoldPackageCommand,
   },
 });
