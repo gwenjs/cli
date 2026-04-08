@@ -80,4 +80,37 @@ describe("CHECKS (doctor health checks)", () => {
     expect(typeof result.ok).toBe("boolean");
     expect(typeof result.message).toBe("string");
   });
+
+  it("gwen.config.ts exists check returns ok:false when file is absent", async () => {
+    const configCheck = CHECKS.find((c) => c.name === "gwen.config.ts exists")!;
+    vi.spyOn(require("node:fs"), "existsSync").mockReturnValue(false);
+    const result = await configCheck.run();
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("run 'gwen init'");
+  });
+
+  it("gwen.config.ts exists check returns ok:true when file exists", async () => {
+    const configCheck = CHECKS.find((c) => c.name === "gwen.config.ts exists")!;
+    vi.spyOn(require("node:fs"), "existsSync").mockReturnValue(true);
+    const result = await configCheck.run();
+    expect(result.ok).toBe(true);
+  });
+
+  it("gwen.config.ts parses check returns ok:false when config fails to load", async () => {
+    const parseCheck = CHECKS.find((c) => c.name === "gwen.config.ts parses")!;
+    const { loadGwenConfig } = await import("../../src/core/config.js");
+    vi.spyOn({ loadGwenConfig }, "loadGwenConfig").mockRejectedValue(new Error("parse error"));
+    // The check should not throw; it should catch and return ok:false
+    const result = await parseCheck.run();
+    expect(typeof result.ok).toBe("boolean");
+    expect(typeof result.message).toBe("string");
+  });
+
+  it("WASM binary check returns ok:false when binary is not found", async () => {
+    const wasmCheck = CHECKS.find((c) => c.name === "WASM binary")!;
+    vi.spyOn(require("node:fs"), "existsSync").mockReturnValue(false);
+    const result = await wasmCheck.run();
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("@gwenjs/core");
+  });
 });

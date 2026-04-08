@@ -534,3 +534,44 @@ describe("initCommand scaffold (integration)", () => {
     expect(await fileExists(path.join(projectDir, "package.json"))).toBe(true);
   });
 });
+
+// ─── Interactive prompt coverage ──────────────────────────────────────────────
+
+describe("initCommand interactive prompts", () => {
+  let tmpDir: string;
+  let originalCwd: string;
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "gwen-init-interactive-"));
+    originalCwd = process.cwd();
+    process.chdir(tmpDir);
+  });
+
+  afterEach(async () => {
+    vi.restoreAllMocks();
+    process.chdir(originalCwd);
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("uses module selection prompt when --modules flag is omitted", async () => {
+    const { consola } = await import("consola");
+    // Mock prompt: return empty array (no extra modules selected)
+    vi.spyOn(consola, "prompt").mockResolvedValueOnce([] as unknown as string);
+
+    await initCommand.run({
+      args: { name: "my-prompted-game", modules: undefined },
+      cmd: initCommand,
+      rawArgs: [],
+    });
+
+    const exists = await fs
+      .access(path.join(tmpDir, "my-prompted-game", "package.json"))
+      .then(() => true)
+      .catch(() => false);
+    expect(exists).toBe(true);
+    expect(consola.prompt).toHaveBeenCalledWith(
+      "Select optional modules:",
+      expect.objectContaining({ type: "multiselect" }),
+    );
+  });
+});

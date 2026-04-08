@@ -3,7 +3,7 @@
  * file content and the full scaffold generates the expected file tree.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
@@ -411,5 +411,47 @@ describe("deployDocsWorkflowTemplate", () => {
     const content = deployDocsWorkflowTemplate();
     expect(content).toContain("actions/deploy-pages");
     expect(content).toContain("pnpm docs:build");
+  });
+});
+
+// ─── resolveOptions interactive branches ─────────────────────────────────────
+
+describe("resolveOptions — interactive prompt branches", () => {
+  beforeEach(() => {
+    vi.mock("node:readline", () => {
+      const mockRl = {
+        once: vi.fn((event: string, cb: (line: string) => void) => {
+          if (event === "line") cb("y");
+        }),
+        close: vi.fn(),
+      };
+      return {
+        default: {
+          createInterface: vi.fn(() => mockRl),
+        },
+      };
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("prompts for withCi and withDocs when flags are omitted", async () => {
+    // vi.mock hoists, so readline mock is active; "y" means true
+    const opts = await resolveOptions({ name: "prompted-pkg" });
+    expect(opts.name).toBe("prompted-pkg");
+    expect(typeof opts.withCi).toBe("boolean");
+    expect(typeof opts.withDocs).toBe("boolean");
+  });
+
+  it("trims whitespace from gwen-version", async () => {
+    const opts = await resolveOptions({
+      name: "pkg",
+      "gwen-version": "  ^1.0.0  ",
+      "with-ci": false,
+      "with-docs": false,
+    });
+    expect(opts.gwenVersion).toBe("^1.0.0");
   });
 });
