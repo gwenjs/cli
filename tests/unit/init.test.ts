@@ -26,6 +26,7 @@ import { sceneTemplate } from "../../src/commands/init/templates/game/scene.js";
 import {
   bulletPrefabTemplate,
   playerPrefabTemplate,
+  asteroidPrefabTemplate,
 } from "../../src/commands/init/templates/game/prefabs.js";
 import { playerActorTemplate } from "../../src/commands/init/templates/game/actor.js";
 import { routerTemplate } from "../../src/commands/init/templates/router.js";
@@ -257,6 +258,22 @@ describe("playerPrefabTemplate", () => {
     const src = playerPrefabTemplate();
     expect(src).toContain("definePrefab");
     expect(src).toContain("PlayerPrefab");
+  });
+});
+
+describe("asteroidPrefabTemplate", () => {
+  it("uses definePrefab from @gwenjs/core/actor", () => {
+    const src = asteroidPrefabTemplate();
+    expect(src).toContain("definePrefab");
+    expect(src).toContain("@gwenjs/core/actor");
+    expect(src).toContain("AsteroidPrefab");
+  });
+
+  it("includes Position, Velocity and AsteroidTag components", () => {
+    const src = asteroidPrefabTemplate();
+    expect(src).toContain("Position");
+    expect(src).toContain("Velocity");
+    expect(src).toContain("AsteroidTag");
   });
 });
 

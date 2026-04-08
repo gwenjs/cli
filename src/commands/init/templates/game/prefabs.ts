@@ -50,3 +50,26 @@ export const PlayerPrefab = definePrefab([
 ])
 `;
 }
+
+/**
+ * Returns the `src/prefabs/Asteroid.ts` source.
+ *
+ * @returns The TypeScript source string (with trailing newline).
+ */
+export function asteroidPrefabTemplate(): string {
+  return `import { definePrefab } from '@gwenjs/core/actor'
+import { Position, Velocity, AsteroidTag } from '../components/Game'
+
+/**
+ * Reusable entity template for asteroids.
+ *
+ * Spawn via \`useActor(AsteroidActor).spawn({ x, y, radius, speedX, speedY, rotSpeed })\`.
+ * Defaults are overridden by the actor on each spawn.
+ */
+export const AsteroidPrefab = definePrefab([
+  { def: Position, defaults: { x: 0, y: 0 } },
+  { def: Velocity, defaults: { vx: 0, vy: 60 } },
+  { def: AsteroidTag, defaults: { radius: 20, rotation: 0, rotSpeed: 0 } },
+])
+`;
+}
