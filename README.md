@@ -1,10 +1,11 @@
 # @gwenjs/cli
 
-> Command Line Interface for the [GWEN Game Engine](https://github.com/gwenjs)
+> Command Line Interface for the [GWEN Game Engine](https://github.com/gwenjs/gwen)
 
 [![CI](https://github.com/gwenjs/cli/actions/workflows/ci.yml/badge.svg)](https://github.com/gwenjs/cli/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@gwenjs/cli)](https://www.npmjs.com/package/@gwenjs/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-gwenjs.github.io%2Fcli-blue)](https://gwenjs.github.io/cli)
 
 ## Installation
 
