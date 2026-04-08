@@ -21,6 +21,8 @@ import {
   indexTemplate,
 } from "../../src/commands/scaffold/package/templates/base.js";
 import { resolveOptions } from "../../src/commands/scaffold/package/options.js";
+import { promptSelect } from "../../src/utils/prompt.js";
+import scaffoldCommand from "../../src/commands/scaffold/index.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -453,5 +455,34 @@ describe("resolveOptions — interactive prompt branches", () => {
       "with-docs": false,
     });
     expect(opts.gwenVersion).toBe("^1.0.0");
+  });
+});
+
+describe("promptSelect", () => {
+  it("returns the first choice immediately when stdin is not a TTY", async () => {
+    const originalIsTTY = process.stdin.isTTY;
+    (process.stdin as NodeJS.ReadStream & { isTTY: boolean }).isTTY = false;
+    try {
+      const result = await promptSelect("Pick one", [
+        { label: "Option A", value: "a" },
+        { label: "Option B", value: "b" },
+      ]);
+      expect(result).toBe("a");
+    } finally {
+      (process.stdin as NodeJS.ReadStream & { isTTY: boolean }).isTTY = originalIsTTY;
+    }
+  });
+});
+
+describe("scaffold command surface", () => {
+  it("does not expose plugin or module subcommands", () => {
+    const subs = (scaffoldCommand as any).subCommands ?? {};
+    expect(subs.plugin).toBeUndefined();
+    expect(subs.module).toBeUndefined();
+  });
+
+  it("exposes only the package subcommand", () => {
+    const subs = (scaffoldCommand as any).subCommands ?? {};
+    expect(subs.package).toBeDefined();
   });
 });
