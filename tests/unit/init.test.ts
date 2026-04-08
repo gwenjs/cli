@@ -394,6 +394,7 @@ describe("systemsTemplate", () => {
     const { "Movement.ts": src } = systemsTemplate();
     expect(src).toContain("const remaining = tag.lifetime - dt");
     expect(src).toContain("remaining <= 0");
+    expect(src).toContain("addComponent(e.id, BulletTag, { lifetime: remaining })");
   });
 
   it("spawn system uses useActor(AsteroidActor) instead of raw entity creation", () => {
@@ -401,6 +402,7 @@ describe("systemsTemplate", () => {
     expect(src).toContain("useActor");
     expect(src).toContain("AsteroidActor");
     expect(src).toContain("@gwenjs/core/actor");
+    expect(src).toContain("asteroid.spawn(");
     expect(src).not.toContain("engine.createEntity()");
   });
 
@@ -437,17 +439,12 @@ describe("sceneTemplate", () => {
     }
   });
 
-  it("spawns the player entity with required components", () => {
-    const src = sceneTemplate();
-    expect(src).toContain("PlayerActor");
-    expect(src).toContain("spawnOnce");
-  });
-
   it("scene spawns player via useActor(PlayerActor).spawnOnce()", () => {
     const src = sceneTemplate();
     expect(src).toContain("useActor");
     expect(src).toContain("PlayerActor");
     expect(src).toContain("spawnOnce");
+    expect(src).toContain("'@gwenjs/core/actor'");
     expect(src).not.toContain("engine.createEntity()");
   });
 });
