@@ -60,6 +60,7 @@ export function packageJsonTemplate(name: string, gwenVersion: string, scope?: s
         typecheck: "tsc --noEmit",
         lint: "oxlint src/",
         format: "oxfmt src/",
+        "format:check": "oxfmt --check src/",
       },
       dependencies: {
         "@gwenjs/core": gwenVersion,

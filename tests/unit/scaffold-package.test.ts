@@ -573,9 +573,20 @@ describe("ciWorkflowTemplate", () => {
     expect(content).toContain("pull_request:");
   });
 
-  it("runs lint, typecheck, test, build steps", () => {
+  it("has separate lint and typescript jobs with ci-status gate", () => {
+    const content = ciWorkflowTemplate();
+    expect(content).toContain("name: Lint & Format");
+    expect(content).toContain("name: TypeScript");
+    expect(content).toContain("name: CI Status");
+    expect(content).toContain("needs: [lint]");
+    expect(content).toContain("needs: [lint, typescript]");
+    expect(content).toContain("if: always()");
+  });
+
+  it("runs lint, format:check, typecheck, test, build steps", () => {
     const content = ciWorkflowTemplate();
     expect(content).toContain("pnpm lint");
+    expect(content).toContain("pnpm format:check");
     expect(content).toContain("pnpm typecheck");
     expect(content).toContain("pnpm test");
     expect(content).toContain("pnpm build");
@@ -583,15 +594,28 @@ describe("ciWorkflowTemplate", () => {
 });
 
 describe("releaseWorkflowTemplate", () => {
-  it("uses release-please-action", () => {
+  it("triggers on workflow_run CI completion", () => {
     const content = releaseWorkflowTemplate();
-    expect(content).toContain("googleapis/release-please-action");
+    expect(content).toContain('workflows: ["CI"]');
+    expect(content).toContain("workflow_run");
+    expect(content).toContain("workflow_run.conclusion == 'success'");
   });
 
-  it("publishes to npm on release", () => {
+  it("has separate release-please and publish jobs", () => {
+    const content = releaseWorkflowTemplate();
+    expect(content).toContain("name: Release Please");
+    expect(content).toContain("name: Publish to npm");
+    expect(content).toContain("needs: [release-please]");
+    expect(content).toContain("releases_created");
+    expect(content).toContain("RELEASE_PLEASE_TOKEN");
+  });
+
+  it("publishes to npm with provenance", () => {
     const content = releaseWorkflowTemplate();
     expect(content).toContain("pnpm publish");
+    expect(content).toContain("--provenance");
     expect(content).toContain("NPM_TOKEN");
+    expect(content).toContain("id-token: write");
   });
 });
 

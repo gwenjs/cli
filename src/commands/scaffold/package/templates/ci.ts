@@ -8,7 +8,8 @@ on:
     branches: [main]
 
 jobs:
-  check:
+  lint:
+    name: Lint & Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -22,9 +23,44 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
+      - run: pnpm format:check
+
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 10
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Test
+        run: pnpm test
+
+  ci-status:
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs: [lint, typescript]
+    if: always()
+    steps:
+      - name: Check all jobs
+        run: |
+          if [ "\${{ needs.lint.result }}"       != "success" ] || \\
+             [ "\${{ needs.typescript.result }}" != "success" ]; then
+            echo "❌ CI failed"
+            exit 1
+          fi
+          echo "✅ All checks passed"
 `;
 }
 
@@ -32,50 +68,56 @@ export function releaseWorkflowTemplate(): string {
   return `name: Release
 
 on:
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: write
-  pull-requests: write
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
 
 jobs:
   release-please:
+    name: Release Please
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      releases_created: \${{ steps.release.outputs.releases_created }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          token: \${{ secrets.GITHUB_TOKEN }}
+          token: \${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    needs: [release-please]
+    if: needs.release-please.outputs.releases_created == 'true'
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
       - uses: actions/checkout@v6
-        if: \${{ steps.release.outputs.releases_created }}
-
+        with:
+          ref: \${{ github.event.workflow_run.head_sha }}
       - uses: pnpm/action-setup@v5
-        if: \${{ steps.release.outputs.releases_created }}
         with:
           version: 10
-
       - uses: actions/setup-node@v6
-        if: \${{ steps.release.outputs.releases_created }}
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
-
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
       - name: Install dependencies
-        if: \${{ steps.release.outputs.releases_created }}
         run: pnpm install --frozen-lockfile
-
       - name: Build
-        if: \${{ steps.release.outputs.releases_created }}
         run: pnpm build
-
       - name: Publish to npm
-        if: \${{ steps.release.outputs.releases_created }}
-        run: pnpm publish --access public --no-git-checks
+        run: pnpm publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: \${{ secrets.NPM_TOKEN }}
 `;
