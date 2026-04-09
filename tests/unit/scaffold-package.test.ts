@@ -15,6 +15,8 @@ import {
   packageJsonTemplate,
   tsconfigTemplate,
   viteConfigTemplate,
+  vitestConfigTemplate,
+  testFileTemplate,
   typesTemplate,
   augmentTemplate,
   pluginTemplate,
@@ -180,6 +182,17 @@ describe("packageJsonTemplate", () => {
     expect(pkg.scripts.test).toBe("vitest run");
     expect(pkg.scripts.typecheck).toBe("tsc --noEmit");
   });
+
+  it("includes vitest in devDependencies", () => {
+    const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0"));
+    expect(pkg.devDependencies["vitest"]).toBeDefined();
+  });
+
+  it("includes test script", () => {
+    const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0"));
+    expect(pkg.scripts["test"]).toBeDefined();
+    expect(pkg.scripts["test"]).toContain("vitest");
+  });
 });
 
 describe("typesTemplate", () => {
@@ -302,6 +315,23 @@ describe("indexTemplate", () => {
   it("does NOT re-export module.ts", () => {
     const content = indexTemplate("audio");
     expect(content).not.toContain("from './module");
+  });
+});
+
+describe("vitestConfigTemplate", () => {
+  it("generates a vitest config file", () => {
+    const content = vitestConfigTemplate();
+    expect(content).toContain("defineConfig");
+    expect(content).toContain("vitest/config");
+  });
+});
+
+describe("testFileTemplate", () => {
+  it("generates a basic test file", () => {
+    const content = testFileTemplate("my-plugin");
+    expect(content).toContain("describe");
+    expect(content).toContain("my-plugin");
+    expect(content).toContain("vitest");
   });
 });
 

@@ -10,6 +10,8 @@ import {
   packageJsonTemplate,
   tsconfigTemplate,
   viteConfigTemplate,
+  vitestConfigTemplate,
+  testFileTemplate,
   gitignoreTemplate,
   typesTemplate,
   augmentTemplate,
@@ -51,6 +53,8 @@ export {
   packageJsonTemplate,
   tsconfigTemplate,
   viteConfigTemplate,
+  vitestConfigTemplate,
+  testFileTemplate,
   gitignoreTemplate,
   typesTemplate,
   augmentTemplate,
@@ -114,6 +118,7 @@ export async function generateFiles(
     ],
     [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
     [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
+    [path.join(outputDir, "vitest.config.ts"), vitestConfigTemplate()],
   ];
 
   const sourceFiles: Array<[string, string]> =
@@ -138,10 +143,14 @@ export async function generateFiles(
 
   const files: Array<[string, string]> = [...sharedFiles, ...sourceFiles];
 
+  // Create tests directory and add test files for all package types
+  const testsDir = path.join(outputDir, "tests");
+  await fs.mkdir(testsDir, { recursive: true });
+
   if (type === "renderer") {
-    const testsDir = path.join(outputDir, "tests");
-    await fs.mkdir(testsDir, { recursive: true });
     files.push([path.join(testsDir, "conformance.test.ts"), conformanceTestTemplate(name, scope)]);
+  } else {
+    files.push([path.join(testsDir, `${name}.test.ts`), testFileTemplate(name, scope)]);
   }
 
   if (withCi) {
