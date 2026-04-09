@@ -45,7 +45,7 @@ async function promptBoolean(question: string): Promise<boolean> {
  * @returns The normalized scope without `@`, or `undefined` if not in TTY or user skipped.
  */
 async function promptScope(name: string): Promise<string | undefined> {
-  if (!process.stdout.isTTY) return undefined;
+  if (!process.stdin.isTTY) return undefined;
 
   const rl = await import("node:readline");
 

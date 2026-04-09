@@ -42,7 +42,7 @@ export default defineConfig({
       },
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/YOUR_ORG/${pkg}' },
+      { icon: 'github', link: 'https://github.com/YOUR_ORG/${name}' },
     ],
   },
 })

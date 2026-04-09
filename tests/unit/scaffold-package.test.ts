@@ -40,7 +40,7 @@ import { promptSelect, promptString } from "../../src/utils/prompt.js";
 import { scaffoldPackageCommand } from "../../src/commands/scaffold/package/index.js";
 import { logger } from "../../src/utils/logger.js";
 import scaffoldCommand from "../../src/commands/scaffold/index.js";
-import { isValidName, normalizeScope, isValidScope } from "../../src/utils/validation.js";
+import { normalizeScope, isValidScope } from "../../src/utils/validation.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

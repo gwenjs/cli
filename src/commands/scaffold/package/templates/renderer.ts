@@ -176,7 +176,7 @@ import './augment.js'
  * \`\`\`ts
  * export const MyActor = defineActor(MyPrefab, () => {
  *   const ${camel} = use${Pascal}()
- *   onUpdate(() => { })
+ *   onUpdate(() => console.log('${camel} ready'))
  * })
  * \`\`\`
  */
