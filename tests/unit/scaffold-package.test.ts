@@ -431,6 +431,60 @@ describe("resolveOptions", () => {
     });
     expect(opts.type).toBe("standard");
   });
+
+  describe("scope resolution", () => {
+    it("normalizes scope from --scope flag (strips @)", async () => {
+      const mockStdout = { isTTY: false, write: vi.fn() };
+      vi.spyOn(process, "stdout", "get").mockReturnValue(mockStdout as any);
+      const opts = await resolveOptions({
+        name: "my-plugin",
+        scope: "@monorg",
+        "with-ci": false,
+        "with-docs": false,
+      });
+      expect(opts.scope).toBe("monorg");
+      vi.restoreAllMocks();
+    });
+
+    it("normalizes scope from --scope flag (lowercases)", async () => {
+      const mockStdout = { isTTY: false, write: vi.fn() };
+      vi.spyOn(process, "stdout", "get").mockReturnValue(mockStdout as any);
+      const opts = await resolveOptions({
+        name: "my-plugin",
+        scope: "MYORG",
+        "with-ci": false,
+        "with-docs": false,
+      });
+      expect(opts.scope).toBe("myorg");
+      vi.restoreAllMocks();
+    });
+
+    it("returns undefined scope when flag not provided in non-TTY", async () => {
+      const mockStdout = { isTTY: false, write: vi.fn() };
+      vi.spyOn(process, "stdout", "get").mockReturnValue(mockStdout as any);
+      const opts = await resolveOptions({
+        name: "my-plugin",
+        "with-ci": false,
+        "with-docs": false,
+      });
+      expect(opts.scope).toBeUndefined();
+      vi.restoreAllMocks();
+    });
+
+    it("throws on invalid scope from flag", async () => {
+      const mockStdout = { isTTY: false, write: vi.fn() };
+      vi.spyOn(process, "stdout", "get").mockReturnValue(mockStdout as any);
+      await expect(
+        resolveOptions({
+          name: "my-plugin",
+          scope: "--invalid",
+          "with-ci": false,
+          "with-docs": false,
+        }),
+      ).rejects.toThrow(/invalid scope/i);
+      vi.restoreAllMocks();
+    });
+  });
 });
 
 // ─── CI Workflow templates ────────────────────────────────────────────────────
