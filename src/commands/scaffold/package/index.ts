@@ -47,6 +47,7 @@ import {
 export {
   toPascalCase,
   toCamelCase,
+  toPackageName,
   packageJsonTemplate,
   tsconfigTemplate,
   viteConfigTemplate,
@@ -59,13 +60,26 @@ export {
   indexTemplate,
 } from "./templates/base.js";
 
+export { buildPackageJson };
+
+/**
+ * Builds a package.json content string for a GWEN plugin package.
+ *
+ * @param name - The plugin name in kebab-case (e.g. "my-plugin")
+ * @param gwenVersion - The GWEN peer dependency version range (e.g. "^0.1.0")
+ * @param withDocs - Whether to include VitePress documentation scripts and dependencies
+ * @param type - The package type: "standard" or "renderer"
+ * @param scope - Optional npm scope without `@` (e.g. "monorg")
+ * @returns JSON string ready to write to package.json
+ */
 function buildPackageJson(
   name: string,
   gwenVersion: string,
   withDocs: boolean,
   type: PackageType = "standard",
+  scope?: string,
 ): string {
-  const base = JSON.parse(packageJsonTemplate(name, gwenVersion));
+  const base = JSON.parse(packageJsonTemplate(name, gwenVersion, scope));
 
   if (type === "renderer") {
     base.dependencies["@gwenjs/renderer-core"] = gwenVersion;
@@ -85,7 +99,7 @@ export async function generateFiles(
   opts: ScaffoldPackageOptions,
   cwd: string = process.cwd(),
 ): Promise<void> {
-  const { name, gwenVersion, withCi, withDocs } = opts;
+  const { name, gwenVersion, withCi, withDocs, scope } = opts;
   const type: PackageType = opts.type ?? "standard";
   const outputDir = path.join(cwd, name);
   const srcDir = path.join(outputDir, "src");
@@ -94,7 +108,10 @@ export async function generateFiles(
 
   const sharedFiles: Array<[string, string]> = [
     [path.join(outputDir, ".gitignore"), gitignoreTemplate()],
-    [path.join(outputDir, "package.json"), buildPackageJson(name, gwenVersion, withDocs, type)],
+    [
+      path.join(outputDir, "package.json"),
+      buildPackageJson(name, gwenVersion, withDocs, type, scope),
+    ],
     [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
     [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
   ];
@@ -102,20 +119,20 @@ export async function generateFiles(
   const sourceFiles: Array<[string, string]> =
     type === "renderer"
       ? [
-          [path.join(srcDir, "types.ts"), rendererTypesTemplate(name)],
-          [path.join(srcDir, "renderer-service.ts"), rendererServiceTemplate(name)],
-          [path.join(srcDir, "plugin.ts"), rendererPluginTemplate(name)],
-          [path.join(srcDir, "composables.ts"), rendererComposablesTemplate(name)],
-          [path.join(srcDir, "module.ts"), rendererModuleTemplate(name)],
-          [path.join(srcDir, "augment.ts"), rendererAugmentTemplate(name)],
-          [path.join(srcDir, "index.ts"), rendererIndexTemplate(name)],
+          [path.join(srcDir, "types.ts"), rendererTypesTemplate(name, scope)],
+          [path.join(srcDir, "renderer-service.ts"), rendererServiceTemplate(name, scope)],
+          [path.join(srcDir, "plugin.ts"), rendererPluginTemplate(name, scope)],
+          [path.join(srcDir, "composables.ts"), rendererComposablesTemplate(name, scope)],
+          [path.join(srcDir, "module.ts"), rendererModuleTemplate(name, scope)],
+          [path.join(srcDir, "augment.ts"), rendererAugmentTemplate(name, scope)],
+          [path.join(srcDir, "index.ts"), rendererIndexTemplate(name, scope)],
         ]
       : [
-          [path.join(srcDir, "types.ts"), typesTemplate(name)],
-          [path.join(srcDir, "augment.ts"), augmentTemplate(name)],
-          [path.join(srcDir, "plugin.ts"), pluginTemplate(name)],
-          [path.join(srcDir, "composables.ts"), composablesTemplate(name)],
-          [path.join(srcDir, "module.ts"), moduleTemplate(name)],
+          [path.join(srcDir, "types.ts"), typesTemplate(name, scope)],
+          [path.join(srcDir, "augment.ts"), augmentTemplate(name, scope)],
+          [path.join(srcDir, "plugin.ts"), pluginTemplate(name, scope)],
+          [path.join(srcDir, "composables.ts"), composablesTemplate(name, scope)],
+          [path.join(srcDir, "module.ts"), moduleTemplate(name, scope)],
           [path.join(srcDir, "index.ts"), indexTemplate(name)],
         ];
 
@@ -124,7 +141,7 @@ export async function generateFiles(
   if (type === "renderer") {
     const testsDir = path.join(outputDir, "tests");
     await fs.mkdir(testsDir, { recursive: true });
-    files.push([path.join(testsDir, "conformance.test.ts"), conformanceTestTemplate(name)]);
+    files.push([path.join(testsDir, "conformance.test.ts"), conformanceTestTemplate(name, scope)]);
   }
 
   if (withCi) {
@@ -150,11 +167,11 @@ export async function generateFiles(
     await fs.mkdir(examplesDir, { recursive: true });
     await fs.mkdir(workflowsDir, { recursive: true });
     files.push(
-      [path.join(vitepressDir, "config.ts"), vitepressConfigTemplate(name)],
-      [path.join(outputDir, "docs", "index.md"), docsIndexTemplate(name)],
-      [path.join(guideDir, "getting-started.md"), docsGettingStartedTemplate(name)],
-      [path.join(apiDir, "index.md"), docsApiTemplate(name)],
-      [path.join(examplesDir, "index.md"), docsExamplesTemplate(name)],
+      [path.join(vitepressDir, "config.ts"), vitepressConfigTemplate(name, scope)],
+      [path.join(outputDir, "docs", "index.md"), docsIndexTemplate(name, scope)],
+      [path.join(guideDir, "getting-started.md"), docsGettingStartedTemplate(name, scope)],
+      [path.join(apiDir, "index.md"), docsApiTemplate(name, scope)],
+      [path.join(examplesDir, "index.md"), docsExamplesTemplate(name, scope)],
       [path.join(workflowsDir, "deploy-docs.yml"), deployDocsWorkflowTemplate()],
     );
   }
@@ -191,6 +208,10 @@ export const scaffoldPackageCommand = defineCommand({
     "with-docs": {
       type: "boolean",
       description: "Include VitePress documentation",
+    },
+    scope: {
+      type: "string",
+      description: "npm scope for the package (e.g. myorg or @myorg)",
     },
   },
   async run({ args }) {
