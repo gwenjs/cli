@@ -5,7 +5,7 @@
  * All names are derived from the package name via toPascalCase/toCamelCase helpers.
  */
 
-import { toPascalCase, toCamelCase } from "./base.js";
+import { toPascalCase, toCamelCase, toPackageName } from "./base.js";
 
 /**
  * Generates `src/types.ts` for a renderer package.
@@ -13,11 +13,13 @@ import { toPascalCase, toCamelCase } from "./base.js";
  * Exports the options interface (with layers) and a service interface stub.
  *
  * @param name - The package name in kebab-case (e.g. "my-renderer").
+ * @param scope - Optional npm scope without `@`
  */
-export function rendererTypesTemplate(name: string): string {
+export function rendererTypesTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * Public types for @community/gwen-${name}.
+ * Public types for ${pkg}.
  */
 
 import type { LayerDef } from '@gwenjs/renderer-core'
@@ -43,11 +45,13 @@ export interface ${Pascal}Service {
  * Contains the `defineRendererService` stub implementing all required contract members.
  *
  * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
  */
-export function rendererServiceTemplate(name: string): string {
+export function rendererServiceTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * Renderer service implementation for @community/gwen-${name}.
+ * Renderer service implementation for ${pkg}.
  *
  * Implements the RendererService contract from @gwenjs/renderer-core.
  * All members are required — see the contract interface for details.
@@ -96,11 +100,13 @@ export const ${Pascal}RendererService = defineRendererService<${Pascal}Options>(
  * Wires the renderer service into the GWEN engine via `getOrCreateLayerManager`.
  *
  * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
  */
-export function rendererPluginTemplate(name: string): string {
+export function rendererPluginTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * GWEN plugin for @community/gwen-${name}.
+ * GWEN plugin for ${pkg}.
  *
  * Registers the renderer service and mounts layers on engine start.
  */
@@ -143,12 +149,14 @@ export const ${Pascal}Plugin = definePlugin<${Pascal}Options>((opts) => {
  * Exposes a composable that retrieves the renderer service inside an actor.
  *
  * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
  */
-export function rendererComposablesTemplate(name: string): string {
+export function rendererComposablesTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const camel = toCamelCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * Composables for @community/gwen-${name}.
+ * Composables for ${pkg}.
  *
  * Must be called inside defineActor() — lifecycle hooks are registered automatically.
  */
@@ -190,15 +198,17 @@ export function use${Pascal}(): ${Pascal}Service {
  * Provides the build-time GWEN module that wires the plugin and auto-imports.
  *
  * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
  */
-export function rendererModuleTemplate(name: string): string {
+export function rendererModuleTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const camel = toCamelCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * Build-time GWEN module for @community/gwen-${name}.
+ * Build-time GWEN module for ${pkg}.
  *
  * Add to gwen.config.ts:
- *   modules: [['@community/gwen-${name}', { layers: { main: { order: 0 } } }]]
+ *   modules: [['${pkg}', { layers: { main: { order: 0 } } }]]
  *
  * IMPORTANT: Never import from './index.js' here — always import from './plugin.js'.
  */
@@ -208,7 +218,7 @@ import type { ${Pascal}Options } from './types.js'
 
 export default defineGwenModule<${Pascal}Options>({
   meta: {
-    name: '@community/gwen-${name}',
+    name: '${pkg}',
     configKey: '${camel}',
   },
   defaults: {
@@ -220,14 +230,14 @@ export default defineGwenModule<${Pascal}Options>({
     kit.addPlugin(${Pascal}Plugin(options))
 
     kit.addAutoImports([
-      { name: 'use${Pascal}', from: '@community/gwen-${name}' },
+      { name: 'use${Pascal}', from: '${pkg}' },
     ])
 
     kit.addTypeTemplate({
       filename: '${name}.d.ts',
       getContents: () =>
         definePluginTypes({
-          imports: ["import type { ${Pascal}Service } from '@community/gwen-${name}'"],
+          imports: ["import type { ${Pascal}Service } from '${pkg}'"],
           provides: { 'renderer:${name}': '${Pascal}Service' },
         }),
     })
@@ -242,12 +252,14 @@ export default defineGwenModule<${Pascal}Options>({
  * Declaration-merges `GwenProvides` so `useService('renderer:<name>')` is typed.
  *
  * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
  */
-export function rendererAugmentTemplate(name: string): string {
+export function rendererAugmentTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
  * Declaration merging — types useService('renderer:${name}') as ${Pascal}Service.
- * Activated as a side-effect when importing from '@community/gwen-${name}'.
+ * Activated as a side-effect when importing from '${pkg}'.
  */
 
 import type { ${Pascal}Service } from './types.js'
@@ -269,8 +281,9 @@ export {}
  * The module entry point is exposed via the './module' package export, not here.
  *
  * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
  */
-export function rendererIndexTemplate(name: string): string {
+export function rendererIndexTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   return `// Side-effect: activates typed useService('renderer:${name}') in manual mode
 import './augment.js'
@@ -295,11 +308,13 @@ export type { ${Pascal}Options, ${Pascal}Service } from './types.js'
  * Runs the @gwenjs/renderer-core conformance suite against the service implementation.
  *
  * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
  */
-export function conformanceTestTemplate(name: string): string {
+export function conformanceTestTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * Conformance test — verifies @community/gwen-${name} satisfies the RendererService contract.
+ * Conformance test — verifies ${pkg} satisfies the RendererService contract.
  *
  * Run: pnpm test
  */
@@ -308,7 +323,7 @@ import { describe, it, expect } from 'vitest'
 import { runConformanceTests } from '@gwenjs/renderer-core/testing'
 import { ${Pascal}RendererService } from '../src/renderer-service.js'
 
-describe('@community/gwen-${name} conformance', () => {
+describe('${pkg} conformance', () => {
   it('satisfies the RendererService contract', () => {
     const service = ${Pascal}RendererService({ layers: { main: { order: 0 } } })
     expect(() => runConformanceTests(service)).not.toThrow()
