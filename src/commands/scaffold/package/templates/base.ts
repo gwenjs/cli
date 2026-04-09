@@ -14,12 +14,27 @@ export function toCamelCase(name: string): string {
   return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }
 
+/**
+ * Returns the full npm package name for a GWEN plugin.
+ *
+ * @param name  - The plugin name in kebab-case (e.g. `"my-plugin"`)
+ * @param scope - Optional npm scope without `@` (e.g. `"monorg"`)
+ * @returns `@scope/gwen-name` if scope is provided and non-empty, otherwise `gwen-name`
+ *
+ * @example
+ * toPackageName("my-plugin", "monorg") // "@monorg/gwen-my-plugin"
+ * toPackageName("my-plugin")           // "gwen-my-plugin"
+ */
+export function toPackageName(name: string, scope?: string): string {
+  return scope ? `@${scope}/gwen-${name}` : `gwen-${name}`;
+}
+
 // ─── Templates ────────────────────────────────────────────────────────────────
 
-export function packageJsonTemplate(name: string, gwenVersion: string): string {
+export function packageJsonTemplate(name: string, gwenVersion: string, scope?: string): string {
   return JSON.stringify(
     {
-      name: `@community/gwen-${name}`,
+      name: toPackageName(name, scope),
       version: "0.1.0",
       description: `${toPascalCase(name)} plugin for GWEN`,
       type: "module",
@@ -117,10 +132,11 @@ export default defineConfig({
 `;
 }
 
-export function typesTemplate(name: string): string {
+export function typesTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * Public types for @community/gwen-${name}.
+ * Public types for ${pkg}.
  */
 
 export interface ${Pascal}Config {
@@ -133,11 +149,12 @@ export interface ${Pascal}Service {
 `;
 }
 
-export function augmentTemplate(name: string): string {
+export function augmentTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
  * Declaration merging — types engine.inject('${name}') as ${Pascal}Service.
- * Activated as a side-effect when importing from '@community/gwen-${name}'.
+ * Activated as a side-effect when importing from '${pkg}'.
  */
 
 import type { ${Pascal}Service } from './types.js'
@@ -152,8 +169,9 @@ export {}
 `;
 }
 
-export function pluginTemplate(name: string): string {
+export function pluginTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `import { definePlugin } from '@gwenjs/kit'
 import type { GwenEngine } from '@gwenjs/core'
 import type { ${Pascal}Config, ${Pascal}Service } from './types.js'
@@ -162,7 +180,7 @@ export const ${Pascal}Plugin = definePlugin((config: ${Pascal}Config = {}) => {
   let service: ${Pascal}Service | null = null
 
   return {
-    name: '@community/gwen-${name}',
+    name: '${pkg}',
 
     setup(engine: GwenEngine) {
       // TODO: implement your service
@@ -178,9 +196,10 @@ export const ${Pascal}Plugin = definePlugin((config: ${Pascal}Config = {}) => {
 `;
 }
 
-export function composablesTemplate(name: string): string {
+export function composablesTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const camel = toCamelCase(name);
+  const pkg = toPackageName(name, scope);
   return `import { useEngine, GwenPluginNotFoundError } from '@gwenjs/core'
 import type { ${Pascal}Service } from './types.js'
 import './augment.js'
@@ -195,20 +214,21 @@ export function use${Pascal}(): ${Pascal}Service {
   const ${camel} = engine.tryInject('${name}')
   if (${camel}) return ${camel}
   throw new GwenPluginNotFoundError({
-    pluginName: '@community/gwen-${name}',
-    hint: "Add '@community/gwen-${name}' to modules in gwen.config.ts",
+    pluginName: '${pkg}',
+    hint: "Add '${pkg}' to modules in gwen.config.ts",
   })
 }
 `;
 }
 
-export function moduleTemplate(name: string): string {
+export function moduleTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `/**
- * Build-time module for @community/gwen-${name}.
+ * Build-time module for ${pkg}.
  *
  * Add to gwen.config.ts:
- *   modules: ['@community/gwen-${name}']
+ *   modules: ['${pkg}']
  *
  * IMPORTANT: This file must never import from './index.js'.
  * Always import from './plugin.js' or './types.js' directly.
@@ -218,7 +238,7 @@ import { defineGwenModule, definePluginTypes } from '@gwenjs/kit'
 import type { ${Pascal}Config } from './types.js'
 
 export default defineGwenModule<${Pascal}Config>({
-  meta: { name: '@community/gwen-${name}' },
+  meta: { name: '${pkg}' },
   defaults: {},
   async setup(options, kit) {
     // Direct import from plugin.ts — never from index.ts
@@ -227,14 +247,14 @@ export default defineGwenModule<${Pascal}Config>({
     kit.addPlugin(${Pascal}Plugin(options))
 
     kit.addAutoImports([
-      { name: 'use${Pascal}', from: '@community/gwen-${name}' },
+      { name: 'use${Pascal}', from: '${pkg}' },
     ])
 
     kit.addTypeTemplate({
       filename: '${name}.d.ts',
       getContents: () =>
         definePluginTypes({
-          imports: ["import type { ${Pascal}Service } from '@community/gwen-${name}'"],
+          imports: ["import type { ${Pascal}Service } from '${pkg}'"],
           provides: { '${name}': '${Pascal}Service' },
         }),
     })

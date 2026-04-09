@@ -11,6 +11,7 @@ import readline from "node:readline";
 import {
   toPascalCase,
   toCamelCase,
+  toPackageName,
   packageJsonTemplate,
   tsconfigTemplate,
   viteConfigTemplate,
@@ -74,6 +75,18 @@ describe("toCamelCase", () => {
   });
 });
 
+describe("toPackageName", () => {
+  it("returns scoped name when scope is provided", () => {
+    expect(toPackageName("my-plugin", "monorg")).toBe("@monorg/gwen-my-plugin");
+  });
+  it("returns unscoped name when scope is undefined", () => {
+    expect(toPackageName("my-plugin")).toBe("gwen-my-plugin");
+  });
+  it("returns unscoped name when scope is empty string", () => {
+    expect(toPackageName("audio", "")).toBe("gwen-audio");
+  });
+});
+
 describe("normalizeScope", () => {
   it("returns undefined for empty string", () => {
     expect(normalizeScope("")).toBeUndefined();
@@ -126,9 +139,14 @@ describe("isValidScope", () => {
 });
 
 describe("packageJsonTemplate", () => {
-  it("sets the correct package name", () => {
+  it("sets the correct package name without scope", () => {
     const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0"));
-    expect(pkg.name).toBe("@community/gwen-my-plugin");
+    expect(pkg.name).toBe("gwen-my-plugin");
+  });
+
+  it("sets scoped package name when scope is provided", () => {
+    const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0", "monorg"));
+    expect(pkg.name).toBe("@monorg/gwen-my-plugin");
   });
 
   it("starts at version 0.1.0", () => {
@@ -223,7 +241,12 @@ describe("composablesTemplate", () => {
   it("throws GwenPluginNotFoundError with helpful hint", () => {
     const content = composablesTemplate("audio");
     expect(content).toContain("GwenPluginNotFoundError");
-    expect(content).toContain("@community/gwen-audio");
+    expect(content).toContain("gwen-audio");
+  });
+
+  it("throws GwenPluginNotFoundError with scoped hint when scope provided", () => {
+    const content = composablesTemplate("audio", "monorg");
+    expect(content).toContain("@monorg/gwen-audio");
   });
 });
 
@@ -254,7 +277,12 @@ describe("moduleTemplate", () => {
   it("registers the composable for auto-import", () => {
     const content = moduleTemplate("audio");
     expect(content).toContain("name: 'useAudio'");
-    expect(content).toContain("from: '@community/gwen-audio'");
+    expect(content).toContain("from: 'gwen-audio'");
+  });
+
+  it("registers the composable with scoped name when scope provided", () => {
+    const content = moduleTemplate("audio", "monorg");
+    expect(content).toContain("from: '@monorg/gwen-audio'");
   });
 });
 
