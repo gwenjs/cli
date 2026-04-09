@@ -15,18 +15,20 @@ export function toCamelCase(name: string): string {
 }
 
 /**
- * Returns the full npm package name for a GWEN plugin.
+ * Returns the full npm package name.
  *
- * @param name  - The plugin name in kebab-case (e.g. `"my-plugin"`)
+ * @param name  - The package name in kebab-case (e.g. `"gwen-my-plugin"` or `"my-plugin"`)
  * @param scope - Optional npm scope without `@` (e.g. `"monorg"`)
- * @returns `@scope/gwen-name` if scope is provided and non-empty, otherwise `gwen-name`
+ * @returns `@scope/name` if scope is provided and non-empty, otherwise `name`
  *
  * @example
- * toPackageName("my-plugin", "monorg") // "@monorg/gwen-my-plugin"
- * toPackageName("my-plugin")           // "gwen-my-plugin"
+ * toPackageName("gwen-my-plugin", "monorg") // "@monorg/gwen-my-plugin"
+ * toPackageName("gwen-my-plugin")           // "gwen-my-plugin"
+ * toPackageName("my-plugin", "monorg")      // "@monorg/my-plugin"
+ * toPackageName("my-plugin")                // "my-plugin"
  */
 export function toPackageName(name: string, scope?: string): string {
-  return scope ? `@${scope}/gwen-${name}` : `gwen-${name}`;
+  return scope ? `@${scope}/${name}` : name;
 }
 
 // ─── Templates ────────────────────────────────────────────────────────────────
