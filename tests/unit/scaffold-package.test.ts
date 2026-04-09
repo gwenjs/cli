@@ -77,13 +77,13 @@ describe("toCamelCase", () => {
 
 describe("toPackageName", () => {
   it("returns scoped name when scope is provided", () => {
-    expect(toPackageName("my-plugin", "monorg")).toBe("@monorg/gwen-my-plugin");
+    expect(toPackageName("my-plugin", "monorg")).toBe("@monorg/my-plugin");
   });
   it("returns unscoped name when scope is undefined", () => {
-    expect(toPackageName("my-plugin")).toBe("gwen-my-plugin");
+    expect(toPackageName("my-plugin")).toBe("my-plugin");
   });
   it("returns unscoped name when scope is empty string", () => {
-    expect(toPackageName("audio", "")).toBe("gwen-audio");
+    expect(toPackageName("audio", "")).toBe("audio");
   });
 });
 
@@ -141,12 +141,12 @@ describe("isValidScope", () => {
 describe("packageJsonTemplate", () => {
   it("sets the correct package name without scope", () => {
     const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0"));
-    expect(pkg.name).toBe("gwen-my-plugin");
+    expect(pkg.name).toBe("my-plugin");
   });
 
   it("sets scoped package name when scope is provided", () => {
     const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0", "monorg"));
-    expect(pkg.name).toBe("@monorg/gwen-my-plugin");
+    expect(pkg.name).toBe("@monorg/my-plugin");
   });
 
   it("starts at version 0.1.0", () => {
@@ -241,12 +241,12 @@ describe("composablesTemplate", () => {
   it("throws GwenPluginNotFoundError with helpful hint", () => {
     const content = composablesTemplate("audio");
     expect(content).toContain("GwenPluginNotFoundError");
-    expect(content).toContain("gwen-audio");
+    expect(content).toContain("audio");
   });
 
   it("throws GwenPluginNotFoundError with scoped hint when scope provided", () => {
     const content = composablesTemplate("audio", "monorg");
-    expect(content).toContain("@monorg/gwen-audio");
+    expect(content).toContain("@monorg/audio");
   });
 });
 
@@ -277,12 +277,12 @@ describe("moduleTemplate", () => {
   it("registers the composable for auto-import", () => {
     const content = moduleTemplate("audio");
     expect(content).toContain("name: 'useAudio'");
-    expect(content).toContain("from: 'gwen-audio'");
+    expect(content).toContain("from: 'audio'");
   });
 
   it("registers the composable with scoped name when scope provided", () => {
     const content = moduleTemplate("audio", "monorg");
-    expect(content).toContain("from: '@monorg/gwen-audio'");
+    expect(content).toContain("from: '@monorg/audio'");
   });
 });
 
@@ -312,12 +312,12 @@ import { generateFiles, buildPackageJson } from "../../src/commands/scaffold/pac
 describe("buildPackageJson with scope", () => {
   it("passes scope to packageJsonTemplate", () => {
     const result = buildPackageJson("my-plugin", "^0.1.0", false, "standard", "monorg");
-    expect(result).toContain("@monorg/gwen-my-plugin");
+    expect(result).toContain("@monorg/my-plugin");
   });
 
   it("buildPackageJson without scope uses plain name", () => {
     const result = buildPackageJson("my-plugin", "^0.1.0", false, "standard");
-    expect(result).toContain('"name": "gwen-my-plugin"');
+    expect(result).toContain('"name": "my-plugin"');
   });
 });
 
@@ -584,12 +584,12 @@ describe("docsIndexTemplate", () => {
 describe("docsGettingStartedTemplate", () => {
   it("includes install command with package name", () => {
     const content = docsGettingStartedTemplate("my-plugin");
-    expect(content).toContain("gwen-my-plugin"); // no scope
+    expect(content).toContain("my-plugin"); // no scope
   });
 
   it("includes scoped install command when scope provided", () => {
     const content = docsGettingStartedTemplate("my-plugin", "monorg");
-    expect(content).toContain("@monorg/gwen-my-plugin");
+    expect(content).toContain("@monorg/my-plugin");
   });
 });
 
@@ -801,12 +801,12 @@ describe("rendererModuleTemplate", () => {
   it("registers composable for auto-import", () => {
     const src = rendererModuleTemplate("my-renderer");
     expect(src).toContain("useMyRenderer");
-    expect(src).toContain("gwen-my-renderer"); // no scope → no @community
+    expect(src).toContain("my-renderer"); // no scope → no @community
   });
 
   it("registers composable with scoped name when scope provided", () => {
     const src = rendererModuleTemplate("my-renderer", "monorg");
-    expect(src).toContain("@monorg/gwen-my-renderer");
+    expect(src).toContain("@monorg/my-renderer");
   });
 });
 

@@ -55,7 +55,7 @@ async function promptScope(name: string): Promise<string | undefined> {
         input: process.stdin,
         output: process.stdout,
       });
-      process.stdout.write(`Scope [optional] → @<scope>/gwen-${name} (leave blank for none): `);
+      process.stdout.write(`Scope [optional] → @<scope>/${name} (leave blank for none): `);
       iface.once("line", (answer) => {
         iface.close();
         resolve(answer.trim());
@@ -87,7 +87,7 @@ async function promptScope(name: string): Promise<string | undefined> {
 export async function resolveOptions(args: RawArgs): Promise<ScaffoldPackageOptions> {
   let name = args.name?.trim() ?? "";
   if (!name) {
-    name = await promptString("Package name (e.g. my-plugin)");
+    name = await promptString("Package name (convention: gwen-<name>)");
   }
 
   const gwenVersion = args["gwen-version"]?.trim() || "^0.1.0";
