@@ -5,11 +5,15 @@ inputs:
   node-version:
     description: Node.js version
     required: false
-    default: "22"
+    default: '22'
   pnpm-version:
     description: pnpm version
     required: false
-    default: "10"
+    default: '10'
+  registry-url:
+    description: npm registry URL
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -24,6 +28,7 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: pnpm
+        registry-url: ${{ inputs.registry-url }}
 
     - name: Install dependencies
       shell: bash
