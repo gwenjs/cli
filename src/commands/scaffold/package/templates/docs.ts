@@ -1,5 +1,11 @@
 import { toPascalCase, toPackageName } from "./base.js";
 
+/**
+ * Generates the VitePress configuration file.
+ *
+ * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
+ */
 export function vitepressConfigTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
@@ -43,6 +49,12 @@ export default defineConfig({
 `;
 }
 
+/**
+ * Generates the docs index page.
+ *
+ * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
+ */
 export function docsIndexTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
@@ -72,6 +84,12 @@ features:
 `;
 }
 
+/**
+ * Generates the getting started documentation page.
+ *
+ * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
+ */
 export function docsGettingStartedTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
@@ -107,6 +125,12 @@ const ${name} = use${Pascal}()
 `;
 }
 
+/**
+ * Generates the API reference documentation page.
+ *
+ * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
+ */
 export function docsApiTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
@@ -146,6 +170,12 @@ interface ${Pascal}Service {
 `;
 }
 
+/**
+ * Generates the examples documentation page.
+ *
+ * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
+ */
 export function docsExamplesTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
@@ -175,6 +205,9 @@ export default defineConfig({
 `;
 }
 
+/**
+ * Generates the deploy docs to GitHub Pages workflow file.
+ */
 export function deployDocsWorkflowTemplate(): string {
   return `name: Deploy Docs to GitHub Pages
 
