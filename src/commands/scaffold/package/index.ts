@@ -9,6 +9,7 @@ import type { PackageType } from "./options.js";
 import {
   packageJsonTemplate,
   tsconfigTemplate,
+  tsconfigTestTemplate,
   viteConfigTemplate,
   vitestConfigTemplate,
   testFileTemplate,
@@ -52,6 +53,7 @@ export {
   toPackageName,
   packageJsonTemplate,
   tsconfigTemplate,
+  tsconfigTestTemplate,
   viteConfigTemplate,
   vitestConfigTemplate,
   testFileTemplate,
@@ -117,6 +119,7 @@ export async function generateFiles(
       buildPackageJson(name, gwenVersion, withDocs, type, scope),
     ],
     [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
+    [path.join(outputDir, "tsconfig.test.json"), tsconfigTestTemplate()],
     [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
     [path.join(outputDir, "vitest.config.ts"), vitestConfigTemplate()],
   ];

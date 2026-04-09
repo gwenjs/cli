@@ -94,7 +94,30 @@ export function tsconfigTemplate(): string {
         rootDir: "./src",
         skipLibCheck: true,
       },
-      include: ["src"],
+      include: ["src/**/*"],
+      exclude: ["node_modules", "dist", "tests"],
+    },
+    null,
+    2,
+  );
+}
+
+/**
+ * Generates a TypeScript configuration file for type-checking including tests.
+ *
+ * @returns The content of `tsconfig.test.json`.
+ */
+export function tsconfigTestTemplate(): string {
+  return JSON.stringify(
+    {
+      extends: "./tsconfig.json",
+      compilerOptions: {
+        rootDir: ".",
+        noEmit: true,
+        declaration: false,
+        declarationMap: false,
+      },
+      include: ["src/**/*", "tests/**/*"],
     },
     null,
     2,
@@ -144,7 +167,11 @@ export function vitestConfigTemplate(): string {
 
 export default defineConfig({
   test: {
+    environment: 'node',
     include: ['tests/**/*.test.ts'],
+    typecheck: {
+      tsconfig: './tsconfig.test.json',
+    },
   },
 })
 `;

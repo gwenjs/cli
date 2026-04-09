@@ -14,6 +14,7 @@ import {
   toPackageName,
   packageJsonTemplate,
   tsconfigTemplate,
+  tsconfigTestTemplate,
   viteConfigTemplate,
   vitestConfigTemplate,
   testFileTemplate,
@@ -323,6 +324,32 @@ describe("vitestConfigTemplate", () => {
     const content = vitestConfigTemplate();
     expect(content).toContain("defineConfig");
     expect(content).toContain("vitest/config");
+  });
+
+  it("references tsconfig.test.json for typecheck", () => {
+    const content = vitestConfigTemplate();
+    expect(content).toContain("tsconfig.test.json");
+    expect(content).toContain("typecheck");
+  });
+});
+
+describe("tsconfigTestTemplate", () => {
+  it("extends the main tsconfig", () => {
+    const content = tsconfigTestTemplate();
+    const parsed = JSON.parse(content);
+    expect(parsed.extends).toBe("./tsconfig.json");
+  });
+
+  it("includes tests directory", () => {
+    const content = tsconfigTestTemplate();
+    const parsed = JSON.parse(content);
+    expect(parsed.include).toContain("tests/**/*");
+  });
+
+  it("has noEmit set to true", () => {
+    const content = tsconfigTestTemplate();
+    const parsed = JSON.parse(content);
+    expect(parsed.compilerOptions.noEmit).toBe(true);
   });
 });
 
