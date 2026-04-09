@@ -39,10 +39,8 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
       - uses: ./.github/actions/setup-node-pnpm
         with:
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
       - name: Build
         run: pnpm build
       - name: Publish to npm
         run: pnpm publish --access public --no-git-checks --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

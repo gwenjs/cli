@@ -610,11 +610,10 @@ describe("releaseWorkflowTemplate", () => {
     expect(content).toContain("RELEASE_PLEASE_TOKEN");
   });
 
-  it("publishes to npm with provenance", () => {
+  it("publishes to npm with provenance via OIDC", () => {
     const content = releaseWorkflowTemplate();
     expect(content).toContain("pnpm publish");
     expect(content).toContain("--provenance");
-    expect(content).toContain("NPM_TOKEN");
     expect(content).toContain("id-token: write");
   });
 });
