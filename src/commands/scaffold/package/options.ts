@@ -1,4 +1,5 @@
 import { promptString, promptSelect } from "../../../utils/prompt.js";
+import { normalizeScope, isValidScope } from "../../../utils/validation.js";
 
 /** The two scaffold modes: a standard plugin package or a renderer package. */
 export type PackageType = "standard" | "renderer";
@@ -10,6 +11,7 @@ export interface ScaffoldPackageOptions {
   type: PackageType;
   withCi: boolean;
   withDocs: boolean;
+  scope?: string;
 }
 
 type RawArgs = {
@@ -18,6 +20,7 @@ type RawArgs = {
   renderer?: boolean;
   "with-ci"?: boolean;
   "with-docs"?: boolean;
+  scope?: string;
 };
 
 async function promptBoolean(question: string): Promise<boolean> {
@@ -33,6 +36,41 @@ async function promptBoolean(question: string): Promise<boolean> {
       resolve(answer.toLowerCase() === "y");
     });
   });
+}
+
+/**
+ * Prompts for an optional npm scope, re-prompting on invalid input.
+ *
+ * @param name - The package name, used in the prompt message.
+ * @returns The normalized scope without `@`, or `undefined` if not in TTY or user skipped.
+ */
+async function promptScope(name: string): Promise<string | undefined> {
+  if (!process.stdout.isTTY) return undefined;
+
+  const rl = await import("node:readline");
+
+  while (true) {
+    const raw = await new Promise<string>((resolve) => {
+      const iface = rl.default.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+      process.stdout.write(`Scope [optional] → @<scope>/gwen-${name} (leave blank for none): `);
+      iface.once("line", (answer) => {
+        iface.close();
+        resolve(answer.trim());
+      });
+    });
+
+    if (!raw) return undefined;
+
+    const normalized = normalizeScope(raw);
+    if (!normalized || !isValidScope(normalized)) {
+      console.error("Invalid scope. Use lowercase letters, digits, hyphens, underscores.");
+      continue;
+    }
+    return normalized;
+  }
 }
 
 /**
@@ -75,5 +113,19 @@ export async function resolveOptions(args: RawArgs): Promise<ScaffoldPackageOpti
       ? Boolean(args["with-docs"])
       : await promptBoolean("Include VitePress documentation?");
 
-  return { name, gwenVersion, type, withCi, withDocs };
+  // Scope
+  let scope: string | undefined;
+  if (args.scope !== undefined) {
+    const normalized = normalizeScope(args.scope);
+    if (!normalized || !isValidScope(normalized)) {
+      throw new Error(
+        `Invalid scope: "${args.scope}". Use lowercase letters, digits, hyphens, underscores.`,
+      );
+    }
+    scope = normalized;
+  } else {
+    scope = await promptScope(name);
+  }
+
+  return { name, gwenVersion, type, withCi, withDocs, scope };
 }
