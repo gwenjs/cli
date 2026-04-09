@@ -214,7 +214,7 @@ describe("augmentTemplate", () => {
   it("augments GwenProvides with the service key", () => {
     const content = augmentTemplate("audio");
     expect(content).toContain("interface GwenProvides");
-    expect(content).toContain("audio: AudioService");
+    expect(content).toContain("'audio': AudioService");
   });
 
   it("imports the service type from ./types.js", () => {

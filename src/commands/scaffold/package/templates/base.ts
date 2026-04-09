@@ -226,7 +226,7 @@ import type { ${Pascal}Service } from './types.js'
 
 declare module '@gwenjs/core' {
   interface GwenProvides {
-    ${name}: ${Pascal}Service
+    '${name}': ${Pascal}Service
   }
 }
 

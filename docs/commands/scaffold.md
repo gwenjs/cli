@@ -30,13 +30,13 @@ gwen scaffold package [name] [options]
 
 ### Options
 
-| Option           | Type    | Default  | Description                                                 |
-| ---------------- | ------- | -------- | ----------------------------------------------------------- |
+| Option           | Type    | Default  | Description                                                    |
+| ---------------- | ------- | -------- | -------------------------------------------------------------- |
 | `--scope`        | string  | —        | npm scope for the generated package (e.g. `myorg` or `@myorg`) |
-| `--renderer`     | boolean | prompted | Scaffold a renderer package (Canvas, WebGL, Three.js, etc.) |
-| `--gwen-version` | string  | `^0.1.0` | GWEN peer dependency version range                          |
-| `--with-ci`      | boolean | prompted | Include GitHub Actions CI + publish workflows               |
-| `--with-docs`    | boolean | prompted | Include VitePress documentation                             |
+| `--renderer`     | boolean | prompted | Scaffold a renderer package (Canvas, WebGL, Three.js, etc.)    |
+| `--gwen-version` | string  | `^0.1.0` | GWEN peer dependency version range                             |
+| `--with-ci`      | boolean | prompted | Include GitHub Actions CI + publish workflows                  |
+| `--with-docs`    | boolean | prompted | Include VitePress documentation                                |
 
 ### Standard Package Structure
 
