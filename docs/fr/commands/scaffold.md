@@ -32,6 +32,7 @@ gwen scaffold package [nom] [options]
 
 | Option           | Type    | Défaut   | Description                                                 |
 | ---------------- | ------- | -------- | ----------------------------------------------------------- |
+| `--scope`        | string  | —        | scope npm du package généré (ex. `myorg` ou `@myorg`)       |
 | `--renderer`     | boolean | demandé  | Générer un package renderer (Canvas, WebGL, Three.js, etc.) |
 | `--gwen-version` | string  | `^0.1.0` | Plage de version peer dependency GWEN                       |
 | `--with-ci`      | boolean | demandé  | Inclure les workflows GitHub Actions CI + publish           |
@@ -88,6 +89,10 @@ gwen scaffold package my-plugin --with-ci --with-docs
 
 # Fixer la version GWEN
 gwen scaffold package my-plugin --gwen-version "^0.2.0"
+
+# Générer un package avec scope
+gwen scaffold package my-plugin --scope myorg
+# → crée @myorg/gwen-my-plugin
 ```
 
 ### Étapes après le scaffold d'un renderer
@@ -103,7 +108,7 @@ import { defineConfig } from "@gwenjs/app";
 export default defineConfig({
   modules: [
     [
-      "@community/gwen-<nom>",
+      "@<scope>/gwen-<nom>",
       {
         layers: {
           background: { order: 0 },

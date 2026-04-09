@@ -307,7 +307,19 @@ describe("indexTemplate", () => {
 
 // ─── Integration test ─────────────────────────────────────────────────────────
 
-import { generateFiles } from "../../src/commands/scaffold/package/index.js";
+import { generateFiles, buildPackageJson } from "../../src/commands/scaffold/package/index.js";
+
+describe("buildPackageJson with scope", () => {
+  it("passes scope to packageJsonTemplate", () => {
+    const result = buildPackageJson("my-plugin", "^0.1.0", false, "standard", "monorg");
+    expect(result).toContain("@monorg/gwen-my-plugin");
+  });
+
+  it("buildPackageJson without scope uses plain name", () => {
+    const result = buildPackageJson("my-plugin", "^0.1.0", false, "standard");
+    expect(result).toContain('"name": "gwen-my-plugin"');
+  });
+});
 
 describe("generateFiles integration", () => {
   let tmpDir: string;
