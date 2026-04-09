@@ -35,9 +35,9 @@
   },
   "dependencies": {
     "@gwenjs/app": "^0.1.0",
-    "@gwenjs/kit": "^0.1.0",
-    "@gwenjs/schema": "^0.1.0",
-    "@gwenjs/vite": "^0.1.0",
+    "@gwenjs/kit": "^0.2.0",
+    "@gwenjs/schema": "^0.1.1",
+    "@gwenjs/vite": "^0.2.0",
     "c12": "4.0.0-beta.3",
     "citty": "^0.2.1",
     "consola": "^3.4.2",
