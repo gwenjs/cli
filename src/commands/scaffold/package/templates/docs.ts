@@ -1,12 +1,13 @@
-import { toPascalCase } from "./base.js";
+import { toPascalCase, toPackageName } from "./base.js";
 
-export function vitepressConfigTemplate(name: string): string {
+export function vitepressConfigTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: '${Pascal}',
-  description: '${Pascal} — GWEN community plugin',
+  description: '${Pascal} — GWEN plugin',
 
   themeConfig: {
     nav: [
@@ -35,21 +36,22 @@ export default defineConfig({
       },
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/YOUR_ORG/@community/gwen-${name}' },
+      { icon: 'github', link: 'https://github.com/YOUR_ORG/${pkg}' },
     ],
   },
 })
 `;
 }
 
-export function docsIndexTemplate(name: string): string {
+export function docsIndexTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `---
 layout: home
 
 hero:
   name: "${Pascal}"
-  text: "GWEN community plugin @community/gwen-${name}"
+  text: "GWEN plugin ${pkg}"
   tagline: A plugin for the GWEN game engine
   actions:
     - theme: brand
@@ -70,14 +72,15 @@ features:
 `;
 }
 
-export function docsGettingStartedTemplate(name: string): string {
+export function docsGettingStartedTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `# Getting Started
 
 ## Installation
 
 \`\`\`bash
-pnpm add @community/gwen-${name}
+pnpm add ${pkg}
 \`\`\`
 
 ## Setup
@@ -88,7 +91,7 @@ Register the module in your \`gwen.config.ts\`:
 import { defineConfig } from '@gwenjs/core'
 
 export default defineConfig({
-  modules: ['@community/gwen-${name}'],
+  modules: ['${pkg}'],
 })
 \`\`\`
 
@@ -97,15 +100,16 @@ export default defineConfig({
 Use the composable in your game code:
 
 \`\`\`typescript
-import { use${Pascal} } from '@community/gwen-${name}'
+import { use${Pascal} } from '${pkg}'
 
 const ${name} = use${Pascal}()
 \`\`\`
 `;
 }
 
-export function docsApiTemplate(name: string): string {
+export function docsApiTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `# API Reference
 
 ## \`use${Pascal}()\`
@@ -113,7 +117,7 @@ export function docsApiTemplate(name: string): string {
 Returns the \`${Pascal}Service\` instance registered by \`${Pascal}Plugin\`.
 
 \`\`\`typescript
-import { use${Pascal} } from '@community/gwen-${name}'
+import { use${Pascal} } from '${pkg}'
 
 const ${name} = use${Pascal}()
 \`\`\`
@@ -142,14 +146,15 @@ interface ${Pascal}Service {
 `;
 }
 
-export function docsExamplesTemplate(name: string): string {
+export function docsExamplesTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
+  const pkg = toPackageName(name, scope);
   return `# Examples
 
 ## Basic Usage
 
 \`\`\`typescript
-import { use${Pascal} } from '@community/gwen-${name}'
+import { use${Pascal} } from '${pkg}'
 
 // Inside a GWEN system or composable
 const ${name} = use${Pascal}()
@@ -161,7 +166,7 @@ const ${name} = use${Pascal}()
 // gwen.config.ts
 export default defineConfig({
   modules: [
-    ['@community/gwen-${name}', {
+    ['${pkg}', {
       // your options
     }],
   ],

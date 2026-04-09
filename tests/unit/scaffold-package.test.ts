@@ -518,7 +518,12 @@ describe("docsIndexTemplate", () => {
 describe("docsGettingStartedTemplate", () => {
   it("includes install command with package name", () => {
     const content = docsGettingStartedTemplate("my-plugin");
-    expect(content).toContain("@community/gwen-my-plugin");
+    expect(content).toContain("gwen-my-plugin"); // no scope
+  });
+
+  it("includes scoped install command when scope provided", () => {
+    const content = docsGettingStartedTemplate("my-plugin", "monorg");
+    expect(content).toContain("@monorg/gwen-my-plugin");
   });
 });
 
@@ -730,7 +735,12 @@ describe("rendererModuleTemplate", () => {
   it("registers composable for auto-import", () => {
     const src = rendererModuleTemplate("my-renderer");
     expect(src).toContain("useMyRenderer");
-    expect(src).toContain("@community/gwen-my-renderer");
+    expect(src).toContain("gwen-my-renderer"); // no scope → no @community
+  });
+
+  it("registers composable with scoped name when scope provided", () => {
+    const src = rendererModuleTemplate("my-renderer", "monorg");
+    expect(src).toContain("@monorg/gwen-my-renderer");
   });
 });
 
