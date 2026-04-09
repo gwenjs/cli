@@ -134,6 +134,42 @@ export default defineConfig({
 `;
 }
 
+/**
+ * Generates a basic vitest configuration file.
+ *
+ * @returns The content of `vitest.config.ts`.
+ */
+export function vitestConfigTemplate(): string {
+  return `import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    include: ['tests/**/*.test.ts'],
+  },
+})
+`;
+}
+
+/**
+ * Generates a basic test file scaffold for the package.
+ *
+ * @param name - The package name in kebab-case.
+ * @param scope - Optional npm scope without `@`
+ * @returns The content of `tests/<name>.test.ts`.
+ */
+export function testFileTemplate(name: string, scope?: string): string {
+  const pkg = toPackageName(name, scope);
+  return `import { describe, it, expect } from 'vitest'
+
+describe('${name}', () => {
+  it('is importable', async () => {
+    // TODO: import from '${pkg}' and test your plugin
+    expect(true).toBe(true)
+  })
+})
+`;
+}
+
 export function typesTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
