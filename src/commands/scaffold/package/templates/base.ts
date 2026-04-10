@@ -238,7 +238,7 @@ export {}
 export function pluginTemplate(name: string, scope?: string): string {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `import { definePlugin } from '@gwenjs/kit'
+  return `import { definePlugin } from '@gwenjs/kit/plugin'
 import type { GwenEngine } from '@gwenjs/core'
 import type { ${Pascal}Config, ${Pascal}Service } from './types.js'
 
@@ -300,7 +300,8 @@ export function moduleTemplate(name: string, scope?: string): string {
  * Always import from './plugin.js' or './types.js' directly.
  */
 
-import { defineGwenModule, definePluginTypes } from '@gwenjs/kit'
+import { defineGwenModule } from '@gwenjs/kit/module'
+import { definePluginTypes } from '@gwenjs/kit/plugin'
 import type { ${Pascal}Config } from './types.js'
 
 export default defineGwenModule<${Pascal}Config>({
