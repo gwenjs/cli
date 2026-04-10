@@ -2,6 +2,10 @@
   "name": "@gwenjs/cli",
   "version": "0.1.0",
   "description": "GWEN Engine CLI",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gwenjs/cli"
+  },
   "bin": {
     "gwen": "./bin.js"
   },
