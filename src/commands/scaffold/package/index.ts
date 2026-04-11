@@ -178,15 +178,15 @@ export async function generateFiles(
     const workflowsDir = path.join(outputDir, ".github", "workflows");
     await fs.mkdir(workflowsDir, { recursive: true });
     files.push(
-      [path.join(workflowsDir, "ci.yml"), codeTemplate(ciWorkflowTemplate())],
-      [path.join(workflowsDir, "release.yml"), codeTemplate(releaseWorkflowTemplate())],
+      [path.join(workflowsDir, "ci.yml"), textTemplate(ciWorkflowTemplate())],
+      [path.join(workflowsDir, "release.yml"), textTemplate(releaseWorkflowTemplate())],
       [
         path.join(outputDir, "release-please-config.json"),
-        codeTemplate(releasePleaseConfigTemplate()),
+        textTemplate(releasePleaseConfigTemplate()),
       ],
       [
         path.join(outputDir, ".release-please-manifest.json"),
-        codeTemplate(releasePleaseManifestTemplate()),
+        textTemplate(releasePleaseManifestTemplate()),
       ],
     );
   }
@@ -211,7 +211,7 @@ export async function generateFiles(
       ],
       [path.join(apiDir, "index.md"), textTemplate(docsApiTemplate(name, scope))],
       [path.join(examplesDir, "index.md"), textTemplate(docsExamplesTemplate(name, scope))],
-      [path.join(workflowsDir, "deploy-docs.yml"), codeTemplate(deployDocsWorkflowTemplate())],
+      [path.join(workflowsDir, "deploy-docs.yml"), textTemplate(deployDocsWorkflowTemplate())],
     );
   }
 
