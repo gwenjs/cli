@@ -462,21 +462,20 @@ describe("generateFiles integration", () => {
     expect(pkg.devDependencies["vitepress"]).toBeDefined();
   });
 
-  it("uses textTemplate for generated JSON artifacts", async () => {
-    const scaffoldSource = await fs.readFile(
-      path.resolve(process.cwd(), "src/commands/scaffold/package/index.ts"),
-      "utf8",
+  it("writes JSON artifacts with trailing newlines", async () => {
+    await generateFiles(
+      { name: "test-plugin", gwenVersion: "^0.1.0", withCi: false, withDocs: false },
+      tmpDir,
     );
 
-    expect(scaffoldSource).toMatch(
-      /path\.join\(outputDir, "package\.json"\)[\s\S]*textTemplate\(buildPackageJson\(name, gwenVersion, withDocs, type, scope\)\)/,
-    );
-    expect(scaffoldSource).toContain(
-      '[path.join(outputDir, "tsconfig.json"), textTemplate(tsconfigTemplate())]',
-    );
-    expect(scaffoldSource).toContain(
-      '[path.join(outputDir, "tsconfig.test.json"), textTemplate(tsconfigTestTemplate())]',
-    );
+    const outputDir = path.join(tmpDir, "test-plugin");
+    const packageJson = await fs.readFile(path.join(outputDir, "package.json"), "utf8");
+    const tsconfigJson = await fs.readFile(path.join(outputDir, "tsconfig.json"), "utf8");
+    const tsconfigTestJson = await fs.readFile(path.join(outputDir, "tsconfig.test.json"), "utf8");
+
+    expect(packageJson.endsWith("\n")).toBe(true);
+    expect(tsconfigJson.endsWith("\n")).toBe(true);
+    expect(tsconfigTestJson.endsWith("\n")).toBe(true);
   });
 });
 
