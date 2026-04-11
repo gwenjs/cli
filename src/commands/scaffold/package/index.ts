@@ -102,6 +102,10 @@ function buildPackageJson(
   return JSON.stringify(base, null, 2);
 }
 
+function textTemplate(content: string): string {
+  return content;
+}
+
 export async function generateFiles(
   opts: ScaffoldPackageOptions,
   cwd: string = process.cwd(),
@@ -119,8 +123,8 @@ export async function generateFiles(
       path.join(outputDir, "package.json"),
       textTemplate(buildPackageJson(name, gwenVersion, withDocs, type, scope)),
     ],
-    [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
-    [path.join(outputDir, "tsconfig.test.json"), tsconfigTestTemplate()],
+    [path.join(outputDir, "tsconfig.json"), textTemplate(tsconfigTemplate())],
+    [path.join(outputDir, "tsconfig.test.json"), textTemplate(tsconfigTestTemplate())],
     [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
     [path.join(outputDir, "vitest.config.ts"), vitestConfigTemplate()],
   ];
