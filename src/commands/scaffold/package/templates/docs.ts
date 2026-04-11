@@ -7,7 +7,7 @@ import { codeTemplate, textTemplate, type GeneratedTemplate } from "./render.js"
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function vitepressConfigTemplate(name: string, scope?: string): GeneratedTemplate {
+export function vitepressConfigTemplate(name: string, _scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   return codeTemplate(`import { defineConfig } from 'vitepress'
 
