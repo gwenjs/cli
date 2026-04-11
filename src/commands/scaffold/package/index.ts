@@ -166,16 +166,10 @@ export async function generateFiles(
     const workflowsDir = path.join(outputDir, ".github", "workflows");
     await fs.mkdir(workflowsDir, { recursive: true });
     files.push(
-      [path.join(workflowsDir, "ci.yml"), textTemplate(ciWorkflowTemplate())],
-      [path.join(workflowsDir, "release.yml"), textTemplate(releaseWorkflowTemplate())],
-      [
-        path.join(outputDir, "release-please-config.json"),
-        textTemplate(releasePleaseConfigTemplate()),
-      ],
-      [
-        path.join(outputDir, ".release-please-manifest.json"),
-        textTemplate(releasePleaseManifestTemplate()),
-      ],
+      [path.join(workflowsDir, "ci.yml"), ciWorkflowTemplate()],
+      [path.join(workflowsDir, "release.yml"), releaseWorkflowTemplate()],
+      [path.join(outputDir, "release-please-config.json"), releasePleaseConfigTemplate()],
+      [path.join(outputDir, ".release-please-manifest.json"), releasePleaseManifestTemplate()],
     );
   }
 
@@ -192,14 +186,11 @@ export async function generateFiles(
     await fs.mkdir(workflowsDir, { recursive: true });
     files.push(
       [path.join(vitepressDir, "config.ts"), codeTemplate(vitepressConfigTemplate(name, scope))],
-      [path.join(outputDir, "docs", "index.md"), textTemplate(docsIndexTemplate(name, scope))],
-      [
-        path.join(guideDir, "getting-started.md"),
-        textTemplate(docsGettingStartedTemplate(name, scope)),
-      ],
-      [path.join(apiDir, "index.md"), textTemplate(docsApiTemplate(name, scope))],
-      [path.join(examplesDir, "index.md"), textTemplate(docsExamplesTemplate(name, scope))],
-      [path.join(workflowsDir, "deploy-docs.yml"), textTemplate(deployDocsWorkflowTemplate())],
+      [path.join(outputDir, "docs", "index.md"), docsIndexTemplate(name, scope)],
+      [path.join(guideDir, "getting-started.md"), docsGettingStartedTemplate(name, scope)],
+      [path.join(apiDir, "index.md"), docsApiTemplate(name, scope)],
+      [path.join(examplesDir, "index.md"), docsExamplesTemplate(name, scope)],
+      [path.join(workflowsDir, "deploy-docs.yml"), deployDocsWorkflowTemplate()],
     );
   }
 

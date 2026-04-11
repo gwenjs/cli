@@ -1,5 +1,7 @@
-export function ciWorkflowTemplate(): string {
-  return `name: CI
+import { textTemplate, type GeneratedTemplate } from "./render.js";
+
+export function ciWorkflowTemplate(): GeneratedTemplate {
+  return textTemplate(`name: CI
 
 on:
   push:
@@ -61,11 +63,11 @@ jobs:
             exit 1
           fi
           echo "✅ All checks passed"
-`;
+`);
 }
 
-export function releaseWorkflowTemplate(): string {
-  return `name: Release
+export function releaseWorkflowTemplate(): GeneratedTemplate {
+  return textTemplate(`name: Release
 
 on:
   workflow_run:
@@ -118,22 +120,24 @@ jobs:
         run: pnpm build
       - name: Publish to npm
         run: pnpm publish --access public --no-git-checks --provenance
-`;
+`);
 }
 
-export function releasePleaseConfigTemplate(): string {
-  return JSON.stringify(
-    {
-      $schema:
-        "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-      "release-type": "node",
-      packages: { ".": {} },
-    },
-    null,
-    2,
+export function releasePleaseConfigTemplate(): GeneratedTemplate {
+  return textTemplate(
+    JSON.stringify(
+      {
+        $schema:
+          "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+        "release-type": "node",
+        packages: { ".": {} },
+      },
+      null,
+      2,
+    ),
   );
 }
 
-export function releasePleaseManifestTemplate(): string {
-  return JSON.stringify({ ".": "0.1.0" }, null, 2);
+export function releasePleaseManifestTemplate(): GeneratedTemplate {
+  return textTemplate(JSON.stringify({ ".": "0.1.0" }, null, 2));
 }
