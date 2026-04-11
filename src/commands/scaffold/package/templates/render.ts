@@ -10,14 +10,14 @@ function withTrailingNewline(content: string): string {
 }
 
 /**
- * Creates a generated code template.
+ * Use code templates for source files that may need code-aware handling later.
  */
 export function codeTemplate(content: string): GeneratedTemplate {
   return { kind: "code", content };
 }
 
 /**
- * Creates a generated text template.
+ * Use text templates for YAML, JSON, markdown, and other plain-text artifacts.
  */
 export function textTemplate(content: string): GeneratedTemplate {
   return { kind: "text", content };
