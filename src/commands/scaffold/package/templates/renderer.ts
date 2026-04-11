@@ -5,7 +5,26 @@
  * All names are derived from the package name via toPascalCase/toCamelCase helpers.
  */
 
+import { genExport, genImport, genInterface, genTypeImport } from "knitwork";
 import { toPascalCase, toCamelCase, toPackageName } from "./base.js";
+import { codeTemplate, type GeneratedTemplate } from "./render.js";
+
+const knitworkOptions = { singleQuotes: true } as const;
+
+function statement(line: string): string {
+  return line.replace(/;$/, "");
+}
+
+function renderServiceInterface(name: string): string {
+  return statement(genInterface(name, {}, { export: true })).replace(
+    "{}",
+    "{\n  // TODO: expose public methods your composables need\n}",
+  );
+}
+
+function renderStringKeyInterface(name: string, key: string, value: string): string {
+  return statement(genInterface(name, { [key]: value })).replace(`"${key}"`, `'${key}'`);
+}
 
 /**
  * Generates `src/types.ts` for a renderer package.
@@ -15,28 +34,29 @@ import { toPascalCase, toCamelCase, toPackageName } from "./base.js";
  * @param name - The package name in kebab-case (e.g. "my-renderer").
  * @param scope - Optional npm scope without `@`
  */
-export function rendererTypesTemplate(name: string, scope?: string): string {
+export function rendererTypesTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `/**
- * Public types for ${pkg}.
- */
-
-import type { LayerDef } from '@gwenjs/renderer-core'
-
-/** Options accepted by the ${Pascal} module in gwen.config.ts. */
-export interface ${Pascal}Options {
-  /** Named canvas/div layers managed by this renderer. */
-  layers: Record<string, LayerDef>
-  /** DOM container to mount layers into. Defaults to document.body. */
-  container?: HTMLElement
-}
-
-/** Public API exposed via engine.provide('renderer:${name}'). */
-export interface ${Pascal}Service {
-  // TODO: expose public methods your composables need
-}
-`;
+  return codeTemplate(
+    [
+      "/**",
+      ` * Public types for ${pkg}.`,
+      " */",
+      "",
+      statement(genTypeImport("@gwenjs/renderer-core", ["LayerDef"], knitworkOptions)),
+      "",
+      `/** Options accepted by the ${Pascal} module in gwen.config.ts. */`,
+      `export interface ${Pascal}Options {`,
+      "  /** Named canvas/div layers managed by this renderer. */",
+      "  layers: Record<string, LayerDef>",
+      "  /** DOM container to mount layers into. Defaults to document.body. */",
+      "  container?: HTMLElement",
+      "}",
+      "",
+      `/** Public API exposed via engine.provide('renderer:${name}'). */`,
+      renderServiceInterface(`${Pascal}Service`),
+    ].join("\n"),
+  );
 }
 
 /**
@@ -47,51 +67,54 @@ export interface ${Pascal}Service {
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function rendererServiceTemplate(name: string, scope?: string): string {
+export function rendererServiceTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `/**
- * Renderer service implementation for ${pkg}.
- *
- * Implements the RendererService contract from @gwenjs/renderer-core.
- * All members are required — see the contract interface for details.
- */
-
-import { defineRendererService } from '@gwenjs/renderer-core'
-import type { ${Pascal}Options } from './types.js'
-
-export const ${Pascal}RendererService = defineRendererService<${Pascal}Options>((opts) => ({
-  name: 'renderer:${name}',
-  layers: opts.layers,
-
-  // Called once per declared layer — the result is cached automatically.
-  createElement(_layerName: string): HTMLElement {
-    return document.createElement('canvas')
-  },
-
-  // Called once after all layers are created and appended to the DOM.
-  mount(_ctx: { getLayer: (name: string) => HTMLElement }): void {
-    // TODO: initialise your rendering engine here
-  },
-
-  // Called when the scene is destroyed — release all GPU/DOM resources.
-  unmount(): void {
-    // TODO: dispose your rendering engine here
-  },
-
-  // Called on every viewport resize.
-  resize(_w: number, _h: number): void {
-    // TODO: resize your rendering engine
-  },
-
-  // Called each frame — run your render pass and report frame time.
-  flush({ reportFrameTime }: { reportFrameTime: (ms: number) => void }): void {
-    const t = performance.now()
-    // TODO: render one frame
-    reportFrameTime(performance.now() - t)
-  },
-}))
-`;
+  return codeTemplate(
+    [
+      "/**",
+      ` * Renderer service implementation for ${pkg}.`,
+      " *",
+      " * Implements the RendererService contract from @gwenjs/renderer-core.",
+      " * All members are required — see the contract interface for details.",
+      " */",
+      "",
+      statement(genImport("@gwenjs/renderer-core", ["defineRendererService"], knitworkOptions)),
+      statement(genTypeImport("./types.js", [`${Pascal}Options`], knitworkOptions)),
+      "",
+      `export const ${Pascal}RendererService = defineRendererService<${Pascal}Options>((opts) => ({`,
+      `  name: 'renderer:${name}',`,
+      "  layers: opts.layers,",
+      "",
+      "  // Called once per declared layer — the result is cached automatically.",
+      "  createElement(_layerName: string): HTMLElement {",
+      "    return document.createElement('canvas')",
+      "  },",
+      "",
+      "  // Called once after all layers are created and appended to the DOM.",
+      "  mount(_ctx: { getLayer: (name: string) => HTMLElement }): void {",
+      "    // TODO: initialise your rendering engine here",
+      "  },",
+      "",
+      "  // Called when the scene is destroyed — release all GPU/DOM resources.",
+      "  unmount(): void {",
+      "    // TODO: dispose your rendering engine here",
+      "  },",
+      "",
+      "  // Called on every viewport resize.",
+      "  resize(_w: number, _h: number): void {",
+      "    // TODO: resize your rendering engine",
+      "  },",
+      "",
+      "  // Called each frame — run your render pass and report frame time.",
+      "  flush({ reportFrameTime }: { reportFrameTime: (ms: number) => void }): void {",
+      "    const t = performance.now()",
+      "    // TODO: render one frame",
+      "    reportFrameTime(performance.now() - t)",
+      "  },",
+      "}))",
+    ].join("\n"),
+  );
 }
 
 /**
@@ -102,45 +125,50 @@ export const ${Pascal}RendererService = defineRendererService<${Pascal}Options>(
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function rendererPluginTemplate(name: string, scope?: string): string {
+export function rendererPluginTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `/**
- * GWEN plugin for ${pkg}.
- *
- * Registers the renderer service and mounts layers on engine start.
- */
-
-import { definePlugin } from '@gwenjs/kit'
-import { getOrCreateLayerManager } from '@gwenjs/renderer-core'
-import { ${Pascal}RendererService } from './renderer-service.js'
-import type { ${Pascal}Options } from './types.js'
-
-export const ${Pascal}Plugin = definePlugin<${Pascal}Options>((opts) => {
-  const service = ${Pascal}RendererService({ layers: opts.layers })
-
-  return {
-    name: 'renderer:${name}',
-
-    setup(engine) {
-      engine.provide('renderer:${name}', service)
-
-      const manager = getOrCreateLayerManager(engine, opts.container ?? document.body)
-      if (import.meta.env.DEV || engine.debug) {
-        manager.enableStats()
-      }
-      manager.register(service)
-
-      engine.onStart(() => manager.mount())
-      engine.onDestroy(() => manager.unregister('renderer:${name}'))
-    },
-
-    onRender() {
-      service.flush({ reportFrameTime: () => {} })
-    },
-  }
-})
-`;
+  return codeTemplate(
+    [
+      "/**",
+      ` * GWEN plugin for ${pkg}.`,
+      " *",
+      " * Registers the renderer service and mounts layers on engine start.",
+      " */",
+      "",
+      statement(genImport("@gwenjs/kit", ["definePlugin"], knitworkOptions)),
+      statement(
+        genImport("@gwenjs/renderer-core", ["getOrCreateLayerManager"], knitworkOptions),
+      ),
+      statement(genImport("./renderer-service.js", [`${Pascal}RendererService`], knitworkOptions)),
+      statement(genTypeImport("./types.js", [`${Pascal}Options`], knitworkOptions)),
+      "",
+      `export const ${Pascal}Plugin = definePlugin<${Pascal}Options>((opts) => {`,
+      `  const service = ${Pascal}RendererService({ layers: opts.layers })`,
+      "",
+      "  return {",
+      `    name: 'renderer:${name}',`,
+      "",
+      "    setup(engine) {",
+      `      engine.provide('renderer:${name}', service)`,
+      "",
+      "      const manager = getOrCreateLayerManager(engine, opts.container ?? document.body)",
+      "      if (import.meta.env.DEV || engine.debug) {",
+      "        manager.enableStats()",
+      "      }",
+      "      manager.register(service)",
+      "",
+      "      engine.onStart(() => manager.mount())",
+      `      engine.onDestroy(() => manager.unregister('renderer:${name}'))`,
+      "    },",
+      "",
+      "    onRender() {",
+      "      service.flush({ reportFrameTime: () => {} })",
+      "    },",
+      "  }",
+      "})",
+    ].join("\n"),
+  );
 }
 
 /**
@@ -151,45 +179,48 @@ export const ${Pascal}Plugin = definePlugin<${Pascal}Options>((opts) => {
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function rendererComposablesTemplate(name: string, scope?: string): string {
+export function rendererComposablesTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const camel = toCamelCase(name);
   const pkg = toPackageName(name, scope);
-  return `/**
- * Composables for ${pkg}.
- *
- * Must be called inside defineActor() — lifecycle hooks are registered automatically.
- */
-
-import { onDestroy } from '@gwenjs/core/actor'
-import { useService } from '@gwenjs/core/system'
-import type { ${Pascal}Service } from './types.js'
-import './augment.js'
-
-/**
- * Retrieves the ${Pascal} renderer service registered by ${Pascal}Plugin.
- *
- * Call inside defineActor() to access the renderer for this actor's lifetime.
- * Resources registered via onDestroy are cleaned up automatically.
- *
- * @example
- * \`\`\`ts
- * export const MyActor = defineActor(MyPrefab, () => {
- *   const ${camel} = use${Pascal}()
- *   onUpdate(() => console.log('${camel} ready'))
- * })
- * \`\`\`
- */
-export function use${Pascal}(): ${Pascal}Service {
-  const service = useService('renderer:${name}') as ${Pascal}Service
-
-  onDestroy(() => {
-    // TODO: release any per-actor resources created from this service
-  })
-
-  return service
-}
-`;
+  return codeTemplate(
+    [
+      "/**",
+      ` * Composables for ${pkg}.`,
+      " *",
+      " * Must be called inside defineActor() — lifecycle hooks are registered automatically.",
+      " */",
+      "",
+      statement(genImport("@gwenjs/core/actor", ["onDestroy"], knitworkOptions)),
+      statement(genImport("@gwenjs/core/system", ["useService"], knitworkOptions)),
+      statement(genTypeImport("./types.js", [`${Pascal}Service`], knitworkOptions)),
+      statement(genImport("./augment.js", undefined, knitworkOptions)),
+      "",
+      "/**",
+      ` * Retrieves the ${Pascal} renderer service registered by ${Pascal}Plugin.`,
+      " *",
+      " * Call inside defineActor() to access the renderer for this actor's lifetime.",
+      " * Resources registered via onDestroy are cleaned up automatically.",
+      " *",
+      " * @example",
+      " * ```ts",
+      " * export const MyActor = defineActor(MyPrefab, () => {",
+      ` *   const ${camel} = use${Pascal}()`,
+      ` *   onUpdate(() => console.log('${camel} ready'))`,
+      " * })",
+      " * ```",
+      " */",
+      `export function use${Pascal}(): ${Pascal}Service {`,
+      `  const service = useService('renderer:${name}') as ${Pascal}Service`,
+      "",
+      "  onDestroy(() => {",
+      "    // TODO: release any per-actor resources created from this service",
+      "  })",
+      "",
+      "  return service",
+      "}",
+    ].join("\n"),
+  );
 }
 
 /**
@@ -200,50 +231,57 @@ export function use${Pascal}(): ${Pascal}Service {
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function rendererModuleTemplate(name: string, scope?: string): string {
+export function rendererModuleTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const camel = toCamelCase(name);
   const pkg = toPackageName(name, scope);
-  return `/**
- * Build-time GWEN module for ${pkg}.
- *
- * Add to gwen.config.ts:
- *   modules: [['${pkg}', { layers: { main: { order: 0 } } }]]
- *
- * IMPORTANT: Never import from './index.js' here — always import from './plugin.js'.
- */
+  const serviceTypeImport = statement(genTypeImport(pkg, [`${Pascal}Service`], knitworkOptions));
 
-import { defineGwenModule, definePluginTypes } from '@gwenjs/kit'
-import type { ${Pascal}Options } from './types.js'
-
-export default defineGwenModule<${Pascal}Options>({
-  meta: {
-    name: '${pkg}',
-    configKey: '${camel}',
-  },
-  defaults: {
-    layers: { main: { order: 0 } },
-  },
-  async setup(options, kit) {
-    const { ${Pascal}Plugin } = await import('./plugin.js')
-
-    kit.addPlugin(${Pascal}Plugin(options))
-
-    kit.addAutoImports([
-      { name: 'use${Pascal}', from: '${pkg}' },
-    ])
-
-    kit.addTypeTemplate({
-      filename: '${name}.d.ts',
-      getContents: () =>
-        definePluginTypes({
-          imports: ["import type { ${Pascal}Service } from '${pkg}'"],
-          provides: { 'renderer:${name}': '${Pascal}Service' },
-        }),
-    })
-  },
-})
-`;
+  return codeTemplate(
+    [
+      "/**",
+      ` * Build-time GWEN module for ${pkg}.`,
+      " *",
+      " * Add to gwen.config.ts:",
+      ` *   modules: [['${pkg}', { layers: { main: { order: 0 } } }]]`,
+      " *",
+      " * IMPORTANT: Never import from './index.js' here — always import from './plugin.js'.",
+      " */",
+      "",
+      statement(
+        genImport("@gwenjs/kit", ["defineGwenModule", "definePluginTypes"], knitworkOptions),
+      ),
+      statement(genTypeImport("./types.js", [`${Pascal}Options`], knitworkOptions)),
+      "",
+      `export default defineGwenModule<${Pascal}Options>({`,
+      "  meta: {",
+      `    name: '${pkg}',`,
+      `    configKey: '${camel}',`,
+      "  },",
+      "  defaults: {",
+      "    layers: { main: { order: 0 } },",
+      "  },",
+      "  async setup(options, kit) {",
+      `    const { ${Pascal}Plugin } = await import('./plugin.js')`,
+      "",
+      `    kit.addPlugin(${Pascal}Plugin(options))`,
+      "",
+      "    kit.addAutoImports([",
+      `      { name: 'use${Pascal}', from: '${pkg}' },`,
+      "    ])",
+      "",
+      "    kit.addTypeTemplate({",
+      `      filename: '${name}.d.ts',`,
+      "      getContents: () =>",
+      "        definePluginTypes({",
+      `          imports: ["${serviceTypeImport}"],`,
+      `          provides: { 'renderer:${name}': '${Pascal}Service' },`,
+      "        }),",
+      "    })",
+      "  },",
+      "})",
+    ].join("\n"),
+  );
 }
 
 /**
@@ -254,24 +292,25 @@ export default defineGwenModule<${Pascal}Options>({
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function rendererAugmentTemplate(name: string, scope?: string): string {
+export function rendererAugmentTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `/**
- * Declaration merging — types useService('renderer:${name}') as ${Pascal}Service.
- * Activated as a side-effect when importing from '${pkg}'.
- */
-
-import type { ${Pascal}Service } from './types.js'
-
-declare module '@gwenjs/core' {
-  interface GwenProvides {
-    'renderer:${name}': ${Pascal}Service
-  }
-}
-
-export {}
-`;
+  return codeTemplate(
+    [
+      "/**",
+      ` * Declaration merging — types useService('renderer:${name}') as ${Pascal}Service.`,
+      ` * Activated as a side-effect when importing from '${pkg}'.`,
+      " */",
+      "",
+      statement(genTypeImport("./types.js", [`${Pascal}Service`], knitworkOptions)),
+      "",
+      "declare module '@gwenjs/core' {",
+      `  ${renderStringKeyInterface("GwenProvides", `renderer:${name}`, `${Pascal}Service`).replaceAll("\n", "\n  ")}`,
+      "}",
+      "",
+      "export {}",
+    ].join("\n"),
+  );
 }
 
 /**
@@ -283,23 +322,26 @@ export {}
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function rendererIndexTemplate(name: string, scope?: string): string {
+export function rendererIndexTemplate(name: string, _scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
-  return `// Side-effect: activates typed useService('renderer:${name}') in manual mode
-import './augment.js'
-
-// Plugin factory — for manual registration in plugins: []
-export { ${Pascal}Plugin } from './plugin.js'
-
-// Composables — use${Pascal}() for runtime access inside defineActor()
-export { use${Pascal} } from './composables.js'
-
-// Public types
-export type { ${Pascal}Options, ${Pascal}Service } from './types.js'
-
-// The build-time module is exposed via the './module' package export.
-// Do NOT re-export it here — that creates a circular dependency.
-`;
+  return codeTemplate(
+    [
+      `// Side-effect: activates typed useService('renderer:${name}') in manual mode`,
+      statement(genImport("./augment.js", undefined, knitworkOptions)),
+      "",
+      "// Plugin factory — for manual registration in plugins: []",
+      statement(genExport("./plugin.js", [`${Pascal}Plugin`], knitworkOptions)),
+      "",
+      `// Composables — use${Pascal}() for runtime access inside defineActor()`,
+      statement(genExport("./composables.js", [`use${Pascal}`], knitworkOptions)),
+      "",
+      "// Public types",
+      `export type { ${Pascal}Options, ${Pascal}Service } from './types.js'`,
+      "",
+      "// The build-time module is exposed via the './module' package export.",
+      "// Do NOT re-export it here — that creates a circular dependency.",
+    ].join("\n"),
+  );
 }
 
 /**
@@ -310,24 +352,31 @@ export type { ${Pascal}Options, ${Pascal}Service } from './types.js'
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function conformanceTestTemplate(name: string, scope?: string): string {
+export function conformanceTestTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `/**
- * Conformance test — verifies ${pkg} satisfies the RendererService contract.
- *
- * Run: pnpm test
- */
-
-import { describe, it, expect } from 'vitest'
-import { runConformanceTests } from '@gwenjs/renderer-core/testing'
-import { ${Pascal}RendererService } from '../src/renderer-service.js'
-
-describe('${pkg} conformance', () => {
-  it('satisfies the RendererService contract', () => {
-    const service = ${Pascal}RendererService({ layers: { main: { order: 0 } } })
-    expect(() => runConformanceTests(service)).not.toThrow()
-  })
-})
-`;
+  return codeTemplate(
+    [
+      "/**",
+      ` * Conformance test — verifies ${pkg} satisfies the RendererService contract.`,
+      " *",
+      " * Run: pnpm test",
+      " */",
+      "",
+      statement(genImport("vitest", ["describe", "it", "expect"], knitworkOptions)),
+      statement(
+        genImport("@gwenjs/renderer-core/testing", ["runConformanceTests"], knitworkOptions),
+      ),
+      statement(
+        genImport("../src/renderer-service.js", [`${Pascal}RendererService`], knitworkOptions),
+      ),
+      "",
+      `describe('${pkg} conformance', () => {`,
+      "  it('satisfies the RendererService contract', () => {",
+      `    const service = ${Pascal}RendererService({ layers: { main: { order: 0 } } })`,
+      "    expect(() => runConformanceTests(service)).not.toThrow()",
+      "  })",
+      "})",
+    ].join("\n"),
+  );
 }
