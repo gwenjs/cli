@@ -339,9 +339,7 @@ export function moduleTemplate(name: string, scope?: string): GeneratedTemplate 
     "      ",
     knitworkOptions,
   );
-  const serviceTypeImport = statement(
-    genTypeImport(pkg, [`${Pascal}Service`], knitworkOptions),
-  );
+  const serviceTypeImport = statement(genTypeImport(pkg, [`${Pascal}Service`], knitworkOptions));
   return codeTemplate(
     [
       "/**",
@@ -354,9 +352,7 @@ export function moduleTemplate(name: string, scope?: string): GeneratedTemplate 
       " * Always import from './plugin.js' or './types.js' directly.",
       " */",
       "",
-      statement(
-        genImport("@gwenjs/kit/module", ["defineGwenModule"], knitworkOptions),
-      ),
+      statement(genImport("@gwenjs/kit/module", ["defineGwenModule"], knitworkOptions)),
       statement(genImport("@gwenjs/kit/plugin", ["definePluginTypes"], knitworkOptions)),
       statement(genTypeImport("./types.js", [`${Pascal}Config`], knitworkOptions)),
       "",

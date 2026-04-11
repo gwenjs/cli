@@ -135,9 +135,7 @@ export function rendererPluginTemplate(name: string, scope?: string): GeneratedT
       " */",
       "",
       statement(genImport("@gwenjs/kit", ["definePlugin"], knitworkOptions)),
-      statement(
-        genImport("@gwenjs/renderer-core", ["getOrCreateLayerManager"], knitworkOptions),
-      ),
+      statement(genImport("@gwenjs/renderer-core", ["getOrCreateLayerManager"], knitworkOptions)),
       statement(genImport("./renderer-service.js", [`${Pascal}RendererService`], knitworkOptions)),
       statement(genTypeImport("./types.js", [`${Pascal}Options`], knitworkOptions)),
       "",

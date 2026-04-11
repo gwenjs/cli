@@ -45,11 +45,7 @@ import {
   rendererIndexTemplate,
   conformanceTestTemplate,
 } from "./templates/renderer.js";
-import {
-  finalizeTemplate,
-  textTemplate,
-  type GeneratedTemplate,
-} from "./templates/render.js";
+import { finalizeTemplate, textTemplate, type GeneratedTemplate } from "./templates/render.js";
 
 // Re-export all template functions for backward compatibility with tests
 export {
