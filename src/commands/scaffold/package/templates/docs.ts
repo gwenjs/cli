@@ -9,7 +9,6 @@ import { codeTemplate, textTemplate, type GeneratedTemplate } from "./render.js"
  */
 export function vitepressConfigTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
-  const pkg = toPackageName(name, scope);
   return codeTemplate(`import { defineConfig } from 'vitepress'
 
 export default defineConfig({
