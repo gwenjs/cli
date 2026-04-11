@@ -293,6 +293,12 @@ export function rendererModuleTemplate(name: string, scope?: string): GeneratedT
 export function rendererAugmentTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
+  const providesInterface = renderStringKeyInterface(
+    "GwenProvides",
+    `renderer:${name}`,
+    `${Pascal}Service`,
+  ).replaceAll("\n", "\n  ");
+
   return codeTemplate(
     [
       "/**",
@@ -303,7 +309,7 @@ export function rendererAugmentTemplate(name: string, scope?: string): Generated
       statement(genTypeImport("./types.js", [`${Pascal}Service`], knitworkOptions)),
       "",
       "declare module '@gwenjs/core' {",
-      `  ${renderStringKeyInterface("GwenProvides", `renderer:${name}`, `${Pascal}Service`).replaceAll("\n", "\n  ")}`,
+      `  ${providesInterface}`,
       "}",
       "",
       "export {}",
