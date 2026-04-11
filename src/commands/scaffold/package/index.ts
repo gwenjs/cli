@@ -46,7 +46,6 @@ import {
   conformanceTestTemplate,
 } from "./templates/renderer.js";
 import {
-  codeTemplate,
   finalizeTemplate,
   textTemplate,
   type GeneratedTemplate,
@@ -185,7 +184,7 @@ export async function generateFiles(
     await fs.mkdir(examplesDir, { recursive: true });
     await fs.mkdir(workflowsDir, { recursive: true });
     files.push(
-      [path.join(vitepressDir, "config.ts"), codeTemplate(vitepressConfigTemplate(name, scope))],
+      [path.join(vitepressDir, "config.ts"), vitepressConfigTemplate(name, scope)],
       [path.join(outputDir, "docs", "index.md"), docsIndexTemplate(name, scope)],
       [path.join(guideDir, "getting-started.md"), docsGettingStartedTemplate(name, scope)],
       [path.join(apiDir, "index.md"), docsApiTemplate(name, scope)],
