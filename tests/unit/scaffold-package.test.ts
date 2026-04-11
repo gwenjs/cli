@@ -461,6 +461,23 @@ describe("generateFiles integration", () => {
     expect(pkg.scripts["docs:preview"]).toBe("vitepress preview docs");
     expect(pkg.devDependencies["vitepress"]).toBeDefined();
   });
+
+  it("uses textTemplate for generated JSON artifacts", async () => {
+    const scaffoldSource = await fs.readFile(
+      path.resolve(process.cwd(), "src/commands/scaffold/package/index.ts"),
+      "utf8",
+    );
+
+    expect(scaffoldSource).toMatch(
+      /path\.join\(outputDir, "package\.json"\)[\s\S]*textTemplate\(buildPackageJson\(name, gwenVersion, withDocs, type, scope\)\)/,
+    );
+    expect(scaffoldSource).toContain(
+      '[path.join(outputDir, "tsconfig.json"), textTemplate(tsconfigTemplate())]',
+    );
+    expect(scaffoldSource).toContain(
+      '[path.join(outputDir, "tsconfig.test.json"), textTemplate(tsconfigTestTemplate())]',
+    );
+  });
 });
 
 describe("resolveOptions", () => {

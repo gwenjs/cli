@@ -122,10 +122,10 @@ export async function generateFiles(
     [path.join(outputDir, ".gitignore"), textTemplate(gitignoreTemplate())],
     [
       path.join(outputDir, "package.json"),
-      codeTemplate(buildPackageJson(name, gwenVersion, withDocs, type, scope)),
+      textTemplate(buildPackageJson(name, gwenVersion, withDocs, type, scope)),
     ],
-    [path.join(outputDir, "tsconfig.json"), codeTemplate(tsconfigTemplate())],
-    [path.join(outputDir, "tsconfig.test.json"), codeTemplate(tsconfigTestTemplate())],
+    [path.join(outputDir, "tsconfig.json"), textTemplate(tsconfigTemplate())],
+    [path.join(outputDir, "tsconfig.test.json"), textTemplate(tsconfigTestTemplate())],
     [path.join(outputDir, "vite.config.ts"), codeTemplate(viteConfigTemplate())],
     [path.join(outputDir, "vitest.config.ts"), codeTemplate(vitestConfigTemplate())],
   ];
