@@ -133,19 +133,13 @@ export async function generateFiles(
   const sourceFiles: Array<[string, GeneratedTemplate]> =
     type === "renderer"
       ? [
-          [path.join(srcDir, "types.ts"), codeTemplate(rendererTypesTemplate(name, scope))],
-          [
-            path.join(srcDir, "renderer-service.ts"),
-            codeTemplate(rendererServiceTemplate(name, scope)),
-          ],
-          [path.join(srcDir, "plugin.ts"), codeTemplate(rendererPluginTemplate(name, scope))],
-          [
-            path.join(srcDir, "composables.ts"),
-            codeTemplate(rendererComposablesTemplate(name, scope)),
-          ],
-          [path.join(srcDir, "module.ts"), codeTemplate(rendererModuleTemplate(name, scope))],
-          [path.join(srcDir, "augment.ts"), codeTemplate(rendererAugmentTemplate(name, scope))],
-          [path.join(srcDir, "index.ts"), codeTemplate(rendererIndexTemplate(name, scope))],
+          [path.join(srcDir, "types.ts"), rendererTypesTemplate(name, scope)],
+          [path.join(srcDir, "renderer-service.ts"), rendererServiceTemplate(name, scope)],
+          [path.join(srcDir, "plugin.ts"), rendererPluginTemplate(name, scope)],
+          [path.join(srcDir, "composables.ts"), rendererComposablesTemplate(name, scope)],
+          [path.join(srcDir, "module.ts"), rendererModuleTemplate(name, scope)],
+          [path.join(srcDir, "augment.ts"), rendererAugmentTemplate(name, scope)],
+          [path.join(srcDir, "index.ts"), rendererIndexTemplate(name, scope)],
         ]
       : [
           [path.join(srcDir, "types.ts"), typesTemplate(name, scope)],
@@ -163,15 +157,9 @@ export async function generateFiles(
   await fs.mkdir(testsDir, { recursive: true });
 
   if (type === "renderer") {
-    files.push([
-      path.join(testsDir, "conformance.test.ts"),
-      codeTemplate(conformanceTestTemplate(name, scope)),
-    ]);
+    files.push([path.join(testsDir, "conformance.test.ts"), conformanceTestTemplate(name, scope)]);
   } else {
-    files.push([
-      path.join(testsDir, `${name}.test.ts`),
-      testFileTemplate(name, scope),
-    ]);
+    files.push([path.join(testsDir, `${name}.test.ts`), testFileTemplate(name, scope)]);
   }
 
   if (withCi) {
