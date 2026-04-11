@@ -12,14 +12,12 @@ import { codeTemplate, type GeneratedTemplate } from "./render.js";
 const knitworkOptions = { singleQuotes: true } as const;
 
 function statement(line: string): string {
+  // Knitwork helpers emit semicolons; the scaffold templates keep statements bare.
   return line.replace(/;$/, "");
 }
 
 function renderServiceInterface(name: string): string {
-  return statement(genInterface(name, {}, { export: true })).replace(
-    "{}",
-    "{\n  // TODO: expose public methods your composables need\n}",
-  );
+  return `export interface ${name} {\n  // TODO: expose public methods your composables need\n}`;
 }
 
 function renderStringKeyInterface(name: string, key: string, value: string): string {
