@@ -225,6 +225,17 @@ describe("typesTemplate", () => {
     expect(content).toContain("export interface MyPluginConfig");
     expect(content).toContain("export interface MyPluginService");
   });
+
+  it("renders interface comments inline in a stable readable block", () => {
+    const content = finalizeTemplate(typesTemplate("audio"));
+    expect(content).toContain(
+      [
+        "export interface AudioConfig {",
+        "  // Add your plugin configuration options here",
+        "}",
+      ].join("\n"),
+    );
+  });
 });
 
 describe("augmentTemplate", () => {
@@ -315,6 +326,12 @@ describe("moduleTemplate", () => {
     const content = finalizeTemplate(moduleTemplate("audio", "monorg"));
     expect(content).toContain("from: '@monorg/audio'");
   });
+
+  it("formats meta with readable indentation", () => {
+    const content = finalizeTemplate(moduleTemplate("audio"));
+    expect(content).toContain("  meta: { name: 'audio' },");
+    expect(content).not.toContain(["  meta: {", "      name: 'audio'"].join("\n"));
+  });
 });
 
 describe("indexTemplate", () => {
@@ -355,6 +372,11 @@ describe("vitestConfigTemplate", () => {
     const content = finalizeTemplate(vitestConfigTemplate());
     expect(content).toContain("tsconfig.test.json");
     expect(content).toContain("typecheck");
+  });
+
+  it("wraps vitest settings inside the test key", () => {
+    const content = finalizeTemplate(vitestConfigTemplate());
+    expect(content).toContain("test: {");
   });
 });
 

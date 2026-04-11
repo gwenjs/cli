@@ -1,10 +1,4 @@
-import {
-  genExport,
-  genImport,
-  genInterface,
-  genObjectFromRaw,
-  genTypeImport,
-} from "knitwork";
+import { genExport, genImport, genObjectFromRaw, genTypeImport } from "knitwork";
 import { codeTemplate, textTemplate, type GeneratedTemplate } from "./render.js";
 
 // ─── Name helpers ─────────────────────────────────────────────────────────────
