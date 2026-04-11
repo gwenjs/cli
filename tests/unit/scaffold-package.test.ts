@@ -947,10 +947,11 @@ describe("rendererComposablesTemplate", () => {
     expect(src).toContain("from '@gwenjs/core/system'");
   });
 
-  it("imports onDestroy from @gwenjs/core/actor", () => {
+  it("imports onCleanup from @gwenjs/core", () => {
     const src = finalizeTemplate(rendererComposablesTemplate("my-renderer"));
-    expect(src).toContain("onDestroy");
-    expect(src).toContain("from '@gwenjs/core/actor'");
+    expect(src).toContain("onCleanup");
+    expect(src).toContain("from '@gwenjs/core'");
+    expect(src).not.toContain("from '@gwenjs/core/actor'");
   });
 
   it("exports useMyRenderer composable", () => {
@@ -961,6 +962,12 @@ describe("rendererComposablesTemplate", () => {
   it("calls useService with renderer:<name> key", () => {
     const src = finalizeTemplate(rendererComposablesTemplate("my-renderer"));
     expect(src).toContain("useService('renderer:my-renderer')");
+  });
+
+  it("registers cleanup with onCleanup", () => {
+    const src = finalizeTemplate(rendererComposablesTemplate("my-renderer"));
+    expect(src).toContain("onCleanup(() => {");
+    expect(src).not.toContain("onDestroy(() => {");
   });
 
   it("imports augment.ts as side-effect", () => {
