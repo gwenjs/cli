@@ -507,6 +507,33 @@ describe("generateFiles integration", () => {
     expect(tsconfigJson.endsWith("\n")).toBe(true);
     expect(tsconfigTestJson.endsWith("\n")).toBe(true);
   });
+
+  it("writes docs and workflow artifacts with trailing newlines", async () => {
+    await generateFiles(
+      { name: "test-plugin", gwenVersion: "^0.1.0", withCi: true, withDocs: true },
+      tmpDir,
+    );
+
+    const outputDir = path.join(tmpDir, "test-plugin");
+    const docsIndex = await fs.readFile(path.join(outputDir, "docs", "index.md"), "utf8");
+    const gettingStarted = await fs.readFile(
+      path.join(outputDir, "docs", "guide", "getting-started.md"),
+      "utf8",
+    );
+    const ciWorkflow = await fs.readFile(
+      path.join(outputDir, ".github", "workflows", "ci.yml"),
+      "utf8",
+    );
+    const deployDocsWorkflow = await fs.readFile(
+      path.join(outputDir, ".github", "workflows", "deploy-docs.yml"),
+      "utf8",
+    );
+
+    expect(docsIndex.endsWith("\n")).toBe(true);
+    expect(gettingStarted.endsWith("\n")).toBe(true);
+    expect(ciWorkflow.endsWith("\n")).toBe(true);
+    expect(deployDocsWorkflow.endsWith("\n")).toBe(true);
+  });
 });
 
 describe("resolveOptions", () => {
@@ -630,14 +657,14 @@ import {
 
 describe("ciWorkflowTemplate", () => {
   it("triggers on push and pull_request to main", () => {
-    const content = ciWorkflowTemplate();
+    const content = ciWorkflowTemplate().content;
     expect(content).toContain("branches: [main]");
     expect(content).toContain("push:");
     expect(content).toContain("pull_request:");
   });
 
   it("has separate lint and typescript jobs with ci-status gate", () => {
-    const content = ciWorkflowTemplate();
+    const content = ciWorkflowTemplate().content;
     expect(content).toContain("name: Lint & Format");
     expect(content).toContain("name: TypeScript");
     expect(content).toContain("name: CI Status");
@@ -647,7 +674,7 @@ describe("ciWorkflowTemplate", () => {
   });
 
   it("runs lint, format:check, typecheck, test, build steps", () => {
-    const content = ciWorkflowTemplate();
+    const content = ciWorkflowTemplate().content;
     expect(content).toContain("pnpm lint");
     expect(content).toContain("pnpm format:check");
     expect(content).toContain("pnpm typecheck");
@@ -658,14 +685,14 @@ describe("ciWorkflowTemplate", () => {
 
 describe("releaseWorkflowTemplate", () => {
   it("triggers on workflow_run CI completion", () => {
-    const content = releaseWorkflowTemplate();
+    const content = releaseWorkflowTemplate().content;
     expect(content).toContain('workflows: ["CI"]');
     expect(content).toContain("workflow_run");
     expect(content).toContain("workflow_run.conclusion == 'success'");
   });
 
   it("has separate release-please and publish jobs", () => {
-    const content = releaseWorkflowTemplate();
+    const content = releaseWorkflowTemplate().content;
     expect(content).toContain("name: Release Please");
     expect(content).toContain("name: Publish to npm");
     expect(content).toContain("needs: [release-please]");
@@ -674,7 +701,7 @@ describe("releaseWorkflowTemplate", () => {
   });
 
   it("publishes to npm with provenance via OIDC", () => {
-    const content = releaseWorkflowTemplate();
+    const content = releaseWorkflowTemplate().content;
     expect(content).toContain("pnpm publish");
     expect(content).toContain("--provenance");
     expect(content).toContain("id-token: write");
@@ -683,14 +710,14 @@ describe("releaseWorkflowTemplate", () => {
 
 describe("releasePleaseConfigTemplate", () => {
   it("is valid JSON with release-type node", () => {
-    const parsed = JSON.parse(releasePleaseConfigTemplate());
+    const parsed = JSON.parse(releasePleaseConfigTemplate().content);
     expect(parsed["release-type"]).toBe("node");
   });
 });
 
 describe("releasePleaseManifestTemplate", () => {
   it("is valid JSON with version 0.1.0", () => {
-    const parsed = JSON.parse(releasePleaseManifestTemplate());
+    const parsed = JSON.parse(releasePleaseManifestTemplate().content);
     expect(parsed["."]).toBe("0.1.0");
   });
 });
@@ -719,33 +746,33 @@ describe("vitepressConfigTemplate", () => {
 
 describe("docsIndexTemplate", () => {
   it("references the package name in hero text", () => {
-    const content = docsIndexTemplate("my-plugin");
+    const content = docsIndexTemplate("my-plugin").content;
     expect(content).toContain("my-plugin");
   });
 });
 
 describe("docsGettingStartedTemplate", () => {
   it("includes install command with package name", () => {
-    const content = docsGettingStartedTemplate("my-plugin");
+    const content = docsGettingStartedTemplate("my-plugin").content;
     expect(content).toContain("my-plugin"); // no scope
   });
 
   it("includes scoped install command when scope provided", () => {
-    const content = docsGettingStartedTemplate("my-plugin", "monorg");
+    const content = docsGettingStartedTemplate("my-plugin", "monorg").content;
     expect(content).toContain("@monorg/my-plugin");
   });
 });
 
 describe("docsApiTemplate", () => {
   it("uses PascalCase for service name", () => {
-    const content = docsApiTemplate("my-plugin");
+    const content = docsApiTemplate("my-plugin").content;
     expect(content).toContain("MyPluginService");
   });
 });
 
 describe("deployDocsWorkflowTemplate", () => {
   it("deploys to GitHub Pages", () => {
-    const content = deployDocsWorkflowTemplate();
+    const content = deployDocsWorkflowTemplate().content;
     expect(content).toContain("actions/deploy-pages");
     expect(content).toContain("pnpm docs:build");
   });
@@ -823,7 +850,6 @@ describe("scaffold command surface", () => {
 });
 
 // ─── Renderer templates ───────────────────────────────────────────────────────
-
 
 describe("rendererTypesTemplate", () => {
   it("exports <Name>Options with layers field", () => {

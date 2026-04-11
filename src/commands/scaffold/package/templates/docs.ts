@@ -1,4 +1,5 @@
 import { toPascalCase, toPackageName } from "./base.js";
+import { textTemplate, type GeneratedTemplate } from "./render.js";
 
 /**
  * Generates the VitePress configuration file.
@@ -55,10 +56,10 @@ export default defineConfig({
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function docsIndexTemplate(name: string, scope?: string): string {
+export function docsIndexTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `---
+  return textTemplate(`---
 layout: home
 
 hero:
@@ -81,7 +82,7 @@ features:
   - title: Tree-shakeable
     details: Only pay for what you use.
 ---
-`;
+`);
 }
 
 /**
@@ -90,10 +91,10 @@ features:
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function docsGettingStartedTemplate(name: string, scope?: string): string {
+export function docsGettingStartedTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `# Getting Started
+  return textTemplate(`# Getting Started
 
 ## Installation
 
@@ -122,7 +123,7 @@ import { use${Pascal} } from '${pkg}'
 
 const ${name} = use${Pascal}()
 \`\`\`
-`;
+`);
 }
 
 /**
@@ -131,10 +132,10 @@ const ${name} = use${Pascal}()
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function docsApiTemplate(name: string, scope?: string): string {
+export function docsApiTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `# API Reference
+  return textTemplate(`# API Reference
 
 ## \`use${Pascal}()\`
 
@@ -167,7 +168,7 @@ interface ${Pascal}Service {
   // Add your methods here
 }
 \`\`\`
-`;
+`);
 }
 
 /**
@@ -176,10 +177,10 @@ interface ${Pascal}Service {
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function docsExamplesTemplate(name: string, scope?: string): string {
+export function docsExamplesTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `# Examples
+  return textTemplate(`# Examples
 
 ## Basic Usage
 
@@ -202,14 +203,14 @@ export default defineConfig({
   ],
 })
 \`\`\`
-`;
+`);
 }
 
 /**
  * Generates the deploy docs to GitHub Pages workflow file.
  */
-export function deployDocsWorkflowTemplate(): string {
-  return `name: Deploy Docs to GitHub Pages
+export function deployDocsWorkflowTemplate(): GeneratedTemplate {
+  return textTemplate(`name: Deploy Docs to GitHub Pages
 
 on:
   push:
@@ -259,5 +260,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-`;
+`);
 }
