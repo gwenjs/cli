@@ -47,6 +47,7 @@
     "consola": "^3.4.2",
     "execa": "^9.6.1",
     "jiti": "^2.4.2",
+    "knitwork": "^1.2.0",
     "pathe": "^2.0.3",
     "pkg-types": "^2.3.0",
     "ts-morph": "^25.0.0"

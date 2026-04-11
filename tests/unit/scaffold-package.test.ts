@@ -35,6 +35,11 @@ import {
   rendererIndexTemplate,
   conformanceTestTemplate,
 } from "../../src/commands/scaffold/package/templates/renderer.js";
+import {
+  codeTemplate,
+  textTemplate,
+  finalizeTemplate,
+} from "../../src/commands/scaffold/package/templates/render.js";
 import { resolveOptions } from "../../src/commands/scaffold/package/options.js";
 import { promptSelect, promptString } from "../../src/utils/prompt.js";
 import { scaffoldPackageCommand } from "../../src/commands/scaffold/package/index.js";
@@ -138,6 +143,18 @@ describe("isValidScope", () => {
   });
   it("accepts exactly 214 chars", () => {
     expect(isValidScope("a".repeat(214))).toBe(true);
+  });
+});
+
+describe("render helpers", () => {
+  it("adds a trailing newline to code templates", () => {
+    const rendered = finalizeTemplate(codeTemplate("export const value = 1"));
+    expect(rendered).toBe("export const value = 1\n");
+  });
+
+  it("preserves an existing trailing newline", () => {
+    const rendered = finalizeTemplate(textTemplate("line one\n"));
+    expect(rendered).toBe("line one\n");
   });
 });
 
