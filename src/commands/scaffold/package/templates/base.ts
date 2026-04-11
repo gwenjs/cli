@@ -57,6 +57,10 @@ export function packageJsonTemplate(
         name: toPackageName(name, scope),
         version: "0.1.0",
         description: `${toPascalCase(name)} plugin for GWEN`,
+        repository: {
+          type: "git",
+          url: "https://github.com/your-project",
+        },
         type: "module",
         files: ["dist"],
         exports: {
@@ -151,9 +155,12 @@ export function tsconfigTestTemplate(): GeneratedTemplate {
 export function viteConfigTemplate(): GeneratedTemplate {
   return codeTemplate(
     [
+      statement(genImport("node:path", ["resolve", "dirname"], knitworkOptions)),
+      statement(genImport("node:url", ["fileURLToPath"], knitworkOptions)),
       statement(genImport("vite", ["defineConfig"], knitworkOptions)),
-      statement(genImport("path", ["resolve"], knitworkOptions)),
       statement(genImport("vite-plugin-dts", "dts", knitworkOptions)),
+      "",
+      "const __dirname = dirname(fileURLToPath(import.meta.url))",
       "",
       "export default defineConfig({",
       "  plugins: [",
