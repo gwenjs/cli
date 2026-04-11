@@ -45,6 +45,12 @@ import {
   rendererIndexTemplate,
   conformanceTestTemplate,
 } from "./templates/renderer.js";
+import {
+  codeTemplate,
+  finalizeTemplate,
+  textTemplate,
+  type GeneratedTemplate,
+} from "./templates/render.js";
 
 // Re-export all template functions for backward compatibility with tests
 export {
@@ -112,58 +118,76 @@ export async function generateFiles(
 
   await fs.mkdir(srcDir, { recursive: true });
 
-  const sharedFiles: Array<[string, string]> = [
-    [path.join(outputDir, ".gitignore"), gitignoreTemplate()],
+  const sharedFiles: Array<[string, GeneratedTemplate]> = [
+    [path.join(outputDir, ".gitignore"), textTemplate(gitignoreTemplate())],
     [
       path.join(outputDir, "package.json"),
-      buildPackageJson(name, gwenVersion, withDocs, type, scope),
+      codeTemplate(buildPackageJson(name, gwenVersion, withDocs, type, scope)),
     ],
-    [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
-    [path.join(outputDir, "tsconfig.test.json"), tsconfigTestTemplate()],
-    [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
-    [path.join(outputDir, "vitest.config.ts"), vitestConfigTemplate()],
+    [path.join(outputDir, "tsconfig.json"), codeTemplate(tsconfigTemplate())],
+    [path.join(outputDir, "tsconfig.test.json"), codeTemplate(tsconfigTestTemplate())],
+    [path.join(outputDir, "vite.config.ts"), codeTemplate(viteConfigTemplate())],
+    [path.join(outputDir, "vitest.config.ts"), codeTemplate(vitestConfigTemplate())],
   ];
 
-  const sourceFiles: Array<[string, string]> =
+  const sourceFiles: Array<[string, GeneratedTemplate]> =
     type === "renderer"
       ? [
-          [path.join(srcDir, "types.ts"), rendererTypesTemplate(name, scope)],
-          [path.join(srcDir, "renderer-service.ts"), rendererServiceTemplate(name, scope)],
-          [path.join(srcDir, "plugin.ts"), rendererPluginTemplate(name, scope)],
-          [path.join(srcDir, "composables.ts"), rendererComposablesTemplate(name, scope)],
-          [path.join(srcDir, "module.ts"), rendererModuleTemplate(name, scope)],
-          [path.join(srcDir, "augment.ts"), rendererAugmentTemplate(name, scope)],
-          [path.join(srcDir, "index.ts"), rendererIndexTemplate(name, scope)],
+          [path.join(srcDir, "types.ts"), codeTemplate(rendererTypesTemplate(name, scope))],
+          [
+            path.join(srcDir, "renderer-service.ts"),
+            codeTemplate(rendererServiceTemplate(name, scope)),
+          ],
+          [path.join(srcDir, "plugin.ts"), codeTemplate(rendererPluginTemplate(name, scope))],
+          [
+            path.join(srcDir, "composables.ts"),
+            codeTemplate(rendererComposablesTemplate(name, scope)),
+          ],
+          [path.join(srcDir, "module.ts"), codeTemplate(rendererModuleTemplate(name, scope))],
+          [path.join(srcDir, "augment.ts"), codeTemplate(rendererAugmentTemplate(name, scope))],
+          [path.join(srcDir, "index.ts"), codeTemplate(rendererIndexTemplate(name, scope))],
         ]
       : [
-          [path.join(srcDir, "types.ts"), typesTemplate(name, scope)],
-          [path.join(srcDir, "augment.ts"), augmentTemplate(name, scope)],
-          [path.join(srcDir, "plugin.ts"), pluginTemplate(name, scope)],
-          [path.join(srcDir, "composables.ts"), composablesTemplate(name, scope)],
-          [path.join(srcDir, "module.ts"), moduleTemplate(name, scope)],
-          [path.join(srcDir, "index.ts"), indexTemplate(name)],
+          [path.join(srcDir, "types.ts"), codeTemplate(typesTemplate(name, scope))],
+          [path.join(srcDir, "augment.ts"), codeTemplate(augmentTemplate(name, scope))],
+          [path.join(srcDir, "plugin.ts"), codeTemplate(pluginTemplate(name, scope))],
+          [path.join(srcDir, "composables.ts"), codeTemplate(composablesTemplate(name, scope))],
+          [path.join(srcDir, "module.ts"), codeTemplate(moduleTemplate(name, scope))],
+          [path.join(srcDir, "index.ts"), codeTemplate(indexTemplate(name))],
         ];
 
-  const files: Array<[string, string]> = [...sharedFiles, ...sourceFiles];
+  const files: Array<[string, GeneratedTemplate]> = [...sharedFiles, ...sourceFiles];
 
   // Create tests directory and add test files for all package types
   const testsDir = path.join(outputDir, "tests");
   await fs.mkdir(testsDir, { recursive: true });
 
   if (type === "renderer") {
-    files.push([path.join(testsDir, "conformance.test.ts"), conformanceTestTemplate(name, scope)]);
+    files.push([
+      path.join(testsDir, "conformance.test.ts"),
+      codeTemplate(conformanceTestTemplate(name, scope)),
+    ]);
   } else {
-    files.push([path.join(testsDir, `${name}.test.ts`), testFileTemplate(name, scope)]);
+    files.push([
+      path.join(testsDir, `${name}.test.ts`),
+      codeTemplate(testFileTemplate(name, scope)),
+    ]);
   }
 
   if (withCi) {
     const workflowsDir = path.join(outputDir, ".github", "workflows");
     await fs.mkdir(workflowsDir, { recursive: true });
     files.push(
-      [path.join(workflowsDir, "ci.yml"), ciWorkflowTemplate()],
-      [path.join(workflowsDir, "release.yml"), releaseWorkflowTemplate()],
-      [path.join(outputDir, "release-please-config.json"), releasePleaseConfigTemplate()],
-      [path.join(outputDir, ".release-please-manifest.json"), releasePleaseManifestTemplate()],
+      [path.join(workflowsDir, "ci.yml"), codeTemplate(ciWorkflowTemplate())],
+      [path.join(workflowsDir, "release.yml"), codeTemplate(releaseWorkflowTemplate())],
+      [
+        path.join(outputDir, "release-please-config.json"),
+        codeTemplate(releasePleaseConfigTemplate()),
+      ],
+      [
+        path.join(outputDir, ".release-please-manifest.json"),
+        codeTemplate(releasePleaseManifestTemplate()),
+      ],
     );
   }
 
@@ -179,17 +203,20 @@ export async function generateFiles(
     await fs.mkdir(examplesDir, { recursive: true });
     await fs.mkdir(workflowsDir, { recursive: true });
     files.push(
-      [path.join(vitepressDir, "config.ts"), vitepressConfigTemplate(name, scope)],
-      [path.join(outputDir, "docs", "index.md"), docsIndexTemplate(name, scope)],
-      [path.join(guideDir, "getting-started.md"), docsGettingStartedTemplate(name, scope)],
-      [path.join(apiDir, "index.md"), docsApiTemplate(name, scope)],
-      [path.join(examplesDir, "index.md"), docsExamplesTemplate(name, scope)],
-      [path.join(workflowsDir, "deploy-docs.yml"), deployDocsWorkflowTemplate()],
+      [path.join(vitepressDir, "config.ts"), codeTemplate(vitepressConfigTemplate(name, scope))],
+      [path.join(outputDir, "docs", "index.md"), textTemplate(docsIndexTemplate(name, scope))],
+      [
+        path.join(guideDir, "getting-started.md"),
+        textTemplate(docsGettingStartedTemplate(name, scope)),
+      ],
+      [path.join(apiDir, "index.md"), textTemplate(docsApiTemplate(name, scope))],
+      [path.join(examplesDir, "index.md"), textTemplate(docsExamplesTemplate(name, scope))],
+      [path.join(workflowsDir, "deploy-docs.yml"), codeTemplate(deployDocsWorkflowTemplate())],
     );
   }
 
-  for (const [filePath, content] of files) {
-    await fs.writeFile(filePath, content, "utf8");
+  for (const [filePath, template] of files) {
+    await fs.writeFile(filePath, finalizeTemplate(template), "utf8");
   }
 }
 
