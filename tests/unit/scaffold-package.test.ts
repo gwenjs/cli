@@ -686,6 +686,12 @@ describe("ciWorkflowTemplate", () => {
     expect(content).toContain("pnpm test");
     expect(content).toContain("pnpm build");
   });
+
+  it("runs lint and format:check in the typescript job too", () => {
+    const content = ciWorkflowTemplate().content;
+    expect(content).toMatch(/typescript:[\s\S]*pnpm lint/);
+    expect(content).toMatch(/typescript:[\s\S]*pnpm format:check/);
+  });
 });
 
 describe("releaseWorkflowTemplate", () => {
@@ -710,6 +716,14 @@ describe("releaseWorkflowTemplate", () => {
     expect(content).toContain("pnpm publish");
     expect(content).toContain("--provenance");
     expect(content).toContain("id-token: write");
+  });
+
+  it("uses the NPM_TOKEN secret when publishing", () => {
+    const content = releaseWorkflowTemplate().content;
+    expect(content).toContain("name: Publish to npm");
+    expect(content).toContain("env:");
+    expect(content).toContain("NPM_TOKEN");
+    expect(content).toContain("NPM_TOKEN: ${{ secrets.NPM_TOKEN }}");
   });
 });
 

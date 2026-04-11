@@ -42,6 +42,10 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Format check
+        run: pnpm format:check
       - name: Build
         run: pnpm build
       - name: Typecheck
@@ -119,6 +123,8 @@ jobs:
       - name: Build
         run: pnpm build
       - name: Publish to npm
+        env:
+          NPM_TOKEN: \${{ secrets.NPM_TOKEN }}
         run: pnpm publish --access public --no-git-checks --provenance
 `);
 }
