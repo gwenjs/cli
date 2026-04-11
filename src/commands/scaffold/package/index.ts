@@ -91,7 +91,7 @@ function buildPackageJson(
   type: PackageType = "standard",
   scope?: string,
 ): string {
-  const base = JSON.parse(packageJsonTemplate(name, gwenVersion, scope));
+  const base = JSON.parse(finalizeTemplate(packageJsonTemplate(name, gwenVersion, scope)));
 
   if (type === "renderer") {
     base.dependencies["@gwenjs/renderer-core"] = gwenVersion;
@@ -119,15 +119,15 @@ export async function generateFiles(
   await fs.mkdir(srcDir, { recursive: true });
 
   const sharedFiles: Array<[string, GeneratedTemplate]> = [
-    [path.join(outputDir, ".gitignore"), textTemplate(gitignoreTemplate())],
+    [path.join(outputDir, ".gitignore"), gitignoreTemplate()],
     [
       path.join(outputDir, "package.json"),
       textTemplate(buildPackageJson(name, gwenVersion, withDocs, type, scope)),
     ],
-    [path.join(outputDir, "tsconfig.json"), textTemplate(tsconfigTemplate())],
-    [path.join(outputDir, "tsconfig.test.json"), textTemplate(tsconfigTestTemplate())],
-    [path.join(outputDir, "vite.config.ts"), codeTemplate(viteConfigTemplate())],
-    [path.join(outputDir, "vitest.config.ts"), codeTemplate(vitestConfigTemplate())],
+    [path.join(outputDir, "tsconfig.json"), tsconfigTemplate()],
+    [path.join(outputDir, "tsconfig.test.json"), tsconfigTestTemplate()],
+    [path.join(outputDir, "vite.config.ts"), viteConfigTemplate()],
+    [path.join(outputDir, "vitest.config.ts"), vitestConfigTemplate()],
   ];
 
   const sourceFiles: Array<[string, GeneratedTemplate]> =
@@ -148,12 +148,12 @@ export async function generateFiles(
           [path.join(srcDir, "index.ts"), codeTemplate(rendererIndexTemplate(name, scope))],
         ]
       : [
-          [path.join(srcDir, "types.ts"), codeTemplate(typesTemplate(name, scope))],
-          [path.join(srcDir, "augment.ts"), codeTemplate(augmentTemplate(name, scope))],
-          [path.join(srcDir, "plugin.ts"), codeTemplate(pluginTemplate(name, scope))],
-          [path.join(srcDir, "composables.ts"), codeTemplate(composablesTemplate(name, scope))],
-          [path.join(srcDir, "module.ts"), codeTemplate(moduleTemplate(name, scope))],
-          [path.join(srcDir, "index.ts"), codeTemplate(indexTemplate(name))],
+          [path.join(srcDir, "types.ts"), typesTemplate(name, scope)],
+          [path.join(srcDir, "augment.ts"), augmentTemplate(name, scope)],
+          [path.join(srcDir, "plugin.ts"), pluginTemplate(name, scope)],
+          [path.join(srcDir, "composables.ts"), composablesTemplate(name, scope)],
+          [path.join(srcDir, "module.ts"), moduleTemplate(name, scope)],
+          [path.join(srcDir, "index.ts"), indexTemplate(name)],
         ];
 
   const files: Array<[string, GeneratedTemplate]> = [...sharedFiles, ...sourceFiles];
@@ -170,7 +170,7 @@ export async function generateFiles(
   } else {
     files.push([
       path.join(testsDir, `${name}.test.ts`),
-      codeTemplate(testFileTemplate(name, scope)),
+      testFileTemplate(name, scope),
     ]);
   }
 

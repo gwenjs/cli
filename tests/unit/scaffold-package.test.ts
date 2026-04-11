@@ -160,34 +160,34 @@ describe("render helpers", () => {
 
 describe("packageJsonTemplate", () => {
   it("sets the correct package name without scope", () => {
-    const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("my-plugin", "^0.1.0")));
     expect(pkg.name).toBe("my-plugin");
   });
 
   it("sets scoped package name when scope is provided", () => {
-    const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0", "monorg"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("my-plugin", "^0.1.0", "monorg")));
     expect(pkg.name).toBe("@monorg/my-plugin");
   });
 
   it("starts at version 0.1.0", () => {
-    const pkg = JSON.parse(packageJsonTemplate("audio", "^0.1.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("audio", "^0.1.0")));
     expect(pkg.version).toBe("0.1.0");
   });
 
   it('exports "." and "./module" entry points', () => {
-    const pkg = JSON.parse(packageJsonTemplate("audio", "^0.1.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("audio", "^0.1.0")));
     expect(pkg.exports["."]).toBeDefined();
     expect(pkg.exports["./module"]).toBeDefined();
   });
 
   it("includes @gwenjs/core and @gwenjs/kit in dependencies", () => {
-    const pkg = JSON.parse(packageJsonTemplate("audio", "^0.2.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("audio", "^0.2.0")));
     expect(pkg.dependencies["@gwenjs/core"]).toBe("^0.2.0");
     expect(pkg.dependencies["@gwenjs/kit"]).toBe("^0.2.0");
   });
 
   it("puts vite and typescript in devDependencies", () => {
-    const pkg = JSON.parse(packageJsonTemplate("audio", "^0.1.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("audio", "^0.1.0")));
     expect(pkg.devDependencies["vite"]).toBeDefined();
     expect(pkg.devDependencies["typescript"]).toBeDefined();
     expect(pkg.devDependencies["vitest"]).toBeDefined();
@@ -195,19 +195,19 @@ describe("packageJsonTemplate", () => {
   });
 
   it("has all required scripts", () => {
-    const pkg = JSON.parse(packageJsonTemplate("audio", "^0.1.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("audio", "^0.1.0")));
     expect(pkg.scripts.build).toBe("vite build");
     expect(pkg.scripts.test).toBe("vitest run");
     expect(pkg.scripts.typecheck).toBe("tsc --noEmit");
   });
 
   it("includes vitest in devDependencies", () => {
-    const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("my-plugin", "^0.1.0")));
     expect(pkg.devDependencies["vitest"]).toBeDefined();
   });
 
   it("includes test script", () => {
-    const pkg = JSON.parse(packageJsonTemplate("my-plugin", "^0.1.0"));
+    const pkg = JSON.parse(finalizeTemplate(packageJsonTemplate("my-plugin", "^0.1.0")));
     expect(pkg.scripts["test"]).toBeDefined();
     expect(pkg.scripts["test"]).toContain("vitest");
   });
@@ -215,13 +215,13 @@ describe("packageJsonTemplate", () => {
 
 describe("typesTemplate", () => {
   it("exports <Name>Config and <Name>Service", () => {
-    const content = typesTemplate("audio");
+    const content = finalizeTemplate(typesTemplate("audio"));
     expect(content).toContain("export interface AudioConfig");
     expect(content).toContain("export interface AudioService");
   });
 
   it("uses PascalCase from kebab-case name", () => {
-    const content = typesTemplate("my-plugin");
+    const content = finalizeTemplate(typesTemplate("my-plugin"));
     expect(content).toContain("export interface MyPluginConfig");
     expect(content).toContain("export interface MyPluginService");
   });
@@ -229,61 +229,61 @@ describe("typesTemplate", () => {
 
 describe("augmentTemplate", () => {
   it("augments GwenProvides with the service key", () => {
-    const content = augmentTemplate("audio");
+    const content = finalizeTemplate(augmentTemplate("audio"));
     expect(content).toContain("interface GwenProvides");
     expect(content).toContain("'audio': AudioService");
   });
 
   it("imports the service type from ./types.js", () => {
-    const content = augmentTemplate("audio");
+    const content = finalizeTemplate(augmentTemplate("audio"));
     expect(content).toContain("from './types.js'");
   });
 });
 
 describe("pluginTemplate", () => {
   it("imports from types.js not index.ts", () => {
-    const content = pluginTemplate("audio");
+    const content = finalizeTemplate(pluginTemplate("audio"));
     expect(content).toContain("from './types.js'");
     expect(content).not.toContain("from './index");
   });
 
   it("exports the plugin as <Name>Plugin", () => {
-    const content = pluginTemplate("audio");
+    const content = finalizeTemplate(pluginTemplate("audio"));
     expect(content).toContain("export const AudioPlugin = definePlugin");
   });
 
   it("calls engine.provide with the correct key", () => {
-    const content = pluginTemplate("audio");
+    const content = finalizeTemplate(pluginTemplate("audio"));
     expect(content).toContain("engine.provide('audio'");
   });
 });
 
 describe("composablesTemplate", () => {
   it("imports augment.ts as side-effect", () => {
-    const content = composablesTemplate("audio");
+    const content = finalizeTemplate(composablesTemplate("audio"));
     expect(content).toContain("import './augment.js'");
   });
 
   it("exports use<Name>()", () => {
-    const content = composablesTemplate("audio");
+    const content = finalizeTemplate(composablesTemplate("audio"));
     expect(content).toContain("export function useAudio()");
   });
 
   it("throws GwenPluginNotFoundError with helpful hint", () => {
-    const content = composablesTemplate("audio");
+    const content = finalizeTemplate(composablesTemplate("audio"));
     expect(content).toContain("GwenPluginNotFoundError");
     expect(content).toContain("audio");
   });
 
   it("throws GwenPluginNotFoundError with scoped hint when scope provided", () => {
-    const content = composablesTemplate("audio", "monorg");
+    const content = finalizeTemplate(composablesTemplate("audio", "monorg"));
     expect(content).toContain("@monorg/audio");
   });
 });
 
 describe("moduleTemplate", () => {
   it("never imports from index.ts", () => {
-    const content = moduleTemplate("audio");
+    const content = finalizeTemplate(moduleTemplate("audio"));
     // Only check actual import statements (not comment lines)
     const importLines = content
       .split("\n")
@@ -294,57 +294,65 @@ describe("moduleTemplate", () => {
   });
 
   it("imports plugin lazily from plugin.js", () => {
-    const content = moduleTemplate("audio");
+    const content = finalizeTemplate(moduleTemplate("audio"));
     expect(content).toContain("import('./plugin.js')");
   });
 
   it("calls kit.addPlugin, kit.addAutoImports, kit.addTypeTemplate", () => {
-    const content = moduleTemplate("audio");
+    const content = finalizeTemplate(moduleTemplate("audio"));
     expect(content).toContain("kit.addPlugin");
     expect(content).toContain("kit.addAutoImports");
     expect(content).toContain("kit.addTypeTemplate");
   });
 
   it("registers the composable for auto-import", () => {
-    const content = moduleTemplate("audio");
+    const content = finalizeTemplate(moduleTemplate("audio"));
     expect(content).toContain("name: 'useAudio'");
     expect(content).toContain("from: 'audio'");
   });
 
   it("registers the composable with scoped name when scope provided", () => {
-    const content = moduleTemplate("audio", "monorg");
+    const content = finalizeTemplate(moduleTemplate("audio", "monorg"));
     expect(content).toContain("from: '@monorg/audio'");
   });
 });
 
 describe("indexTemplate", () => {
   it("imports augment.ts as side-effect", () => {
-    const content = indexTemplate("audio");
+    const content = finalizeTemplate(indexTemplate("audio"));
     expect(content).toContain("import './augment.js'");
   });
 
   it("re-exports plugin, composables and types", () => {
-    const content = indexTemplate("audio");
+    const content = finalizeTemplate(indexTemplate("audio"));
     expect(content).toContain("from './plugin.js'");
     expect(content).toContain("from './composables.js'");
     expect(content).toContain("from './types.js'");
   });
 
   it("does NOT re-export module.ts", () => {
-    const content = indexTemplate("audio");
+    const content = finalizeTemplate(indexTemplate("audio"));
     expect(content).not.toContain("from './module");
+  });
+});
+
+describe("viteConfigTemplate", () => {
+  it("includes the Vite imports and module entrypoints", () => {
+    const content = finalizeTemplate(viteConfigTemplate());
+    expect(content).toContain("import { defineConfig } from 'vite'");
+    expect(content).toContain("module: resolve(__dirname, 'src/module.ts')");
   });
 });
 
 describe("vitestConfigTemplate", () => {
   it("generates a vitest config file", () => {
-    const content = vitestConfigTemplate();
+    const content = finalizeTemplate(vitestConfigTemplate());
     expect(content).toContain("defineConfig");
     expect(content).toContain("vitest/config");
   });
 
   it("references tsconfig.test.json for typecheck", () => {
-    const content = vitestConfigTemplate();
+    const content = finalizeTemplate(vitestConfigTemplate());
     expect(content).toContain("tsconfig.test.json");
     expect(content).toContain("typecheck");
   });
@@ -352,19 +360,19 @@ describe("vitestConfigTemplate", () => {
 
 describe("tsconfigTestTemplate", () => {
   it("extends the main tsconfig", () => {
-    const content = tsconfigTestTemplate();
+    const content = finalizeTemplate(tsconfigTestTemplate());
     const parsed = JSON.parse(content);
     expect(parsed.extends).toBe("./tsconfig.json");
   });
 
   it("includes tests directory", () => {
-    const content = tsconfigTestTemplate();
+    const content = finalizeTemplate(tsconfigTestTemplate());
     const parsed = JSON.parse(content);
     expect(parsed.include).toContain("tests/**/*");
   });
 
   it("has noEmit set to true", () => {
-    const content = tsconfigTestTemplate();
+    const content = finalizeTemplate(tsconfigTestTemplate());
     const parsed = JSON.parse(content);
     expect(parsed.compilerOptions.noEmit).toBe(true);
   });
@@ -372,7 +380,7 @@ describe("tsconfigTestTemplate", () => {
 
 describe("testFileTemplate", () => {
   it("generates a basic test file", () => {
-    const content = testFileTemplate("my-plugin");
+    const content = finalizeTemplate(testFileTemplate("my-plugin"));
     expect(content).toContain("describe");
     expect(content).toContain("my-plugin");
     expect(content).toContain("vitest");
