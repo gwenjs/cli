@@ -1,5 +1,5 @@
 import { toPascalCase, toPackageName } from "./base.js";
-import { textTemplate, type GeneratedTemplate } from "./render.js";
+import { codeTemplate, textTemplate, type GeneratedTemplate } from "./render.js";
 
 /**
  * Generates the VitePress configuration file.
@@ -7,10 +7,10 @@ import { textTemplate, type GeneratedTemplate } from "./render.js";
  * @param name - The package name in kebab-case.
  * @param scope - Optional npm scope without `@`
  */
-export function vitepressConfigTemplate(name: string, scope?: string): string {
+export function vitepressConfigTemplate(name: string, scope?: string): GeneratedTemplate {
   const Pascal = toPascalCase(name);
   const pkg = toPackageName(name, scope);
-  return `import { defineConfig } from 'vitepress'
+  return codeTemplate(`import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: '${Pascal}',
@@ -47,7 +47,7 @@ export default defineConfig({
     ],
   },
 })
-`;
+`);
 }
 
 /**

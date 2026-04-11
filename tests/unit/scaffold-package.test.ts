@@ -528,10 +528,15 @@ describe("generateFiles integration", () => {
       path.join(outputDir, ".github", "workflows", "deploy-docs.yml"),
       "utf8",
     );
+    const releaseWorkflow = await fs.readFile(
+      path.join(outputDir, ".github", "workflows", "release.yml"),
+      "utf8",
+    );
 
     expect(docsIndex.endsWith("\n")).toBe(true);
     expect(gettingStarted.endsWith("\n")).toBe(true);
     expect(ciWorkflow.endsWith("\n")).toBe(true);
+    expect(releaseWorkflow.endsWith("\n")).toBe(true);
     expect(deployDocsWorkflow.endsWith("\n")).toBe(true);
   });
 });
@@ -733,12 +738,12 @@ import {
 
 describe("vitepressConfigTemplate", () => {
   it("sets title to the package name", () => {
-    const content = vitepressConfigTemplate("my-plugin");
+    const content = finalizeTemplate(vitepressConfigTemplate("my-plugin"));
     expect(content).toContain("my-plugin");
   });
 
   it("contains a guide and api section in sidebar", () => {
-    const content = vitepressConfigTemplate("my-plugin");
+    const content = finalizeTemplate(vitepressConfigTemplate("my-plugin"));
     expect(content).toContain("/guide/");
     expect(content).toContain("/api/");
   });
