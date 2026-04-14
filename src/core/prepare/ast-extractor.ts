@@ -4,6 +4,7 @@
  */
 
 import * as path from "node:path";
+import { existsSync } from "node:fs";
 import {
   Project,
   SyntaxKind,
@@ -60,6 +61,14 @@ export interface SceneMetadata {
 }
 
 /**
+ * Metadata for an extracted event.
+ */
+export interface EventsMetadata {
+  exportName: string;
+  filePath: string;
+}
+
+/**
  * Result of project-wide metadata extraction.
  */
 export interface ExtractedMetadata {
@@ -69,6 +78,8 @@ export interface ExtractedMetadata {
   systems: Map<string, SystemMetadata>;
   /** Map of scene name -> metadata */
   scenes: Map<string, SceneMetadata>;
+  /** Map of event name -> metadata */
+  events: Map<string, EventsMetadata>;
 }
 
 /**
@@ -79,16 +90,23 @@ export interface ExtractedMetadata {
  */
 export function extractProjectMetadata(rootDir: string): ExtractedMetadata {
   const tsconfigPath = path.join(rootDir, "tsconfig.json");
-  const project = new Project({
-    tsConfigFilePath: tsconfigPath,
-    skipAddingFilesFromTsConfig: false,
-  });
 
   const metadata: ExtractedMetadata = {
     components: new Map(),
     systems: new Map(),
     scenes: new Map(),
+    events: new Map(),
   };
+
+  if (!existsSync(tsconfigPath)) {
+    logger.debug(`No tsconfig.json found in ${rootDir} — skipping AST extraction`);
+    return metadata;
+  }
+
+  const project = new Project({
+    tsConfigFilePath: tsconfigPath,
+    skipAddingFilesFromTsConfig: false,
+  });
 
   logger.debug(`Extracting metadata from ${rootDir}...`);
 
@@ -103,6 +121,7 @@ export function extractProjectMetadata(rootDir: string): ExtractedMetadata {
     extractComponents(sourceFile, metadata.components);
     extractSystems(sourceFile, metadata.systems);
     extractScenes(sourceFile, metadata.scenes);
+    extractEvents(sourceFile, metadata.events);
   }
 
   return metadata;
@@ -366,7 +385,6 @@ function extractScenes(sourceFile: SourceFile, scenes: Map<string, SceneMetadata
  * })
  * ```
  *
- * @since 1.0.0
  */
 function extractSystemsFromSceneFactory(factoryNode: ArrowFunction | FunctionExpression): string[] {
   const systems: string[] = [];
@@ -388,4 +406,21 @@ function extractSystemsFromSceneFactory(factoryNode: ArrowFunction | FunctionExp
   }
 
   return systems;
+}
+
+/**
+ * Finds all defineEvents calls and extracts their metadata.
+ */
+function extractEvents(sourceFile: SourceFile, events: Map<string, EventsMetadata>): void {
+  for (const varDecl of sourceFile.getVariableDeclarations()) {
+    const init = varDecl.getInitializer();
+    if (!init || !Node.isCallExpression(init)) continue;
+    if (init.getExpression().getText() !== "defineEvents") continue;
+
+    const exportName = varDecl.getName();
+    events.set(exportName, {
+      exportName,
+      filePath: sourceFile.getFilePath(),
+    });
+  }
 }

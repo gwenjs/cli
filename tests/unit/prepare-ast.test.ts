@@ -170,4 +170,78 @@ describe("AST Extractor & Validator", () => {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
   });
+
+  it("extracts events from defineEvents calls", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "gwen-ast-test-events-"));
+
+    fs.writeFileSync(
+      path.join(tempDir, "tsconfig.json"),
+      JSON.stringify({
+        compilerOptions: { target: "ESNext", module: "ESNext" },
+        include: ["src/**/*.ts"],
+      }),
+    );
+
+    const srcDir = path.join(tempDir, "src");
+    fs.mkdirSync(srcDir, { recursive: true });
+
+    const eventsFilePath = path.join(srcDir, "Events.ts");
+    fs.writeFileSync(
+      eventsFilePath,
+      `
+      import { defineEvents } from '@gwenjs/core';
+      export const PlayerEvents = defineEvents({
+        onDeath: null,
+        onJump: null,
+      });
+
+      export const EnemyEvents = defineEvents({
+        onSpawn: null,
+      });
+    `,
+    );
+
+    try {
+      const metadata = extractProjectMetadata(tempDir);
+
+      expect(metadata.events.has("PlayerEvents")).toBe(true);
+      expect(metadata.events.get("PlayerEvents")?.exportName).toBe("PlayerEvents");
+      expect(metadata.events.get("PlayerEvents")?.filePath).toBe(eventsFilePath);
+
+      expect(metadata.events.has("EnemyEvents")).toBe(true);
+      expect(metadata.events.get("EnemyEvents")?.exportName).toBe("EnemyEvents");
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("returns empty events map when no defineEvents calls exist", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "gwen-ast-test-no-events-"));
+
+    fs.writeFileSync(
+      path.join(tempDir, "tsconfig.json"),
+      JSON.stringify({
+        compilerOptions: { target: "ESNext", module: "ESNext" },
+        include: ["src/**/*.ts"],
+      }),
+    );
+
+    const srcDir = path.join(tempDir, "src");
+    fs.mkdirSync(srcDir, { recursive: true });
+
+    fs.writeFileSync(
+      path.join(srcDir, "Component.ts"),
+      `
+      import { defineComponent, Types } from '@gwenjs/core';
+      export const Position = defineComponent({ name: 'Position', schema: { x: Types.f32 } });
+    `,
+    );
+
+    try {
+      const metadata = extractProjectMetadata(tempDir);
+      expect(metadata.events.size).toBe(0);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
 });

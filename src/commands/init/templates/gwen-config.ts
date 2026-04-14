@@ -19,12 +19,10 @@ export function gwenConfigTemplate(extraModules: string[] = []): string {
   const extraBlock = extraModules.length > 0 ? `\n${extraModulesList}` : "";
 
   return `import { defineConfig } from '@gwenjs/app'
-import { AppRouter } from './src/router'
 
 export default defineConfig({
   engine: { maxEntities: 2_000, targetFPS: 60 },
   modules: [
-    ['@gwenjs/core', { router: AppRouter }],
     '@gwenjs/input',${extraBlock}
   ],
 })

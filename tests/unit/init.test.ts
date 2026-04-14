@@ -227,11 +227,11 @@ describe("gwenConfigTemplate", () => {
     expect(src).not.toContain("InputPlugin");
   });
 
-  it("registers @gwenjs/core with the router option", () => {
+  it("does not include @gwenjs/core as a module (it is a library, not a Gwen module)", () => {
     const src = gwenConfigTemplate();
-    expect(src).toContain("@gwenjs/core");
-    expect(src).toContain("router: AppRouter");
-    expect(src).toContain("AppRouter");
+    expect(src).not.toContain("@gwenjs/core");
+    expect(src).not.toContain("router: AppRouter");
+    expect(src).not.toContain("AppRouter");
   });
 
   it("includes extra modules in the output", () => {
@@ -526,8 +526,8 @@ describe("initCommand scaffold (integration)", () => {
     expect(src).not.toContain("Canvas2DRenderer");
     expect(src).toContain("@gwenjs/input");
     expect(src).not.toContain("InputPlugin");
-    expect(src).toContain("AppRouter");
-    expect(src).toContain("router: AppRouter");
+    expect(src).not.toContain("AppRouter");
+    expect(src).not.toContain("router: AppRouter");
   });
 
   it("creates README.md with project name and controls", async () => {

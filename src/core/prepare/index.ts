@@ -10,13 +10,14 @@
  */
 
 import fs from "node:fs/promises";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import { logger, setLogLevel } from "../../utils/logger.js";
 import { GwenApp, resolveGwenConfig } from "@gwenjs/app/resolve";
 import type { GwenModule } from "@gwenjs/kit/module";
 import { parseError } from "../types/guards.js";
+import { extractProjectMetadata } from "./ast-extractor.js";
 
 export interface PrepareOptions {
   /** Project root directory. Defaults to current working directory. */
@@ -79,6 +80,36 @@ export async function prepare(options: PrepareOptions = {}): Promise<PrepareResu
     const app = new GwenApp();
     await app.setupModules(config, moduleLoader);
     await app.prepare(projectDir);
+    const metadata = extractProjectMetadata(projectDir);
+    if (metadata.events.size > 0) {
+      const typesDir = path.join(gwenDir, "types");
+      const outPath = path.join(typesDir, "events.d.ts");
+
+      const entries = [...metadata.events.values()]
+        .map(({ exportName, filePath }) => {
+          const rel = path.relative(typesDir, filePath).replace(/\\/g, "/").replace(/\.ts$/, "");
+          return `    extends import('${rel}').${exportName}`;
+        })
+        .join(",\n");
+
+      const content = [
+        `import type { InferEvents } from '@gwenjs/core/actor'`,
+        ``,
+        `export {}`,
+        ``,
+        `declare module '@gwenjs/core' {`,
+        `  interface GwenRuntimeHooks`,
+        entries
+          .split("\n")
+          .map((l) => `  ${l}`)
+          .join("\n") + " {}",
+        `}`,
+        ``,
+      ].join("\n");
+
+      writeFileSync(outPath, content, "utf-8");
+      logger.debug("✅ events.d.ts generated");
+    }
   } catch (error) {
     result.errors.push(`Module setup error: ${parseError(error)}`);
     return result;
