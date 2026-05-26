@@ -44,6 +44,7 @@ import { defineCommand } from "citty";
 import { logger } from "../../utils/logger.js";
 import { isValidName, INVALID_NAME_MESSAGE } from "../../utils/validation.js";
 import { getModules } from "../../utils/module-registry.js";
+import { getLatestNpmVersion } from "../../utils/npm-version.js";
 import { detectPackageManager } from "../../utils/package-manager.js";
 import { DEFAULT_PORT_DEV, ExitCode } from "../../utils/constants.js";
 import { packageJsonTemplate } from "./templates/package-json.js";
@@ -65,8 +66,16 @@ import { routerTemplate } from "./templates/router.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Read the CLI's own published version to stamp into scaffolded package.json. */
+/**
+ * Resolve the GWEN version to stamp into scaffolded package.json.
+ *
+ * Tries the npm registry first (so the generated project always targets the
+ * latest published version). Falls back to the CLI's own version when offline.
+ */
 async function getGwenVersion(): Promise<string> {
+  const npmVersion = await getLatestNpmVersion("@gwenjs/core");
+  if (npmVersion) return npmVersion;
+
   try {
     const pkg = await readPackageJSON(new URL("../..", import.meta.url).pathname);
     return pkg.version ?? "1.0.0";

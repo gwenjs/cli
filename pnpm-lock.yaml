@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@gwenjs/app':
-        specifier: ^0.1.0
-        version: 0.1.0(jiti@2.6.1)(magicast@0.5.2)
+        specifier: ^0.3.0
+        version: 0.3.0(jiti@2.6.1)(magicast@0.5.2)
       '@gwenjs/kit':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.2.1
+        version: 0.2.1
       '@gwenjs/schema':
         specifier: ^0.1.1
         version: 0.1.1
@@ -427,29 +427,26 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@gwenjs/app@0.1.0':
-    resolution: {integrity: sha512-Z/vq0rpNT8hfxw7HR7zgR9Lja7J/jhf0z0aSvxUsNK/l6hoLddPEwxzFHawYUxaArbq6s92221bh0FCQk1MSCQ==}
-
-  '@gwenjs/core@0.1.0':
-    resolution: {integrity: sha512-fkCKlGDrPAQjTrwiGfW8Q4utTxTsEpMGS+zuzzkTpLpj98GM9vWCfSwWlKaXpUUM4wgedyt0DwCd6HSByajViQ==}
+  '@gwenjs/app@0.3.0':
+    resolution: {integrity: sha512-V79h33F37+cGcaoV4JIwLLDFAT9/C27nNUlkiY1c9NpdpBxvc0vp4e3GklaqrGuxdSDe+PcpDX9h7zXYzJH5yQ==}
 
   '@gwenjs/core@0.2.0':
     resolution: {integrity: sha512-z3nYndh8VINC/9YuKmrhh/mFZmoCeusKe+wy3zH9z1S+ky5OAHFoUuL8PxY469rw/qkEbHgPyGYKeVZzN4ykPg==}
 
-  '@gwenjs/kit@0.1.0':
-    resolution: {integrity: sha512-Q8OBVG2lPRoIcS8P5s1Cyy3CudH/sB0TLiHigX960vvCxoEchol8jdj6cxGCuZn2dRvH+8n0KuTIrWT3amL/TQ==}
+  '@gwenjs/core@0.2.2':
+    resolution: {integrity: sha512-+4qgKvNZuDEpk2DqV84S1K9tH4RWo7eIdGn6Rgk/KOTM5cuQITjvY4wvLQ5mjvW47BN1YgYe+Q2F7zaR/j51Ug==}
 
   '@gwenjs/kit@0.2.0':
     resolution: {integrity: sha512-k1yXWNSprTvDWSFlpz9+NKRCVmXlM6pSbpfsCAC1gIZtuxQgDzAttAb+05BxAMgVRGVdA1KQkV2jjr+JiRFS4g==}
 
-  '@gwenjs/math@0.1.0':
-    resolution: {integrity: sha512-poCUKRvlpeZdl0wuZb4favhubgt+Jxs2M39Gc1QhLo8II6gglIjpz/O+p3VFDag1eZ036mN6G7LuoI6c0Byytg==}
+  '@gwenjs/kit@0.2.1':
+    resolution: {integrity: sha512-VKsquDozrJTcqNx4wWzd54RmTvxwm0BFQe4WiOTouqPIUcuL5h28ysCSK+L3oyxkjPtE0W+CYn6oOhKEbofjtw==}
 
   '@gwenjs/math@0.1.1':
     resolution: {integrity: sha512-LBz868ZBxvADW1zKaqqz8EJp70ouMesL5VJaze2ga6I9DlO3rOFMNPQSSFmmSdEYx+12crf2Q2CfVvJVTqvnQQ==}
 
-  '@gwenjs/schema@0.1.0':
-    resolution: {integrity: sha512-rM9WV1TcBv4TvF6wj+wfg8PToGY+7rbAIVtca61ha4W6j4TGlHKlHYIwTnY3SOiMYtYzZArSPYcgaoEx3xczyA==}
+  '@gwenjs/renderer-core@0.4.0':
+    resolution: {integrity: sha512-aM1kB0Z2wI8D7mEskNx0ONnUSndNW7LNVAstYPVoE9h8PhrQVIcbfeslmEnG6FjHZq8HqL82JaloQouARBAg9A==}
 
   '@gwenjs/schema@0.1.1':
     resolution: {integrity: sha512-nPNl/iCn3vAZwOSgeWzVAPRtaztIFMvB7TNT0/yQ2tm8ropU02MbjOJwU3Tef2oP9/8HaF7x0bL+HVHR4d1vbQ==}
@@ -2785,9 +2782,10 @@ snapshots:
   '@esbuild/win32-x64@0.21.5':
     optional: true
 
-  '@gwenjs/app@0.1.0(jiti@2.6.1)(magicast@0.5.2)':
+  '@gwenjs/app@0.3.0(jiti@2.6.1)(magicast@0.5.2)':
     dependencies:
-      '@gwenjs/kit': 0.1.0
+      '@gwenjs/kit': 0.2.0
+      '@gwenjs/renderer-core': 0.4.0
       c12: 4.0.0-beta.3(jiti@2.6.1)(magicast@0.5.2)
       defu: 6.1.7
       hookable: 6.1.0
@@ -2798,13 +2796,6 @@ snapshots:
       - jiti
       - magicast
 
-  '@gwenjs/core@0.1.0':
-    dependencies:
-      '@gwenjs/math': 0.1.0
-      '@gwenjs/schema': 0.1.0
-      hookable: 6.1.0
-      unctx: 2.5.0
-
   '@gwenjs/core@0.2.0':
     dependencies:
       '@gwenjs/math': 0.1.1
@@ -2812,23 +2803,28 @@ snapshots:
       hookable: 6.1.0
       unctx: 2.5.0
 
-  '@gwenjs/kit@0.1.0':
+  '@gwenjs/core@0.2.2':
     dependencies:
-      '@gwenjs/core': 0.1.0
-      '@gwenjs/schema': 0.1.0
+      '@gwenjs/math': 0.1.1
+      '@gwenjs/schema': 0.1.1
+      hookable: 6.1.0
+      unctx: 2.5.0
 
   '@gwenjs/kit@0.2.0':
     dependencies:
       '@gwenjs/core': 0.2.0
       '@gwenjs/schema': 0.1.1
 
-  '@gwenjs/math@0.1.0': {}
+  '@gwenjs/kit@0.2.1':
+    dependencies:
+      '@gwenjs/core': 0.2.2
+      '@gwenjs/schema': 0.1.1
 
   '@gwenjs/math@0.1.1': {}
 
-  '@gwenjs/schema@0.1.0':
+  '@gwenjs/renderer-core@0.4.0':
     dependencies:
-      defu: 6.1.7
+      '@gwenjs/core': 0.2.0
 
   '@gwenjs/schema@0.1.1':
     dependencies:
